@@ -131,8 +131,8 @@ export const PARAMETER_CONFIG = {
   TECHNICALITY: {
     rotations: {
       label: 'Rotations (Front/Back)',
-      max: 1.0,
-      map: { '1': 0.2, '2': 0.4, '3': 0.6, '4': 0.8, '5+': 1.0 },
+      max: 0.8,
+      map: { '1': 0.25, '2': 0.50, '3': 0.80 },
     },
     rotation_axis: {
       label: 'Rotation Axis',
@@ -141,18 +141,18 @@ export const PARAMETER_CONFIG = {
     },
     board_off: {
       label: 'Board Off',
-      max: 0.3,
-      map: { yes: 0.3, no: 0 },
+      max: 1.0,
+      map: { yes: 1.0, no: 0 },
     },
     board_flip: {
       label: 'Board Flip',
-      max: 0.4,
-      map: { '0': 0, '1': 0.15, '2': 0.25, '3+': 0.4 },
+      max: 0.3,
+      map: { '0': 0, '1': 0.10, '2': 0.20, '3+': 0.30 },
     },
     board_tic_tac: {
       label: 'Board Tic Tac',
-      max: 0.3,
-      map: { '0': 0, '1': 0.1, '2': 0.2, '3+': 0.3 },
+      max: 0.2,
+      map: { '0': 0, '1': 0.07, '2': 0.14, '3+': 0.20 },
     },
   },
   EXECUTION: {

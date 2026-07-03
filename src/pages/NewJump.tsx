@@ -292,11 +292,9 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1" className="text-red-600">1 rotation (0.2 points)</SelectItem>
-                        <SelectItem value="2" className="text-amber-600">2 rotations (0.4 points)</SelectItem>
-                        <SelectItem value="3" className="text-lime-600">3 rotations (0.6 points)</SelectItem>
-                        <SelectItem value="4" className="text-green-600">4 rotations (0.8 points)</SelectItem>
-                        <SelectItem value="5+" className="text-green-600">5+ rotations (1.0 points)</SelectItem>
+                        <SelectItem value="1" className="text-red-600">1 rotation (0.25 pts)</SelectItem>
+                        <SelectItem value="2" className="text-amber-600">2 rotations (0.50 pts)</SelectItem>
+                        <SelectItem value="3" className="text-green-600">3 rotations (0.80 pts — max)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -322,7 +320,7 @@ export default function NewJump() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="no" className="text-red-600">No (0 points)</SelectItem>
-                        <SelectItem value="yes" className="text-lime-600">Yes (0.3 points)</SelectItem>
+                        <SelectItem value="yes" className="text-lime-600">Yes (1.0 points)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -336,10 +334,10 @@ export default function NewJump() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="0" className="text-gray-600">0 flip - 0 pt</SelectItem>
-                            <SelectItem value="1" className="text-amber-600">1 flip (0.15 points)</SelectItem>
-                            <SelectItem value="2" className="text-lime-600">2 flips (0.25 points)</SelectItem>
-                            <SelectItem value="3+" className="text-green-600">3+ flips (0.4 points)</SelectItem>
+                            <SelectItem value="0" className="text-gray-600">0 flips — 0 pt</SelectItem>
+                            <SelectItem value="1" className="text-amber-600">1 flip (0.10 pts)</SelectItem>
+                            <SelectItem value="2" className="text-lime-600">2 flips (0.20 pts)</SelectItem>
+                            <SelectItem value="3+" className="text-green-600">3+ flips (0.30 pts — max)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -351,10 +349,10 @@ export default function NewJump() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="0" className="text-gray-600">0 tic tac - 0 pt</SelectItem>
-                            <SelectItem value="1" className="text-amber-600">1 tic-tac (0.1 points)</SelectItem>
-                            <SelectItem value="2" className="text-lime-600">2 tic-tacs (0.2 points)</SelectItem>
-                            <SelectItem value="3+" className="text-green-600">3+ tic-tacs (0.3 points)</SelectItem>
+                            <SelectItem value="0" className="text-gray-600">0 tic-tacs — 0 pt</SelectItem>
+                            <SelectItem value="1" className="text-amber-600">1 tic-tac (0.07 pts)</SelectItem>
+                            <SelectItem value="2" className="text-lime-600">2 tic-tacs (0.14 pts)</SelectItem>
+                            <SelectItem value="3+" className="text-green-600">3+ tic-tacs (0.20 pts — max)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
