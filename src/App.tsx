@@ -18,6 +18,10 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+declare const __BUILD_TIME__: string;
+const BUILD_TIME = new Date(__BUILD_TIME__);
+const BUILD_LABEL = `${BUILD_TIME.toLocaleDateString('it-IT')} ${BUILD_TIME.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -25,6 +29,9 @@ const App = () => (
         <ScoringProvider>
           <Toaster />
           <Sonner />
+          <div className="fixed bottom-2 right-3 z-[300] text-[10px] text-muted-foreground/50 select-none pointer-events-none tabular-nums">
+            deploy {BUILD_LABEL}
+          </div>
           <BrowserRouter basename={import.meta.env.BASE_URL}>
             <Routes>
               <Route path="/login" element={<Login />} />
