@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -14,19 +14,14 @@ const CREDENTIALS = {
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const authStatus = sessionStorage.getItem('isAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
+  const [isAuthenticated, setIsAuthenticated] = useState(() =>
+    localStorage.getItem('isAuthenticated') === 'true'
+  );
 
   const login = (email: string, password: string): boolean => {
     if (email === CREDENTIALS.email && password === CREDENTIALS.password) {
       setIsAuthenticated(true);
-      sessionStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('isAuthenticated', 'true');
       return true;
     }
     return false;
@@ -34,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setIsAuthenticated(false);
-    sessionStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('isAuthenticated');
   };
 
   return (
