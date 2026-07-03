@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import logo from '@/assets/gka-logo.svg';
+import wooLogo from '@/assets/woo-logo.png';
+import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -26,7 +28,13 @@ export function Header() {
     <header className="bg-card border-b border-border shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <img src={logo} alt="Red Bull" className="h-8" />
+          <div className="flex items-center gap-5">
+            <img src={logo}        alt="GKA"        className="h-8" />
+            <div className="w-px h-6 bg-border" />
+            <img src={wooLogo}     alt="Woo"        className="h-6" />
+            <div className="w-px h-6 bg-border" />
+            <img src={capitalLogo} alt="Capital.com" className="h-6" />
+          </div>
           <h1 className="text-2xl font-bold text-foreground">Big Air Scoring System</h1>
         </div>
         

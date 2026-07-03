@@ -4,6 +4,8 @@ import { X, Play, Film, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import logo from '@/assets/gka-logo.svg';
+import wooLogo from '@/assets/woo-logo.png';
+import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
 import type { JumpParameters } from '@/types/scoring';
 
@@ -266,12 +268,12 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
 
       {/* ── Top bar ── */}
       <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 shrink-0">
-        <div className="flex items-center gap-3">
-          <img src={logo} alt="GKA" className="w-8 h-8" />
-          <div>
-            <div className="font-mono text-white text-xs font-bold tracking-[0.2em]">CAPITAL.COM GKA</div>
-            <div className="font-mono text-zinc-500 text-[9px] tracking-widest">BIG AIR WORLD TOUR</div>
-          </div>
+        <div className="flex items-center gap-4">
+          <img src={logo}        alt="GKA"        className="h-8" />
+          <div className="w-px h-5 bg-white/15" />
+          <img src={wooLogo}     alt="Woo"        className="h-5" />
+          <div className="w-px h-5 bg-white/15" />
+          <img src={capitalLogo} alt="Capital.com" className="h-5" style={{ filter: 'brightness(0) invert(1)' }} />
         </div>
         <button
           onClick={onClose}
@@ -358,9 +360,9 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
 
         {/* ── Woo sensor data (2/5 width) ── */}
         <div className="col-span-2 px-6 py-4 flex flex-col gap-4">
-          <div className="font-mono text-zinc-500 text-[9px] tracking-widest uppercase flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            Woo Sensor Data
+          <div className="flex items-center gap-2">
+            <img src={wooLogo} alt="Woo" className="h-4" />
+            <span className="font-mono text-zinc-500 text-[9px] tracking-widest uppercase">Sensor Data</span>
           </div>
           <div className="grid grid-cols-2 gap-x-5 gap-y-4">
             {wooStats.map(stat => (
@@ -499,8 +501,8 @@ function WooPanel({ woo }: { woo: WooData }) {
   return (
     <div className="border-t border-border pt-4 mt-2">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Woo Sensor Data</span>
+        <img src={wooLogo} alt="Woo" className="h-4" />
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sensor Data</span>
       </div>
       <div className="grid grid-cols-4 gap-3 sm:grid-cols-7">
         {stats.map(s => (
