@@ -4,7 +4,7 @@ import { X, Play, Film, ChevronRight, BarChart2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import logo from '@/assets/gka-logo.svg';
-import wooLogo from '@/assets/woo-logo.png';
+import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
 import type { JumpParameters } from '@/types/scoring';
