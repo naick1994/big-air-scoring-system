@@ -29,7 +29,7 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-5">
-            <img src={logo}        alt="GKA"        className="h-8" />
+            <img src={logo}        alt="GKA"        className="h-12" />
             <div className="w-px h-6 bg-border" />
             <img src={wooLogo}     alt="Woo"        className="h-6" />
             <div className="w-px h-6 bg-border" />
