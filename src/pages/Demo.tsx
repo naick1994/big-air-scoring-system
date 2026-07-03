@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { Play, Pause, Film, ArrowUp, Wind, Timer, Gauge } from 'lucide-react';
+import { useRef } from 'react';
+import { Play, Film, ArrowUp, Wind, Timer, Gauge } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 interface OverlayStat {
@@ -101,28 +101,26 @@ const DEMO_JUMPS: JumpDemo[] = [
 
 function VideoPlayer({ src, overlayStats }: { src?: string; overlayStats: OverlayStat[] }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(true);
 
-  const togglePlay = () => {
+  const openFullscreen = () => {
     if (!videoRef.current) return;
-    if (playing) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play();
+    videoRef.current.play();
+    if (videoRef.current.requestFullscreen) {
+      videoRef.current.requestFullscreen();
     }
-    setPlaying(!playing);
   };
 
   return (
-    <div className="relative w-full aspect-video bg-zinc-900 rounded-xl overflow-hidden group">
+    <div
+      className="relative w-full aspect-video bg-zinc-900 rounded-xl overflow-hidden group cursor-pointer"
+      onClick={openFullscreen}
+    >
       {src ? (
         <video
           ref={videoRef}
           src={src}
           className="w-full h-full object-cover"
-          onEnded={() => setPlaying(false)}
-          onPlay={() => setShowOverlay(true)}
+          controls={false}
         />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-zinc-600">
@@ -132,43 +130,34 @@ function VideoPlayer({ src, overlayStats }: { src?: string; overlayStats: Overla
       )}
 
       {/* Overlay stats badges */}
-      {showOverlay && (
-        <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none">
-          {overlayStats.map((stat) => {
-            const Icon = ICON_MAP[stat.icon];
-            return (
-              <div
-                key={stat.label}
-                className="flex items-center gap-2 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1.5 animate-in fade-in slide-in-from-left-2 duration-500"
-              >
-                <Icon className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-                  {stat.label}
-                </span>
-                <span className="text-sm font-bold text-white ml-1">
-                  {stat.value}
-                  <span className="text-xs text-zinc-400 ml-0.5">{stat.unit}</span>
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none">
+        {overlayStats.map((stat) => {
+          const Icon = ICON_MAP[stat.icon];
+          return (
+            <div
+              key={stat.label}
+              className="flex items-center gap-2 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1.5"
+            >
+              <Icon className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+                {stat.label}
+              </span>
+              <span className="text-sm font-bold text-white ml-1">
+                {stat.value}
+                <span className="text-xs text-zinc-400 ml-0.5">{stat.unit}</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
 
-      {/* Play / Pause button — only shows when there's a real video */}
+      {/* Fullscreen hint on hover */}
       {src && (
-        <button
-          onClick={togglePlay}
-          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-        >
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="bg-black/50 backdrop-blur-sm rounded-full p-4">
-            {playing ? (
-              <Pause className="w-8 h-8 text-white" />
-            ) : (
-              <Play className="w-8 h-8 text-white fill-white" />
-            )}
+            <Play className="w-8 h-8 text-white fill-white" />
           </div>
-        </button>
+        </div>
       )}
     </div>
   );
@@ -244,8 +233,6 @@ function JumpCard({ jump }: { jump: JumpDemo }) {
 }
 
 export default function Demo() {
-  const totalScore = DEMO_JUMPS.reduce((sum, j) => sum + j.score, 0);
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
@@ -261,16 +248,6 @@ export default function Demo() {
         </div>
       </div>
 
-      {/* Total score banner */}
-      <Card className="p-6 mb-8 shadow-[var(--shadow-card)] bg-gradient-to-br from-card to-primary/5 text-center">
-        <p className="text-sm text-muted-foreground mb-1">Combined Score (3 Jumps)</p>
-        <div className="text-6xl font-black text-primary">
-          {totalScore.toFixed(2)}
-          <span className="text-3xl text-muted-foreground font-normal"> / 30</span>
-        </div>
-      </Card>
-
-      {/* Jump cards */}
       <div className="space-y-8">
         {DEMO_JUMPS.map((jump) => (
           <JumpCard key={jump.id} jump={jump} />
