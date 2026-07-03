@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { X, Play, Film, ChevronRight, BarChart2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -355,10 +356,7 @@ function VideoPlayer({ jump }: { jump: JumpDemo }) {
               <X className="w-4 h-4" />
             </button>
           )}
-          <div
-            className="relative w-full"
-            style={{ aspectRatio: '16/9', maxHeight: '100vh', maxWidth: 'calc(100vh * 16 / 9)', background: '#000' }}
-          >
+          <div className="relative w-full h-full" style={{ background: '#000' }}>
             <video
               ref={videoRef}
               src={jump.videoSrc}
@@ -475,15 +473,13 @@ function JumpCard({ jump }: { jump: JumpDemo }) {
         </div>
       </Card>
 
-      {showRecap && (
-        <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center">
-          <div
-            className="relative w-full"
-            style={{ aspectRatio: '16/9', maxHeight: '100vh', maxWidth: 'calc(100vh * 16 / 9)', background: '#000' }}
-          >
+      {showRecap && createPortal(
+        <div className="fixed inset-0 z-[200] bg-black">
+          <div className="relative w-full h-full" style={{ background: '#000' }}>
             <RecapScreen jump={jump} onClose={() => setShowRecap(false)} />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
