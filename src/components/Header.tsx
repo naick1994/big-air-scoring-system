@@ -19,6 +19,7 @@ export function Header() {
     ...(showOverallImpression ? [{ path: '/overall-impression', label: 'Overall Impression' }] : []),
     { path: '/result', label: 'Result' },
     { path: '/parameters-guide', label: 'Parameters Guide' },
+    { path: '/demo', label: 'Demo' },
   ];
 
   return (

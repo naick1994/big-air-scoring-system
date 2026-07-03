@@ -12,6 +12,7 @@ import PresetEvents from "./pages/PresetEvents";
 import Result from "./pages/Result";
 import ParametersGuide from "./pages/ParametersGuide";
 import OverallImpression from "./pages/OverallImpression";
+import Demo from "./pages/Demo";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
                       <Route path="/result" element={<Result />} />
                       <Route path="/parameters-guide" element={<ParametersGuide />} />
                       <Route path="/overall-impression" element={<OverallImpression />} />
+                      <Route path="/demo" element={<Demo />} />
                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>
