@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Play, Film, ChevronRight } from 'lucide-react';
+import { X, Play, Film, ChevronRight, BarChart2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import logo from '@/assets/gka-logo.svg';
@@ -519,38 +519,64 @@ function WooPanel({ woo }: { woo: WooData }) {
 // ─── Jump card ────────────────────────────────────────────────────────────────
 
 function JumpCard({ jump }: { jump: JumpDemo }) {
+  const [showRecap, setShowRecap] = useState(false);
+
   return (
-    <Card className="overflow-hidden shadow-[var(--shadow-card)]">
-      <div className="flex items-start justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-card to-primary/5">
-        <div>
-          <h3 className="text-lg font-bold text-foreground">{jump.label} · {jump.athlete}</h3>
-          <p className="text-sm font-semibold text-orange-500">{jump.trick}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Capital.com GKA Big Air</p>
-        </div>
-        <div className="text-right shrink-0 ml-4">
-          <div className="text-4xl font-black text-primary leading-none">{jump.score.toFixed(2)}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">/ 10</div>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 pb-4">
-        <VideoPlayer jump={jump} />
-        <div className="flex flex-col justify-center gap-4">
-          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Score Breakdown</h4>
-          <div className="space-y-4">
-            {jump.areas.map(area => <ScoreBar key={area.name} area={area} />)}
+    <>
+      <Card className="overflow-hidden shadow-[var(--shadow-card)]">
+        <div className="flex items-start justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-card to-primary/5">
+          <div>
+            <h3 className="text-lg font-bold text-foreground">{jump.label} · {jump.athlete}</h3>
+            <p className="text-sm font-semibold text-orange-500">{jump.trick}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Capital.com GKA Big Air</p>
           </div>
-          <div className="mt-2 pt-4 border-t border-border flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Total</span>
-            <span className="text-2xl font-black text-primary">
-              {jump.score.toFixed(2)}<span className="text-base font-normal text-muted-foreground"> / 10</span>
-            </span>
+          <div className="flex items-center gap-4 ml-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={() => setShowRecap(true)}
+            >
+              <BarChart2 className="w-3.5 h-3.5" />
+              Score Breakdown
+            </Button>
+            <div className="text-right shrink-0">
+              <div className="text-4xl font-black text-primary leading-none">{jump.score.toFixed(2)}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">/ 10</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="px-6 pb-5">
-        <WooPanel woo={jump.woo} />
-      </div>
-    </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 pb-4">
+          <VideoPlayer jump={jump} />
+          <div className="flex flex-col justify-center gap-4">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Score Breakdown</h4>
+            <div className="space-y-4">
+              {jump.areas.map(area => <ScoreBar key={area.name} area={area} />)}
+            </div>
+            <div className="mt-2 pt-4 border-t border-border flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-2xl font-black text-primary">
+                {jump.score.toFixed(2)}<span className="text-base font-normal text-muted-foreground"> / 10</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="px-6 pb-5">
+          <WooPanel woo={jump.woo} />
+        </div>
+      </Card>
+
+      {showRecap && (
+        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+          <div
+            className="relative w-full"
+            style={{ aspectRatio: '16/9', maxHeight: '100vh', maxWidth: 'calc(100vh * 16 / 9)' }}
+          >
+            <RecapScreen jump={jump} onClose={() => setShowRecap(false)} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
