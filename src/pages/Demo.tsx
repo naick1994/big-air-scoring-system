@@ -9,8 +9,12 @@ interface WooData {
   maxHeight: number;
   airtime: number;
   distance: number;
-  peakTimeRatio: number;  // 0-1: fraction of airtime when max height is reached
-  takeoffOffset: number;  // seconds into the clip before the jump starts
+  maxSpeed: number;
+  approachSpeed: number;
+  windAngle: number;
+  quality: 'Good' | 'OK';
+  peakTimeRatio: number;
+  takeoffOffset: number;
 }
 
 interface AreaScore {
@@ -47,7 +51,7 @@ const DEMO_JUMPS: JumpDemo[] = [
       { name: 'TECHNICALITY', score: 2.54, maxScore: 4.50, gradient: 'from-amber-500 to-yellow-400' },
       { name: 'EXECUTION',    score: 2.03, maxScore: 2.50, gradient: 'from-green-500 to-lime-400' },
     ],
-    woo: { maxHeight: 17.5, airtime: 7.0, distance: 121, peakTimeRatio: 0.30, takeoffOffset: 0 },
+    woo: { maxHeight: 17.5, airtime: 7.0, distance: 121, maxSpeed: 65, approachSpeed: 28, windAngle: 6,  quality: 'Good', peakTimeRatio: 0.30, takeoffOffset: 0 },
   },
   {
     id: 2,
@@ -62,7 +66,7 @@ const DEMO_JUMPS: JumpDemo[] = [
       { name: 'TECHNICALITY', score: 3.21, maxScore: 4.50, gradient: 'from-amber-500 to-yellow-400' },
       { name: 'EXECUTION',    score: 1.96, maxScore: 2.50, gradient: 'from-green-500 to-lime-400' },
     ],
-    woo: { maxHeight: 19.8, airtime: 7.5, distance: 83, peakTimeRatio: 0.33, takeoffOffset: 0 },
+    woo: { maxHeight: 19.8, airtime: 7.5, distance: 83,  maxSpeed: 52, approachSpeed: 30, windAngle: 11, quality: 'Good', peakTimeRatio: 0.33, takeoffOffset: 0 },
   },
   {
     id: 3,
@@ -77,99 +81,32 @@ const DEMO_JUMPS: JumpDemo[] = [
       { name: 'TECHNICALITY', score: 3.86, maxScore: 4.50, gradient: 'from-amber-500 to-yellow-400' },
       { name: 'EXECUTION',    score: 2.40, maxScore: 2.50, gradient: 'from-green-500 to-lime-400' },
     ],
-    woo: { maxHeight: 18.4, airtime: 6.8, distance: 94, peakTimeRatio: 0.29, takeoffOffset: 0 },
+    woo: { maxHeight: 18.4, airtime: 6.8, distance: 94,  maxSpeed: 56, approachSpeed: 28, windAngle: 19, quality: 'OK',   peakTimeRatio: 0.29, takeoffOffset: 0 },
   },
 ];
 
-// ─── Curve math ───────────────────────────────────────────────────────────────
-// SVG viewBox: 0 0 1000 160  |  ground y=160, peak y=0
-//
-// Shape calibrated on Woo screenshots:
-//   Rise  → tangent starts flat at ground, sweeps up steeply (kite physics)
-//   Peak  → flat horizontal tangent (momentarily weightless)
-//   Fall  → long gradual arc back down (rider drifting)
-//
-// Path: M 0 160  C 0 160  (px*0.55) 0  px 0
-//               C (px+tail*0.4) 0  1000 160  1000 160
-
-function bez(t: number, a: number, b: number, c: number, d: number): number {
-  const m = 1 - t;
-  return m*m*m*a + 3*m*m*t*b + 3*m*t*t*c + t*t*t*d;
-}
-
-const GND = 160; // viewBox ground y
-
-function buildCurvePath(r: number): string {
-  const px   = r * 1000;
-  const tail = 1000 - px;
-  return [
-    `M 0 ${GND}`,
-    `C 0 ${GND} ${(px * 0.55).toFixed(1)} 0 ${px.toFixed(1)} 0`,
-    `C ${(px + tail * 0.4).toFixed(1)} 0 1000 ${GND} 1000 ${GND}`,
-  ].join(' ');
-}
-
-// Returns [x, y] in viewBox coords.
-// Tracks the leading tip of the drawn arc; freezes at peak (y=0) once passed.
-function leadingEdge(progress: number, r: number): [number, number] {
-  if (progress <= 0) return [0, GND];
-  const px = r * 1000;
-  if (progress >= r) return [px, 0];
-  // Rise bezier: P0=(0,GND) P1=(0,GND) P2=(px*0.55,0) P3=(px,0)
-  const t = progress / r;
-  return [
-    bez(t, 0,   0,         px * 0.55, px),
-    bez(t, GND, GND,       0,         0),
-  ];
-}
-
-// ─── GKA broadcast HUD (shown during replay) ──────────────────────────────────
-// Curve: max 25% of video height, anchored at the bottom.
-// Stats row sits just above the curve so the rider is never covered.
-
-const CURVE_H = '25%'; // height of the SVG relative to the video container
+// ─── GKA broadcast HUD (no curve — text overlay only) ────────────────────────
 
 function GKAReplayHUD({ jump, currentTime }: { jump: JumpDemo; currentTime: number }) {
   const { woo } = jump;
-  const elapsed   = Math.max(0, currentTime - woo.takeoffOffset);
-  const progress  = Math.min(elapsed / woo.airtime, 1);
-  const clipW     = progress * 1000;
-  const [dotX, dotY] = leadingEdge(progress, woo.peakTimeRatio);
+  const elapsed  = Math.max(0, currentTime - woo.takeoffOffset);
+  const progress = Math.min(elapsed / woo.airtime, 1);
 
   const airSecs   = Math.floor(Math.min(elapsed, woo.airtime));
   const distNow   = Math.round(woo.distance * progress);
   const hRatio    = Math.min(progress / woo.peakTimeRatio, 1);
   const heightNow = (woo.maxHeight * hRatio).toFixed(1);
 
-  const path = buildCurvePath(woo.peakTimeRatio);
+  const sh = (s: string) => ({ textShadow: s });
 
   return (
     <div className="absolute inset-0 pointer-events-none select-none">
-
-      {/* ── Curve SVG — 25% height, bottom-anchored ── */}
-      <svg
-        className="absolute bottom-0 left-0 w-full"
-        style={{ height: CURVE_H }}
-        viewBox={`0 0 1000 ${GND}`}
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <clipPath id={`jc${jump.id}`}>
-            <rect x={0} y={0} width={clipW} height={GND} />
-          </clipPath>
-        </defs>
-        <path d={`${path} Z`} fill="rgba(255,255,255,0.70)" clipPath={`url(#jc${jump.id})`} />
-        <path d={path} fill="none" stroke="rgba(255,255,255,0.93)" strokeWidth="4" strokeLinecap="round" clipPath={`url(#jc${jump.id})`} />
-        {progress > 0.01 && (
-          <circle cx={dotX} cy={dotY} r="11" fill="#f97316" />
-        )}
-      </svg>
 
       {/* ── Top-left: athlete + trick + REPLAY badge ── */}
       <div className="absolute top-4 left-4">
         <div className="bg-black/65 px-3 py-2 mb-2.5 inline-block">
           <div className="font-mono text-white text-sm font-bold tracking-widest leading-tight"
-               style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>
+               style={sh('0 1px 4px rgba(0,0,0,0.9)')}>
             {jump.athlete.toUpperCase()}
           </div>
           <div className="font-mono text-orange-300 text-[11px] tracking-wide leading-tight mt-0.5">
@@ -182,7 +119,7 @@ function GKAReplayHUD({ jump, currentTime }: { jump: JumpDemo; currentTime: numb
         <div className="flex items-center gap-2.5">
           <img src={logo} alt="GKA" className="w-9 h-9" />
           <span className="font-bold text-white text-xl tracking-[0.22em]"
-                style={{ textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
+                style={sh('0 1px 6px rgba(0,0,0,0.9)')}>
             REPLAY
           </span>
         </div>
@@ -191,46 +128,47 @@ function GKAReplayHUD({ jump, currentTime }: { jump: JumpDemo; currentTime: numb
       {/* ── Top-right: score ── */}
       <div className="absolute top-4 right-4 text-right">
         <div className="font-mono text-zinc-300 text-[11px] tracking-widest uppercase"
-             style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Score</div>
+             style={sh('0 1px 4px rgba(0,0,0,0.9)')}>Score</div>
         <div className="text-white font-black text-6xl leading-none tabular-nums"
-             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}>
+             style={sh('0 2px 8px rgba(0,0,0,0.9)')}>
           {jump.score.toFixed(2)}
         </div>
         <div className="text-zinc-400 text-sm">/ 10</div>
       </div>
 
-      {/* ── Stats row: anchored just above the 25% curve ── */}
-      <div
-        className="absolute inset-x-4 flex items-end justify-between"
-        style={{ bottom: 'calc(25% + 10px)' }}
-      >
+      {/* ── Bottom stats row ── */}
+      <div className="absolute bottom-12 inset-x-4 flex items-end justify-between">
         <div>
           <div className="font-mono text-zinc-200 text-[10px] tracking-widest uppercase mb-0.5"
-               style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>AIR, s</div>
+               style={sh('0 1px 4px rgba(0,0,0,0.9)')}>AIR, s</div>
           <div className="text-orange-400 font-black text-5xl leading-none tabular-nums"
-               style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}>{airSecs}</div>
+               style={sh('0 2px 6px rgba(0,0,0,0.9)')}>
+            {airSecs}
+          </div>
         </div>
         <div className="text-center">
           <div className="font-mono text-zinc-200 text-[10px] tracking-widest uppercase mb-0.5"
-               style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>DISTANCE</div>
+               style={sh('0 1px 4px rgba(0,0,0,0.9)')}>DISTANCE</div>
           <div className="text-orange-400 font-black text-5xl leading-none tabular-nums"
-               style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}>
+               style={sh('0 2px 6px rgba(0,0,0,0.9)')}>
             {distNow}<span className="text-2xl font-bold ml-0.5">m</span>
           </div>
         </div>
         <div className="text-right">
           <div className="font-mono text-zinc-200 text-[10px] tracking-widest uppercase mb-0.5"
-               style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>MAX HEIGHT, m</div>
+               style={sh('0 1px 4px rgba(0,0,0,0.9)')}>MAX HEIGHT, m</div>
           <div className="text-orange-400 font-black text-5xl leading-none tabular-nums"
-               style={{ textShadow: '0 2px 6px rgba(0,0,0,0.9)' }}>{heightNow}</div>
+               style={sh('0 2px 6px rgba(0,0,0,0.9)')}>
+            {heightNow}
+          </div>
         </div>
       </div>
 
-      {/* ── Progress timeline at very bottom ── */}
-      <div className="absolute bottom-2.5 inset-x-4 flex items-center gap-1.5">
+      {/* ── Progress timeline ── */}
+      <div className="absolute bottom-4 inset-x-4 flex items-center gap-1.5">
         <div className="w-1.5 h-1.5 rounded-full bg-white/60" />
-        <div className="flex-1 h-px bg-white/20">
-          <div className="h-full bg-white/65 transition-none" style={{ width: `${progress * 100}%` }} />
+        <div className="flex-1 h-px bg-white/25">
+          <div className="h-full bg-white/70 transition-none" style={{ width: `${progress * 100}%` }} />
         </div>
         <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
       </div>
@@ -275,14 +213,14 @@ type VState = 'idle' | 'playing' | 'replay-prompt' | 'replaying';
 function VideoPlayer({ jump }: { jump: JumpDemo }) {
   const [open, setOpen]       = useState(false);
   const [vState, setVState]   = useState<VState>('idle');
-  const [currentTime, setCT]  = useState(0);
-  const videoRef   = useRef<HTMLVideoElement>(null);
-  const firstPlay  = useRef(true);
+  const [curTime, setCurTime] = useState(0);
+  const videoRef  = useRef<HTMLVideoElement>(null);
+  const firstPlay = useRef(true);
 
   const openModal = () => {
     if (!jump.videoSrc) return;
     firstPlay.current = true;
-    setCT(0);
+    setCurTime(0);
     setOpen(true);
     setVState('playing');
   };
@@ -292,24 +230,25 @@ function VideoPlayer({ jump }: { jump: JumpDemo }) {
     if (videoRef.current) videoRef.current.currentTime = 0;
     setOpen(false);
     setVState('idle');
-    setCT(0);
+    setCurTime(0);
   };
 
   const handleEnded = () => {
-    if (firstPlay.current) { firstPlay.current = false; setVState('replay-prompt'); }
+    if (!firstPlay.current) return;
+    firstPlay.current = false;
+    setVState('replay-prompt');
   };
 
-  const handleReplay = () => {
+  const startReplay = () => {
     if (!videoRef.current) return;
     videoRef.current.currentTime = 0;
     videoRef.current.play().catch(() => {});
-    setCT(0);
+    setCurTime(0);
     setVState('replaying');
   };
 
   return (
     <>
-      {/* Card thumbnail */}
       <div
         className="relative w-full aspect-video bg-zinc-900 rounded-xl overflow-hidden group cursor-pointer"
         onClick={openModal}
@@ -327,18 +266,15 @@ function VideoPlayer({ jump }: { jump: JumpDemo }) {
         )}
       </div>
 
-      {/* Fullscreen modal */}
       {open && (
         <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-          {/* Close */}
           <button
             onClick={closeModal}
-            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
 
-          {/* 16:9 container */}
           <div
             className="relative w-full"
             style={{ aspectRatio: '16/9', maxHeight: '100vh', maxWidth: 'calc(100vh * 16 / 9)' }}
@@ -348,18 +284,12 @@ function VideoPlayer({ jump }: { jump: JumpDemo }) {
               src={jump.videoSrc}
               className="absolute inset-0 w-full h-full object-cover"
               onEnded={handleEnded}
-              onTimeUpdate={() => setCT(videoRef.current?.currentTime ?? 0)}
+              onTimeUpdate={() => setCurTime(videoRef.current?.currentTime ?? 0)}
               playsInline
               autoPlay
             />
-
-            {vState === 'replaying' && (
-              <GKAReplayHUD jump={jump} currentTime={currentTime} />
-            )}
-
-            {vState === 'replay-prompt' && (
-              <ReplayPrompt jump={jump} onReplay={handleReplay} />
-            )}
+            {vState === 'replaying'     && <GKAReplayHUD jump={jump} currentTime={curTime} />}
+            {vState === 'replay-prompt' && <ReplayPrompt jump={jump} onReplay={startReplay} />}
           </div>
         </div>
       )}
@@ -381,7 +311,43 @@ function ScoreBar({ area }: { area: AreaScore }) {
         </span>
       </div>
       <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
-        <div className={`h-full bg-gradient-to-r ${area.gradient} transition-all duration-700`} style={{ width: `${pct}%` }} />
+        <div
+          className={`h-full bg-gradient-to-r ${area.gradient} transition-all duration-700`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Woo sensor data panel ────────────────────────────────────────────────────
+
+function WooPanel({ woo }: { woo: WooData }) {
+  const stats: { label: string; value: string }[] = [
+    { label: 'Max Height', value: `${woo.maxHeight} m` },
+    { label: 'Airtime',    value: `${woo.airtime} s` },
+    { label: 'Distance',   value: `${woo.distance} m` },
+    { label: 'Max Speed',  value: `${woo.maxSpeed} km/h` },
+    { label: 'Approach',   value: `${woo.approachSpeed} km/h` },
+    { label: 'Wind Angle', value: `${woo.windAngle}°` },
+    { label: 'Quality',    value: woo.quality },
+  ];
+
+  return (
+    <div className="border-t border-border pt-4 mt-2">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Woo Sensor Data</span>
+      </div>
+      <div className="grid grid-cols-4 gap-3 sm:grid-cols-7">
+        {stats.map(s => (
+          <div key={s.label} className="text-center">
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider leading-tight mb-0.5">
+              {s.label}
+            </div>
+            <div className="text-sm font-bold text-foreground tabular-nums">{s.value}</div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -398,12 +364,13 @@ function JumpCard({ jump }: { jump: JumpDemo }) {
           <p className="text-sm font-semibold text-orange-500">{jump.trick}</p>
           <p className="text-xs text-muted-foreground mt-0.5">Capital.com GKA Big Air</p>
         </div>
-        <div className="text-right">
+        <div className="text-right shrink-0 ml-4">
           <div className="text-4xl font-black text-primary leading-none">{jump.score.toFixed(2)}</div>
           <div className="text-xs text-muted-foreground mt-0.5">/ 10</div>
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 pb-4">
         <VideoPlayer jump={jump} />
         <div className="flex flex-col justify-center gap-4">
           <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Score Breakdown</h4>
@@ -418,6 +385,10 @@ function JumpCard({ jump }: { jump: JumpDemo }) {
           </div>
         </div>
       </div>
+
+      <div className="px-6 pb-5">
+        <WooPanel woo={jump.woo} />
+      </div>
     </Card>
   );
 }
@@ -431,7 +402,7 @@ export default function Demo() {
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-1">Live Demo</h2>
           <p className="text-muted-foreground">
-            3 real competition jumps · scored with objective Woo sensor data · no judge subjectivity.
+            3 real competition jumps · objective Woo sensor data · no judge subjectivity.
           </p>
         </div>
         <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2">
