@@ -42,7 +42,7 @@ const DEMO_JUMPS: JumpDemo[] = [
     label: 'Jump 1',
     athlete: 'Leonardo Casati',
     event: 'Capital.com GKA Big Air',
-    videoSrc: '/videos/LEO_8.07.mp4',
+    videoSrc: `${import.meta.env.BASE_URL}videos/LEO_8.07.mp4`,
     score: 8.07,
     areas: [
       { name: 'HEIGHT',       score: 1.47, maxScore: 2.00, gradient: 'from-blue-500 to-cyan-400' },
@@ -62,7 +62,7 @@ const DEMO_JUMPS: JumpDemo[] = [
     label: 'Jump 2',
     athlete: 'Leonardo Casati',
     event: 'Capital.com GKA Big Air',
-    videoSrc: '/videos/LEO_8.37.mp4',
+    videoSrc: `${import.meta.env.BASE_URL}videos/LEO_8.37.mp4`,
     score: 8.37,
     areas: [
       { name: 'HEIGHT',       score: 1.80, maxScore: 2.00, gradient: 'from-blue-500 to-cyan-400' },
@@ -82,7 +82,7 @@ const DEMO_JUMPS: JumpDemo[] = [
     label: 'Jump 3',
     athlete: 'Lorenzo Casati',
     event: 'Capital.com GKA Big Air',
-    videoSrc: '/videos/LORE_9.40.mp4',
+    videoSrc: `${import.meta.env.BASE_URL}videos/LORE_9.40.mp4`,
     score: 9.40,
     areas: [
       { name: 'HEIGHT',       score: 1.65, maxScore: 2.00, gradient: 'from-blue-500 to-cyan-400' },
