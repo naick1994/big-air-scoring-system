@@ -28,9 +28,9 @@ const JUDGE_NAMES_SHORT = {
 
 const BRACKET_BADGE_COLORS = [
   'bg-destructive/20 text-destructive border-destructive/30',
-  'bg-amber-500/20 text-amber-700 border-amber-500/30',
-  'bg-lime-500/20 text-lime-700 border-lime-500/30',
-  'bg-green-500/20 text-green-700 border-green-500/30',
+  'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  'bg-lime-500/20 text-lime-400 border-lime-500/30',
+  'bg-green-500/20 text-green-400 border-green-500/30',
 ];
 
 const PRESET_NAME_TO_KEY: Record<string, EventPreset> = {
@@ -185,11 +185,11 @@ export default function PresetEvents() {
               <div className="flex items-center gap-2 mb-4">
                 <h4 className="font-semibold">Custom Weights</h4>
                 {isValid ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
                 ) : (
                   <XCircle className="w-5 h-5 text-destructive" />
                 )}
-                <span className={`text-sm ${isValid ? 'text-green-600' : 'text-destructive'}`}>
+                <span className={`text-sm ${isValid ? 'text-green-400' : 'text-destructive'}`}>
                   Sum: {customWeights.HEIGHT + customWeights.EXTREMITY + customWeights.TECHNICALITY + customWeights.EXECUTION}%
                 </span>
               </div>

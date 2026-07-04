@@ -42,11 +42,11 @@ export default function ParametersGuide() {
               </div>
               <div className="text-center p-4 bg-card rounded-lg border">
                 <div className="text-sm text-muted-foreground mb-1">TECHNICALITY</div>
-                <div className="text-2xl font-bold text-amber-600">{weights.TECHNICALITY}%</div>
+                <div className="text-2xl font-bold text-amber-400">{weights.TECHNICALITY}%</div>
               </div>
               <div className="text-center p-4 bg-card rounded-lg border">
                 <div className="text-sm text-muted-foreground mb-1">EXECUTION</div>
-                <div className="text-2xl font-bold text-lime-600">{weights.EXECUTION}%</div>
+                <div className="text-2xl font-bold text-lime-400">{weights.EXECUTION}%</div>
               </div>
             </div>
           </CardContent>
@@ -75,9 +75,9 @@ export default function ParametersGuide() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">{heightBracketLabel('b1', ht)}: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">{heightBracketLabel('b2', ht)}: 0.6 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">{heightBracketLabel('b3', ht)}: 0.9 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">{heightBracketLabel('b4', ht)}: 1.5 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">{heightBracketLabel('b2', ht)}: 0.6 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">{heightBracketLabel('b3', ht)}: 0.9 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">{heightBracketLabel('b4', ht)}: 1.5 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.HEIGHT.height.max} points</div>
                 </div>
@@ -90,9 +90,9 @@ export default function ParametersGuide() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">{amplitudeBracketLabel('b1', at)}: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">{amplitudeBracketLabel('b2', at)}: 0.33 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">{amplitudeBracketLabel('b3', at)}: 0.67 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">{amplitudeBracketLabel('b4', at)}: 1.0 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">{amplitudeBracketLabel('b2', at)}: 0.33 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">{amplitudeBracketLabel('b3', at)}: 0.67 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">{amplitudeBracketLabel('b4', at)}: 1.0 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.HEIGHT.amplitude.max} points</div>
                 </div>
@@ -121,9 +121,9 @@ export default function ParametersGuide() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">High: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">Medium: 0.25 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">Low: 0.5 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">Super Low: 0.75 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">Medium: 0.25 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Low: 0.5 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">Super Low: 0.75 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.kite_angle.max} points</div>
                 </div>
@@ -136,9 +136,9 @@ export default function ParametersGuide() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">None: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">Low: 0.25 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">Medium: 0.5 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">Bomb: 0.75 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">Low: 0.25 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Medium: 0.5 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">Bomb: 0.75 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.yank_power.max} points</div>
                 </div>
@@ -151,8 +151,8 @@ export default function ParametersGuide() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">Poor: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">Medium: 0.25 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">High: 0.5 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Medium: 0.25 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">High: 0.5 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.free_fall.max} points</div>
                 </div>
@@ -181,9 +181,9 @@ export default function ParametersGuide() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">1 rotation: 0.25 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">2 rotations: 0.50 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">3 rotations: 0.75 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">4+ rotations: 1.0 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">2 rotations: 0.50 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">3 rotations: 0.75 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">4+ rotations: 1.0 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.TECHNICALITY.rotations.max} points</div>
                 </div>
@@ -195,8 +195,8 @@ export default function ParametersGuide() {
                     Axis of rotation - horizontal rotations (front/back flips) score higher than vertical rotations (spins)
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">Vertical: 0.2 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">Horizontal: 0.5 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">Vertical: 0.2 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Horizontal: 0.5 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.TECHNICALITY.rotation_axis.max} points</div>
                 </div>
@@ -209,7 +209,7 @@ export default function ParametersGuide() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">No: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">Yes: 0.3 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Yes: 0.3 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.TECHNICALITY.board_off.max} points</div>
                 </div>
@@ -221,9 +221,9 @@ export default function ParametersGuide() {
                     Number of board flips performed (only applies if Board Off = Yes)
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">1 flip: 0.15 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">2 flips: 0.25 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">3+ flips: 0.4 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">1 flip: 0.15 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">2 flips: 0.25 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">3+ flips: 0.4 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.TECHNICALITY.board_flip.max} points (conditional)</div>
                 </div>
@@ -235,9 +235,9 @@ export default function ParametersGuide() {
                     Number of board tic-tacs performed (only applies if Board Off = Yes)
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">1 tic-tac: 0.1 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">2 tic-tacs: 0.2 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">3+ tic-tacs: 0.3 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">1 tic-tac: 0.1 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">2 tic-tacs: 0.2 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">3+ tic-tacs: 0.3 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.TECHNICALITY.board_tic_tac.max} points (conditional)</div>
                 </div>
@@ -279,7 +279,7 @@ export default function ParametersGuide() {
                       <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-destructive via-amber-500 via-lime-500 to-green-500 w-full"></div>
                       </div>
-                      <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">0 - 10 pts</Badge>
+                      <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">0 - 10 pts</Badge>
                     </div>
                   </div>
                 ))}
@@ -314,7 +314,7 @@ export default function ParametersGuide() {
                         <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                           <div className="h-full bg-gradient-to-r from-destructive via-amber-500 via-lime-500 to-green-500 w-full"></div>
                         </div>
-                        <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">0 - {config.max} pts</Badge>
+                        <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">0 - {config.max} pts</Badge>
                       </div>
                     </div>
                   ))}

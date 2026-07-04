@@ -13,14 +13,14 @@ import { AlertCircle, Loader2, AlertTriangle, Check } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 
-const BRACKET_COLORS = ['text-red-600', 'text-amber-600', 'text-lime-600', 'text-green-600'];
+const BRACKET_COLORS = ['text-red-400', 'text-amber-400', 'text-lime-400', 'text-green-400'];
 
 const getSliderValueColor = (value: number): string => {
   const percentage = (value / 10) * 100;
-  if (percentage <= 25) return 'text-red-600';
-  if (percentage <= 50) return 'text-amber-600';
-  if (percentage <= 75) return 'text-lime-600';
-  return 'text-green-600';
+  if (percentage <= 25) return 'text-red-400';
+  if (percentage <= 50) return 'text-amber-400';
+  if (percentage <= 75) return 'text-lime-400';
+  return 'text-green-400';
 };
 
 const getProgressGradient = (percentage: number): string => {
@@ -223,7 +223,7 @@ export default function NewJump() {
 
           {jump.landingOutcome === 'butt' && (
             <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500 rounded-lg">
-              <p className="text-amber-700 font-medium">⚠️ 50% Penalty</p>
+              <p className="text-amber-400 font-medium">⚠️ 50% Penalty</p>
             </div>
           )}
         </Card>
@@ -280,10 +280,10 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="high" className="text-red-600">high angle (0° - 30°) - 0 pt</SelectItem>
-                        <SelectItem value="average" className="text-amber-600">average angle (31° - 50°) - 0.25 pt</SelectItem>
-                        <SelectItem value="low" className="text-lime-600">low angle (51° - 70°) - 0.50 pt</SelectItem>
-                        <SelectItem value="super_low" className="text-green-600">super low (71° - 90°+) - 0.75 pt</SelectItem>
+                        <SelectItem value="high" className="text-red-400">high angle (0° - 30°) - 0 pt</SelectItem>
+                        <SelectItem value="average" className="text-amber-400">average angle (31° - 50°) - 0.25 pt</SelectItem>
+                        <SelectItem value="low" className="text-lime-400">low angle (51° - 70°) - 0.50 pt</SelectItem>
+                        <SelectItem value="super_low" className="text-green-400">super low (71° - 90°+) - 0.75 pt</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -295,10 +295,10 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none" className="text-red-600">None (0 points)</SelectItem>
-                        <SelectItem value="low" className="text-amber-600">Low (0.25 points)</SelectItem>
-                        <SelectItem value="medium" className="text-lime-600">Medium (0.5 points)</SelectItem>
-                        <SelectItem value="bomb" className="text-green-600">Bomb (0.75 points)</SelectItem>
+                        <SelectItem value="none" className="text-red-400">None (0 points)</SelectItem>
+                        <SelectItem value="low" className="text-amber-400">Low (0.25 points)</SelectItem>
+                        <SelectItem value="medium" className="text-lime-400">Medium (0.5 points)</SelectItem>
+                        <SelectItem value="bomb" className="text-green-400">Bomb (0.75 points)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -310,9 +310,9 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="poor" className="text-red-600">Poor (0 points)</SelectItem>
-                        <SelectItem value="medium" className="text-amber-600">Medium (0.25 points)</SelectItem>
-                        <SelectItem value="high" className="text-lime-600">High (0.5 points)</SelectItem>
+                        <SelectItem value="poor" className="text-red-400">Poor (0 points)</SelectItem>
+                        <SelectItem value="medium" className="text-amber-400">Medium (0.25 points)</SelectItem>
+                        <SelectItem value="high" className="text-lime-400">High (0.5 points)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -331,10 +331,10 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1" className="text-red-600">1 rotation (0.25 pts)</SelectItem>
-                        <SelectItem value="2" className="text-amber-600">2 rotations (0.50 pts)</SelectItem>
-                        <SelectItem value="3" className="text-lime-600">3 rotations (0.75 pts)</SelectItem>
-                        <SelectItem value="4+" className="text-green-600">4+ rotations (1.0 pts — max)</SelectItem>
+                        <SelectItem value="1" className="text-red-400">1 rotation (0.25 pts)</SelectItem>
+                        <SelectItem value="2" className="text-amber-400">2 rotations (0.50 pts)</SelectItem>
+                        <SelectItem value="3" className="text-lime-400">3 rotations (0.75 pts)</SelectItem>
+                        <SelectItem value="4+" className="text-green-400">4+ rotations (1.0 pts — max)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -346,8 +346,8 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="vertical" className="text-amber-600">Vertical (0.2 points)</SelectItem>
-                        <SelectItem value="horizontal" className="text-lime-600">Horizontal (0.5 points)</SelectItem>
+                        <SelectItem value="vertical" className="text-amber-400">Vertical (0.2 points)</SelectItem>
+                        <SelectItem value="horizontal" className="text-lime-400">Horizontal (0.5 points)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -359,8 +359,8 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="no" className="text-red-600">No (0 points)</SelectItem>
-                        <SelectItem value="yes" className="text-lime-600">Yes (1.0 points)</SelectItem>
+                        <SelectItem value="no" className="text-red-400">No (0 points)</SelectItem>
+                        <SelectItem value="yes" className="text-lime-400">Yes (1.0 points)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -375,9 +375,9 @@ export default function NewJump() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="0" className="text-gray-600">0 flips — 0 pt</SelectItem>
-                            <SelectItem value="1" className="text-amber-600">1 flip (0.10 pts)</SelectItem>
-                            <SelectItem value="2" className="text-lime-600">2 flips (0.20 pts)</SelectItem>
-                            <SelectItem value="3+" className="text-green-600">3+ flips (0.30 pts — max)</SelectItem>
+                            <SelectItem value="1" className="text-amber-400">1 flip (0.10 pts)</SelectItem>
+                            <SelectItem value="2" className="text-lime-400">2 flips (0.20 pts)</SelectItem>
+                            <SelectItem value="3+" className="text-green-400">3+ flips (0.30 pts — max)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -390,9 +390,9 @@ export default function NewJump() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="0" className="text-gray-600">0 tic-tacs — 0 pt</SelectItem>
-                            <SelectItem value="1" className="text-amber-600">1 tic-tac (0.07 pts)</SelectItem>
-                            <SelectItem value="2" className="text-lime-600">2 tic-tacs (0.14 pts)</SelectItem>
-                            <SelectItem value="3+" className="text-green-600">3+ tic-tacs (0.20 pts — max)</SelectItem>
+                            <SelectItem value="1" className="text-amber-400">1 tic-tac (0.07 pts)</SelectItem>
+                            <SelectItem value="2" className="text-lime-400">2 tic-tacs (0.14 pts)</SelectItem>
+                            <SelectItem value="3+" className="text-green-400">3+ tic-tacs (0.20 pts — max)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -455,15 +455,15 @@ export default function NewJump() {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="jump1" className="relative">
             Jump 1
-            {isJumpValid(jump1) && <Check className="w-4 h-4 ml-2 text-green-600" />}
+            {isJumpValid(jump1) && <Check className="w-4 h-4 ml-2 text-green-400" />}
           </TabsTrigger>
           <TabsTrigger value="jump2" className="relative">
             Jump 2
-            {isJumpValid(jump2) && <Check className="w-4 h-4 ml-2 text-green-600" />}
+            {isJumpValid(jump2) && <Check className="w-4 h-4 ml-2 text-green-400" />}
           </TabsTrigger>
           <TabsTrigger value="jump3" className="relative">
             Jump 3
-            {isJumpValid(jump3) && <Check className="w-4 h-4 ml-2 text-green-600" />}
+            {isJumpValid(jump3) && <Check className="w-4 h-4 ml-2 text-green-400" />}
           </TabsTrigger>
         </TabsList>
 
@@ -482,8 +482,8 @@ export default function NewJump() {
 
       {!allJumpsValid && (
         <Alert className="mb-4 border-amber-500/50 bg-amber-500/10">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertDescription className="text-amber-700 font-medium">
+          <AlertTriangle className="h-4 w-4 text-amber-400" />
+          <AlertDescription className="text-amber-400 font-medium">
             Please complete all 3 jumps before calculating
           </AlertDescription>
         </Alert>

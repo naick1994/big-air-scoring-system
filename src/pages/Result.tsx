@@ -30,10 +30,10 @@ const formatValue = (paramLabel: string, value: string | number, thresholds: Hei
 
 const getPointsColor = (points: number, max: number): string => {
   const percentage = (points / max) * 100;
-  if (percentage <= 25) return 'text-red-600/80';
-  if (percentage <= 50) return 'text-amber-600/80';
-  if (percentage <= 75) return 'text-lime-600/80';
-  return 'text-green-600/80';
+  if (percentage <= 25) return 'text-red-400/80';
+  if (percentage <= 50) return 'text-amber-400/80';
+  if (percentage <= 75) return 'text-lime-400/80';
+  return 'text-green-400/80';
 };
 
 const getProgressGradient = (finalScore: number, maxScore: number): string => {
