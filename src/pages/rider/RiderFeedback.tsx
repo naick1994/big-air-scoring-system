@@ -22,6 +22,16 @@ export default function RiderFeedback() {
     return () => { document.title = previousTitle; };
   }, []);
 
+  const totalScore = results.reduce((sum, r) => sum + r.totalScore, 0);
+  const totalLost = 30 - totalScore;
+
+  const overallAreaGaps = new Map<string, number>();
+  results.forEach(r => r.areaScores.forEach(area => {
+    const lost = area.max - area.subtotal;
+    overallAreaGaps.set(area.area, (overallAreaGaps.get(area.area) ?? 0) + lost * (area.weight * 10 / area.max));
+  }));
+  const overallPriority = Array.from(overallAreaGaps.entries()).reduce((max, cur) => (cur[1] > max[1] ? cur : max));
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex items-start justify-between flex-wrap gap-4 mb-1">
@@ -35,6 +45,22 @@ export default function RiderFeedback() {
         Jump-by-jump breakdown vs a perfect 10 — every point you didn't earn, and what it would take to earn it.
       </p>
 
+      {/* Print-only cover header — hidden on screen, shown at the top of the PDF */}
+      <div className="hidden print-only mb-8 pb-6 border-b-2 border-border">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Leonardo Casati — Performance Feedback</h1>
+            <p className="text-sm text-muted-foreground mt-1">Capital.com GKA Big Air World Cup Mykonos 2026</p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold">{totalScore.toFixed(2)} <span className="text-base font-normal text-muted-foreground">/ 30</span></div>
+            <p className="text-xs text-muted-foreground">
+              {totalLost.toFixed(2)} pts to gain — priority: {AREA_DISPLAY_NAMES[overallPriority[0]] ?? overallPriority[0]}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {DEMO_JUMPS_BASE.map((jump, idx) => {
         const result = results[idx];
         const totalGap = 10 - result.totalScore;
@@ -47,7 +73,7 @@ export default function RiderFeedback() {
         const priorityArea = areaGaps.reduce((max, cur) => (cur.lost > max.lost ? cur : max), areaGaps[0]);
 
         return (
-          <Card key={jump.id} className="p-6 mb-6 shadow-[var(--shadow-card)]">
+          <Card key={jump.id} className="p-6 mb-6 shadow-[var(--shadow-card)] print-avoid-break">
             <div className="flex items-start justify-between mb-4 flex-wrap gap-2">
               <div>
                 <div className="flex items-center gap-2">

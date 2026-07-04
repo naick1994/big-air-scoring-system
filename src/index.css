@@ -123,6 +123,16 @@ All colors MUST be HSL.
     display: none !important;
   }
 
+  .print-only {
+    display: block !important;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid hsl(0 0% 85%) !important;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 9%;
