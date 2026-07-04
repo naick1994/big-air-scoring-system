@@ -35,7 +35,7 @@ export const LORDS_OF_TRAM_FRANCE_2026: GkaEvent = {
   id: 'france',
   name: 'Lords of Tram — GKA Big Air Kite World Cup',
   shortLabel: 'France',
-  location: 'France',
+  location: 'Le Barcarès, France',
   date: '2026-03-31',
   standings: [
     { rank: 1, athlete: 'Jamie Overbeek', points: 1000 },
