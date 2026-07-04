@@ -639,8 +639,8 @@ function JumpCard({
   return (
     <>
       <Card className="overflow-hidden shadow-[var(--shadow-card)]">
-        <div className="flex items-start justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-card to-primary/5">
-          <div>
+        <div className="flex items-start justify-between px-6 py-5 border-b border-border bg-gradient-to-r from-card to-primary/5">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-bold text-foreground">{jump.label} · {jump.athlete}</h3>
               <Badge className="font-mono text-xs font-bold tracking-widest bg-primary/15 text-primary border border-primary/30 hover:bg-primary/15">
@@ -648,11 +648,11 @@ function JumpCard({
               </Badge>
             </div>
             <p className="text-sm font-semibold text-orange-500">{jump.trick}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {jump.realScoreEvent} · Real judges' score: <span className="font-semibold text-foreground">{jump.realScore.toFixed(2)}</span>
+            <p className="text-xs text-muted-foreground">
+              Real judges' score: <span className="font-semibold text-foreground">{jump.realScore.toFixed(2)}</span>
             </p>
           </div>
-          <div className="flex items-center gap-4 ml-4">
+          <div className="flex items-center gap-6 ml-4">
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
