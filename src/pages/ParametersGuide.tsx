@@ -125,7 +125,7 @@ export default function ParametersGuide() {
                     <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Low ({KITE_ANGLE_RANGES.low}): 0.5 pts</Badge>
                     <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">Super Low ({KITE_ANGLE_RANGES.super_low}): 0.75 pts</Badge>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.kite_angle.max} points · measured as angle from zenith (0° overhead, 180° level with the rider)</div>
+                  <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.kite_angle.max} points · measured as angle from zenith (0° overhead, 90° level with the rider, 180° at the sea)</div>
                 </div>
 
                 {/* Yank Power */}
