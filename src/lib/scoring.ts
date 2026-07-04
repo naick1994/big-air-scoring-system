@@ -30,18 +30,19 @@ export function amplitudeBracketLabel(bracket: 'b1' | 'b2' | 'b3' | 'b4', t: Hei
 
 // Maps a raw sensor value (meters) to the bracket it falls into under the
 // currently configured thresholds — recomputes automatically when the
-// chief judge changes the thresholds.
+// chief judge changes the thresholds. Each threshold is the minimum value
+// that earns the next tier, so reaching t3 exactly already scores max (b4).
 export function heightBracketForValue(value: number, t: HeightAmplitudeThresholds['height']): 'b1' | 'b2' | 'b3' | 'b4' {
-  if (value <= t.t1) return 'b1';
-  if (value <= t.t2) return 'b2';
-  if (value <= t.t3) return 'b3';
+  if (value < t.t1) return 'b1';
+  if (value < t.t2) return 'b2';
+  if (value < t.t3) return 'b3';
   return 'b4';
 }
 
 export function amplitudeBracketForValue(value: number, t: HeightAmplitudeThresholds['amplitude']): 'b1' | 'b2' | 'b3' | 'b4' {
-  if (value <= t.t1) return 'b1';
-  if (value <= t.t2) return 'b2';
-  if (value <= t.t3) return 'b3';
+  if (value < t.t1) return 'b1';
+  if (value < t.t2) return 'b2';
+  if (value < t.t3) return 'b3';
   return 'b4';
 }
 

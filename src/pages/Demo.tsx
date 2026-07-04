@@ -16,6 +16,18 @@ const EXECUTION_LABELS: Record<string, string> = Object.fromEntries(
   Object.entries(PARAMETER_CONFIG.EXECUTION).map(([key, cfg]) => [key, cfg.label])
 );
 
+interface ExecutionJudgeState {
+  values: Record<string, number>;
+  revealed: boolean;
+}
+
+const DEFAULT_EXECUTION_JUDGE_STATE: ExecutionJudgeState = {
+  values: { style: 0, stability_control: 0, landing_control: 0, board_control: 0, kite_control: 0 },
+  revealed: false,
+};
+
+const EXECUTION_SCORES_STORAGE_KEY = 'demoExecutionScores';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface WooData {
@@ -162,7 +174,14 @@ function ParamRow({ p }: { p: AreaParam }) {
   );
 }
 
-function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void }) {
+function RecapScreen({
+  jump, onClose, execution, onExecutionChange,
+}: {
+  jump: JumpDemo;
+  onClose: () => void;
+  execution: ExecutionJudgeState;
+  onExecutionChange: (state: ExecutionJudgeState) => void;
+}) {
   const wooStats = [
     { label: 'Max Height', value: `${jump.woo.maxHeight} m`        },
     { label: 'Airtime',    value: `${jump.woo.airtime} s`          },
@@ -173,10 +192,8 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
     { label: 'Quality',    value: jump.woo.quality                  },
   ];
 
-  const [executionValues, setExecutionValues] = useState<Record<string, number>>({
-    style: 0, stability_control: 0, landing_control: 0, board_control: 0, kite_control: 0,
-  });
-  const [executionRevealed, setExecutionRevealed] = useState(false);
+  const executionValues = execution.values;
+  const executionRevealed = execution.revealed;
 
   const objectiveAreas = jump.areas.filter(a => a.name !== 'EXECUTION');
   const executionMeta = jump.areas.find(a => a.name === 'EXECUTION');
@@ -187,8 +204,12 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
   const executionScore = executionMeta ? executionSliderFraction * executionMeta.maxScore : 0;
 
   const showFull = !executionMeta || executionRevealed;
-  const displayTotal = showFull ? objectiveSubtotal + executionScore : objectiveSubtotal;
-  const displayMax = showFull ? 10 : objectiveMax;
+  // Live projection: recomputes on every slider drag, before Execution is confirmed.
+  const projectedTotal = objectiveSubtotal + executionScore;
+  // Reference point: what Execution would need to score to match the objective
+  // areas' average, so the judge has an anchor instead of guessing blind.
+  const objectiveNormalized = objectiveMax > 0 ? objectiveSubtotal / objectiveMax : 0;
+  const consistentProjection = objectiveNormalized * 10;
 
   const executionParams: AreaParam[] = Object.entries(executionValues).map(([key, v]) => ({
     label: EXECUTION_LABELS[key] ?? key,
@@ -232,14 +253,17 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
         </div>
         <div className="text-right">
           <div className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase mb-1">
-            {showFull ? 'Score' : 'Partial Score'}
+            {showFull ? 'Score' : 'Projected Total'}
           </div>
-          <div className="text-white font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}>
-            {displayTotal.toFixed(2)}
+          <div
+            className={`font-black tabular-nums leading-none ${showFull ? 'text-white' : 'text-cyan-300'}`}
+            style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}
+          >
+            {projectedTotal.toFixed(2)}
           </div>
-          <div className="text-zinc-500 text-xs mt-1">/ {displayMax.toFixed(2)}</div>
+          <div className="text-zinc-500 text-xs mt-1">/ 10.00</div>
           {!showFull && (
-            <div className="text-amber-400 text-[9px] font-semibold tracking-widest uppercase mt-1">Execution Pending</div>
+            <div className="text-amber-400 text-[9px] font-semibold tracking-widest uppercase mt-1">Live — execution not confirmed</div>
           )}
         </div>
       </div>
@@ -347,12 +371,31 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
                       max={10}
                       step={0.1}
                       value={[v]}
-                      onValueChange={([nv]) => setExecutionValues(prev => ({ ...prev, [key]: nv }))}
+                      onValueChange={([nv]) => onExecutionChange({ values: { ...executionValues, [key]: nv }, revealed: false })}
                     />
                   </div>
                 ))}
               </div>
-              <Button className="w-full mt-5" size="sm" onClick={() => setExecutionRevealed(true)}>
+
+              {/* Live projection + consistency reference */}
+              <div className="mt-5 pt-4 border-t border-white/10 space-y-2">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-zinc-500 text-[10px] tracking-wide">Projected total (live)</span>
+                  <span className="text-cyan-300 text-sm font-bold tabular-nums">
+                    {projectedTotal.toFixed(2)}<span className="text-zinc-600 font-normal text-xs"> / 10.00</span>
+                  </span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-zinc-500 text-[10px] tracking-wide">
+                    If Execution matches objective avg ({(objectiveNormalized * 100).toFixed(0)}%)
+                  </span>
+                  <span className="text-zinc-300 text-sm font-bold tabular-nums">
+                    {consistentProjection.toFixed(2)}<span className="text-zinc-600 font-normal text-xs"> / 10.00</span>
+                  </span>
+                </div>
+              </div>
+
+              <Button className="w-full mt-5" size="sm" onClick={() => onExecutionChange({ values: executionValues, revealed: true })}>
                 Confirm Execution Score
               </Button>
             </div>
@@ -361,11 +404,11 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
           {/* Total */}
           <div className="flex justify-between items-baseline pt-4 border-t border-white/10 mt-2">
             <span className="font-mono text-zinc-400 text-[11px] tracking-widest uppercase">
-              {showFull ? 'Total Score' : 'Partial Total'}
+              {showFull ? 'Total Score' : 'Projected Total (live)'}
             </span>
-            <span className="text-white font-black text-lg tabular-nums">
-              {displayTotal.toFixed(2)}
-              <span className="text-zinc-500 text-sm font-normal"> / {displayMax.toFixed(2)}</span>
+            <span className={`font-black text-lg tabular-nums ${showFull ? 'text-white' : 'text-cyan-300'}`}>
+              {projectedTotal.toFixed(2)}
+              <span className="text-zinc-500 text-sm font-normal"> / 10.00</span>
             </span>
           </div>
         </div>
@@ -411,7 +454,13 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
 
 type VState = 'idle' | 'playing' | 'recap';
 
-function VideoPlayer({ jump }: { jump: JumpDemo }) {
+function VideoPlayer({
+  jump, execution, onExecutionChange,
+}: {
+  jump: JumpDemo;
+  execution: ExecutionJudgeState;
+  onExecutionChange: (state: ExecutionJudgeState) => void;
+}) {
   const [open, setOpen]     = useState(false);
   const [vState, setVState] = useState<VState>('idle');
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -467,7 +516,9 @@ function VideoPlayer({ jump }: { jump: JumpDemo }) {
               playsInline
               autoPlay
             />
-            {vState === 'recap' && <RecapScreen jump={jump} onClose={closeModal} />}
+            {vState === 'recap' && (
+              <RecapScreen jump={jump} onClose={closeModal} execution={execution} onExecutionChange={onExecutionChange} />
+            )}
           </div>
         </div>
       )}
@@ -527,7 +578,13 @@ function WooPanel({ woo }: { woo: WooData }) {
 
 // ─── Jump card ────────────────────────────────────────────────────────────────
 
-function JumpCard({ jump }: { jump: JumpDemo }) {
+function JumpCard({
+  jump, execution, onExecutionChange,
+}: {
+  jump: JumpDemo;
+  execution: ExecutionJudgeState;
+  onExecutionChange: (state: ExecutionJudgeState) => void;
+}) {
   const [showRecap, setShowRecap] = useState(false);
 
   return (
@@ -556,7 +613,7 @@ function JumpCard({ jump }: { jump: JumpDemo }) {
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 pb-4">
-          <VideoPlayer jump={jump} />
+          <VideoPlayer jump={jump} execution={execution} onExecutionChange={onExecutionChange} />
           <div className="flex flex-col justify-center gap-4">
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Score Breakdown</h4>
             <div className="space-y-4">
@@ -578,7 +635,12 @@ function JumpCard({ jump }: { jump: JumpDemo }) {
       {showRecap && createPortal(
         <div className="fixed inset-0 z-[200] bg-black">
           <div className="relative w-full h-full" style={{ background: '#000' }}>
-            <RecapScreen jump={jump} onClose={() => setShowRecap(false)} />
+            <RecapScreen
+              jump={jump}
+              onClose={() => setShowRecap(false)}
+              execution={execution}
+              onExecutionChange={onExecutionChange}
+            />
           </div>
         </div>,
         document.body
@@ -593,6 +655,25 @@ export default function Demo() {
   const navigate = useNavigate();
   const { weights, activePreset, setActivePreset, setJump1Params, setJump2Params, setJump3Params,
           jump1Params, jump2Params, jump3Params, heightAmplitudeThresholds } = useScoring();
+
+  // Judge's Execution slider input per jump, persisted so reopening a jump's
+  // recap (or reloading the page) doesn't wipe out scoring already entered.
+  const [executionByJump, setExecutionByJump] = useState<Record<number, ExecutionJudgeState>>(() => {
+    try {
+      const saved = localStorage.getItem(EXECUTION_SCORES_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const updateExecutionForJump = (jumpId: number, state: ExecutionJudgeState) => {
+    setExecutionByJump(prev => {
+      const next = { ...prev, [jumpId]: state };
+      localStorage.setItem(EXECUTION_SCORES_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
 
   // HEIGHT bracket is derived from each jump's real Woo numbers against the
   // currently configured thresholds, so it stays correct if thresholds change.
@@ -656,7 +737,14 @@ export default function Demo() {
         </div>
       </div>
       <div className="space-y-8">
-        {computedJumps.map(jump => <JumpCard key={jump.id} jump={jump} />)}
+        {computedJumps.map(jump => (
+          <JumpCard
+            key={jump.id}
+            jump={jump}
+            execution={executionByJump[jump.id] ?? DEFAULT_EXECUTION_JUDGE_STATE}
+            onExecutionChange={(state) => updateExecutionForJump(jump.id, state)}
+          />
+        ))}
       </div>
     </div>
   );
