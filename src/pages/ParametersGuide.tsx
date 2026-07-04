@@ -2,7 +2,7 @@ import { useScoring } from '@/contexts/ScoringContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { PARAMETER_CONFIG, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG, heightBracketLabel, amplitudeBracketLabel } from '@/lib/scoring';
+import { PARAMETER_CONFIG, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG, heightBracketLabel, amplitudeBracketLabel, YANK_POWER_RANGES, FREE_FALL_RANGES } from '@/lib/scoring';
 import { Info } from 'lucide-react';
 
 export default function ParametersGuide() {
@@ -135,12 +135,12 @@ export default function ParametersGuide() {
                     Force and explosiveness of the take-off
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">None: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">Low: 0.25 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Medium: 0.5 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">Bomb: 0.75 pts</Badge>
+                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">None ({YANK_POWER_RANGES.none}): 0 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-400 border-amber-500/30">Low ({YANK_POWER_RANGES.low}): 0.25 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Medium ({YANK_POWER_RANGES.medium}): 0.5 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">Bomb ({YANK_POWER_RANGES.bomb}): 0.75 pts</Badge>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.yank_power.max} points</div>
+                  <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.yank_power.max} points · measured as peak IMU acceleration (g-force) at the loading moment</div>
                 </div>
 
                 {/* Free Fall */}
@@ -150,11 +150,11 @@ export default function ParametersGuide() {
                     Quality and duration of free fall after take-off
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">Poor: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Medium: 0.25 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">High: 0.5 pts</Badge>
+                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">Poor ({FREE_FALL_RANGES.poor}): 0 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-400 border-lime-500/30">Medium ({FREE_FALL_RANGES.medium}): 0.25 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">High ({FREE_FALL_RANGES.high}): 0.5 pts</Badge>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.free_fall.max} points</div>
+                  <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.EXTREMITY.free_fall.max} points · measured as time spent near 0g during the jump</div>
                 </div>
               </div>
             </AccordionContent>

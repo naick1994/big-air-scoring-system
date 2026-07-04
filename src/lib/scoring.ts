@@ -46,6 +46,25 @@ export function amplitudeBracketForValue(value: number, t: HeightAmplitudeThresh
   return 'b4';
 }
 
+// Reference sensor ranges backing each Yank Power / Free Fall judged tier —
+// Yank Power is peak IMU acceleration at the loading moment (g-force), Free
+// Fall is time spent near 0g during the jump (seconds). Woo doesn't derive
+// these automatically today (no threshold function like HEIGHT has), but
+// showing the range next to each tier keeps the judged label grounded in a
+// real physical quantity instead of a purely subjective call.
+export const YANK_POWER_RANGES: Record<string, string> = {
+  none: '<1.5g',
+  low: '1.5–2.5g',
+  medium: '2.5–4g',
+  bomb: '4g+',
+};
+
+export const FREE_FALL_RANGES: Record<string, string> = {
+  poor: '<0.5s',
+  medium: '0.5–1.2s',
+  high: '1.2s+',
+};
+
 // Display label for the HEIGHT area — it covers both height and amplitude
 // sub-parameters, so it's always shown as "HEIGHT & AMPLITUDE" to the user.
 export const AREA_DISPLAY_NAMES: Record<string, string> = {

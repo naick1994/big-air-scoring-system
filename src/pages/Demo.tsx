@@ -41,6 +41,8 @@ interface WooData {
   quality: 'Good' | 'OK';
   peakTimeRatio: number;
   takeoffOffset: number;
+  yankForce: number;      // peak IMU acceleration at loading moment, g-force
+  freeFallTime: number;   // time spent near 0g during the jump, seconds
 }
 
 interface AreaParam {
@@ -84,7 +86,7 @@ const DEMO_JUMPS_BASE: JumpDemoBase[] = [
     trick: 'Late Backroll Kiteloop Doppio Flip Added Rotation',
     category: 'KLBRFL',
     videoSrc: `${import.meta.env.BASE_URL}videos/LEO_7.33.mp4`,
-    woo: { maxHeight: 15.9, airtime: 7.6, distance: 76,  maxSpeed: 46, approachSpeed: 32, windAngle: 18, quality: 'OK',   peakTimeRatio: 0.30, takeoffOffset: 0 },
+    woo: { maxHeight: 15.9, airtime: 7.6, distance: 76,  maxSpeed: 46, approachSpeed: 32, windAngle: 18, quality: 'OK',   peakTimeRatio: 0.30, takeoffOffset: 0, yankForce: 4.6, freeFallTime: 1.5 },
     realScore: 7.33, realScoreEvent: 'Capital.com GKA Big Air World Cup Mykonos 2026',
   },
   {
@@ -92,7 +94,7 @@ const DEMO_JUMPS_BASE: JumpDemoBase[] = [
     trick: 'Doobie Loop Boardoff by the Fin',
     category: 'KLFRBO',
     videoSrc: `${import.meta.env.BASE_URL}videos/LEO_8.37.mp4`,
-    woo: { maxHeight: 19.8, airtime: 7.5, distance: 83,  maxSpeed: 52, approachSpeed: 30, windAngle: 11, quality: 'Good', peakTimeRatio: 0.33, takeoffOffset: 0 },
+    woo: { maxHeight: 19.8, airtime: 7.5, distance: 83,  maxSpeed: 52, approachSpeed: 30, windAngle: 11, quality: 'Good', peakTimeRatio: 0.33, takeoffOffset: 0, yankForce: 4.3, freeFallTime: 1.6 },
     realScore: 8.37, realScoreEvent: 'Capital.com GKA Big Air World Cup Mykonos 2026',
   },
   {
@@ -100,7 +102,7 @@ const DEMO_JUMPS_BASE: JumpDemoBase[] = [
     trick: 'Backroll Kiteloop Tornado',
     category: 'KLBRBO',
     videoSrc: `${import.meta.env.BASE_URL}videos/LEO_8.07.mp4`,
-    woo: { maxHeight: 17.5, airtime: 7.0, distance: 121, maxSpeed: 65, approachSpeed: 28, windAngle: 6,  quality: 'Good', peakTimeRatio: 0.30, takeoffOffset: 0 },
+    woo: { maxHeight: 17.5, airtime: 7.0, distance: 121, maxSpeed: 65, approachSpeed: 28, windAngle: 6,  quality: 'Good', peakTimeRatio: 0.30, takeoffOffset: 0, yankForce: 5.1, freeFallTime: 1.8 },
     realScore: 8.07, realScoreEvent: 'Capital.com GKA Big Air World Cup Mykonos 2026',
   },
 ];
@@ -170,8 +172,8 @@ function buildSensorStats(woo: WooData, objectiveAreas: AreaScore[]): { label: s
     { label: 'Distance', value: `${woo.distance} m` },
     { label: 'Airtime', value: `${woo.airtime} s` },
     { label: 'Kite Angle', value: detail('Kite Angle') },
-    { label: 'Yank Power', value: detail('Yank Power') },
-    { label: 'Free Fall', value: detail('Free Fall') },
+    { label: 'Yank Power', value: `${woo.yankForce}g` },
+    { label: 'Free Fall', value: `${woo.freeFallTime}s` },
     { label: 'Rotations', value: detail('Rotations') },
     { label: 'Rotation Axis', value: detail('Rotation Axis') },
     { label: 'Board Off', value: detail('Board Off') },
