@@ -123,7 +123,7 @@ const DEMO_SCORING_PARAMS: [DemoParamsCore, DemoParamsCore, DemoParamsCore] = [
   },
   {
     landingOutcome: 'clean',
-    EXTREMITY:    { kite_angle: 'super_low', yank_power: 'bomb', free_fall: 'high' },
+    EXTREMITY:    { kite_angle: 'low', yank_power: 'bomb', free_fall: 'high' },
     TECHNICALITY: { rotations: '2', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '0', board_spin: '0' },
   },
   {

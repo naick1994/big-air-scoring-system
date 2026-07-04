@@ -68,10 +68,10 @@ export const FREE_FALL_RANGES: Record<string, string> = {
 // Kite angle from zenith: 0° = directly overhead, 90° = level with the
 // rider (horizon), 180° = the sea, beyond horizontal on the far side.
 export const KITE_ANGLE_RANGES: Record<string, string> = {
-  high: '0–1°',
-  average: '1–25°',
-  low: '25–70°',
-  super_low: '70–180°',
+  high: '0–25°',
+  average: '25–50°',
+  low: '50–75°',
+  super_low: '75°+',
 };
 
 // Display label for the HEIGHT area — it covers both height and amplitude
@@ -183,15 +183,14 @@ export const PARAMETER_CONFIG = {
     kite_angle: {
       // Degrees measured from zenith: 0° = directly overhead, 90° = level
       // with the rider (horizon), 180° = the sea, beyond horizontal on the
-      // far side. Max score kicks in above 70°, since that's where a jump
-      // is genuinely approaching in-line-with-the-rider territory.
+      // far side.
       label: 'Kite Angle',
       max: 0.75,
       map: {
-        high: 0,        // 0° - 1°
-        average: 0.25,  // 1° - 25°
-        low: 0.5,       // 25° - 70°
-        super_low: 0.75 // 70° - 180°
+        high: 0,        // 0° - 25°
+        average: 0.25,  // 25° - 50°
+        low: 0.5,       // 50° - 75°
+        super_low: 0.75 // 75°+
       },
     },
     yank_power: {
