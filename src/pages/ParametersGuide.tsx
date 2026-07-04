@@ -34,19 +34,19 @@ export default function ParametersGuide() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-card rounded-lg border">
                 <div className="text-sm text-muted-foreground mb-1">HEIGHT & AMPLITUDE</div>
-                <div className="text-2xl font-bold text-primary">{weights.HEIGHT}%</div>
+                <div className="text-2xl font-bold text-cyan-600">{weights.HEIGHT}%</div>
               </div>
               <div className="text-center p-4 bg-card rounded-lg border">
                 <div className="text-sm text-muted-foreground mb-1">EXTREMITY</div>
-                <div className="text-2xl font-bold text-secondary">{weights.EXTREMITY}%</div>
+                <div className="text-2xl font-bold text-pink-600">{weights.EXTREMITY}%</div>
               </div>
               <div className="text-center p-4 bg-card rounded-lg border">
                 <div className="text-sm text-muted-foreground mb-1">TECHNICALITY</div>
-                <div className="text-2xl font-bold text-accent">{weights.TECHNICALITY}%</div>
+                <div className="text-2xl font-bold text-amber-600">{weights.TECHNICALITY}%</div>
               </div>
               <div className="text-center p-4 bg-card rounded-lg border">
                 <div className="text-sm text-muted-foreground mb-1">EXECUTION</div>
-                <div className="text-2xl font-bold text-foreground">{weights.EXECUTION}%</div>
+                <div className="text-2xl font-bold text-lime-600">{weights.EXECUTION}%</div>
               </div>
             </div>
           </CardContent>
@@ -58,6 +58,7 @@ export default function ParametersGuide() {
           <AccordionItem value="j1" className="border rounded-lg bg-card">
             <AccordionTrigger className="px-6 hover:no-underline">
               <div className="flex items-center gap-3 text-left">
+                <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 shrink-0" />
                 <div>
                   <div className="text-lg font-semibold">HEIGHT & AMPLITUDE</div>
                   <div className="text-sm text-muted-foreground">Weight: {weights.HEIGHT}%</div>
@@ -67,7 +68,7 @@ export default function ParametersGuide() {
             <AccordionContent className="px-6 pb-6">
               <div className="space-y-6 pt-4">
                 {/* Height */}
-                <div className="border-l-4 border-primary pl-4">
+                <div className="border-l-4 border-cyan-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.HEIGHT.height.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Maximum vertical height achieved during the jump
@@ -82,7 +83,7 @@ export default function ParametersGuide() {
                 </div>
 
                 {/* Amplitude */}
-                <div className="border-l-4 border-primary pl-4">
+                <div className="border-l-4 border-cyan-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.HEIGHT.amplitude.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Horizontal distance covered during the jump
@@ -103,6 +104,7 @@ export default function ParametersGuide() {
           <AccordionItem value="extremity" className="border rounded-lg bg-card">
             <AccordionTrigger className="px-6 hover:no-underline">
               <div className="flex items-center gap-3 text-left">
+                <div className="w-2.5 h-2.5 rounded-full bg-pink-500 shrink-0" />
                 <div>
                   <div className="text-lg font-semibold">EXTREMITY</div>
                   <div className="text-sm text-muted-foreground">Weight: {weights.EXTREMITY}%</div>
@@ -112,7 +114,7 @@ export default function ParametersGuide() {
             <AccordionContent className="px-6 pb-6">
               <div className="space-y-6 pt-4">
                 {/* Kite Angle */}
-                <div className="border-l-4 border-secondary pl-4">
+                <div className="border-l-4 border-pink-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.EXTREMITY.kite_angle.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Kite position at take-off (lower is riskier and scores higher)
@@ -127,7 +129,7 @@ export default function ParametersGuide() {
                 </div>
 
                 {/* Yank Power */}
-                <div className="border-l-4 border-secondary pl-4">
+                <div className="border-l-4 border-pink-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.EXTREMITY.yank_power.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Force and explosiveness of the take-off
@@ -142,7 +144,7 @@ export default function ParametersGuide() {
                 </div>
 
                 {/* Free Fall */}
-                <div className="border-l-4 border-secondary pl-4">
+                <div className="border-l-4 border-pink-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.EXTREMITY.free_fall.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Quality and duration of free fall after take-off
@@ -162,6 +164,7 @@ export default function ParametersGuide() {
           <AccordionItem value="technicality" className="border rounded-lg bg-card">
             <AccordionTrigger className="px-6 hover:no-underline">
               <div className="flex items-center gap-3 text-left">
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 shrink-0" />
                 <div>
                   <div className="text-lg font-semibold">TECHNICALITY</div>
                   <div className="text-sm text-muted-foreground">Weight: {weights.TECHNICALITY}%</div>
@@ -171,23 +174,22 @@ export default function ParametersGuide() {
             <AccordionContent className="px-6 pb-6">
               <div className="space-y-6 pt-4">
                 {/* Rotations */}
-                <div className="border-l-4 border-accent pl-4">
+                <div className="border-l-4 border-amber-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.TECHNICALITY.rotations.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Number of front or back rotations completed during the jump
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">1 rotation: 0.2 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">2 rotations: 0.4 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">3 rotations: 0.6 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">4 rotations: 0.8 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">5+ rotations: 1.0 pts</Badge>
+                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">1 rotation: 0.25 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">2 rotations: 0.50 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">3 rotations: 0.75 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">4+ rotations: 1.0 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.TECHNICALITY.rotations.max} points</div>
                 </div>
 
                 {/* Rotation Axis */}
-                <div className="border-l-4 border-accent pl-4">
+                <div className="border-l-4 border-amber-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.TECHNICALITY.rotation_axis.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Axis of rotation - horizontal rotations (front/back flips) score higher than vertical rotations (spins)
@@ -200,7 +202,7 @@ export default function ParametersGuide() {
                 </div>
 
                 {/* Board Off */}
-                <div className="border-l-4 border-accent pl-4">
+                <div className="border-l-4 border-amber-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.TECHNICALITY.board_off.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Whether the board is released from the feet during the trick
@@ -213,7 +215,7 @@ export default function ParametersGuide() {
                 </div>
 
                 {/* Board Flip */}
-                <div className="border-l-4 border-accent pl-4">
+                <div className="border-l-4 border-amber-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.TECHNICALITY.board_flip.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Number of board flips performed (only applies if Board Off = Yes)
@@ -227,7 +229,7 @@ export default function ParametersGuide() {
                 </div>
 
                 {/* Board Tic Tac */}
-                <div className="border-l-4 border-accent pl-4">
+                <div className="border-l-4 border-amber-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.TECHNICALITY.board_tic_tac.label}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
                     Number of board tic-tacs performed (only applies if Board Off = Yes)
@@ -257,6 +259,7 @@ export default function ParametersGuide() {
           <AccordionItem value="j4" className="border rounded-lg bg-card">
             <AccordionTrigger className="px-6 hover:no-underline">
               <div className="flex items-center gap-3 text-left">
+                <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shrink-0" />
                 <div>
                   <div className="text-lg font-semibold">EXECUTION</div>
                   <div className="text-sm text-muted-foreground">Weight: {weights.EXECUTION}%</div>
@@ -270,7 +273,7 @@ export default function ParametersGuide() {
                 </p>
 
                 {Object.entries(PARAMETER_CONFIG.EXECUTION).map(([key, config]) => (
-                  <div key={key} className="border-l-4 border-foreground/20 pl-4">
+                  <div key={key} className="border-l-4 border-lime-500 pl-4">
                     <h4 className="font-semibold mb-2 text-foreground">{config.label}</h4>
                     <div className="flex items-center gap-4">
                       <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">

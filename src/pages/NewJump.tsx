@@ -333,7 +333,8 @@ export default function NewJump() {
                       <SelectContent>
                         <SelectItem value="1" className="text-red-600">1 rotation (0.25 pts)</SelectItem>
                         <SelectItem value="2" className="text-amber-600">2 rotations (0.50 pts)</SelectItem>
-                        <SelectItem value="3" className="text-green-600">3 rotations (0.80 pts — max)</SelectItem>
+                        <SelectItem value="3" className="text-lime-600">3 rotations (0.75 pts)</SelectItem>
+                        <SelectItem value="4+" className="text-green-600">4+ rotations (1.0 pts — max)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

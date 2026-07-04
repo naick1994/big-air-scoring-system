@@ -176,8 +176,8 @@ export const PARAMETER_CONFIG = {
   TECHNICALITY: {
     rotations: {
       label: 'Rotations (Front/Back)',
-      max: 0.8,
-      map: { '1': 0.25, '2': 0.50, '3': 0.80 },
+      max: 1.0,
+      map: { '1': 0.25, '2': 0.50, '3': 0.75, '4+': 1.0 },
     },
     rotation_axis: {
       label: 'Rotation Axis',
