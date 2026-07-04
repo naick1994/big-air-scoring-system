@@ -26,6 +26,13 @@ const JUDGE_NAMES_SHORT = {
   EXECUTION: 'Execution'
 };
 
+const BRACKET_BADGE_COLORS = [
+  'bg-destructive/20 text-destructive border-destructive/30',
+  'bg-amber-500/20 text-amber-700 border-amber-500/30',
+  'bg-lime-500/20 text-lime-700 border-lime-500/30',
+  'bg-green-500/20 text-green-700 border-green-500/30',
+];
+
 const PRESET_NAME_TO_KEY: Record<string, EventPreset> = {
   'GKA': 'GKA',
   'KOTA': 'KOTA',
@@ -232,16 +239,11 @@ export default function PresetEvents() {
       </Card>
 
       <Card className="p-6 mb-8 shadow-[var(--shadow-card)]">
-        <h3 className="text-xl font-semibold mb-2">HEIGHT & AMPLITUDE Thresholds</h3>
-        <p className="text-sm text-muted-foreground mb-6">
-          Set by the chief judge before the event, based on wind and conditions. These meter boundaries define
-          the 4 scoring brackets for Height and Amplitude — the points per bracket (0 / 0.6 / 0.9 / 1.5 for Height,
-          0 / 0.33 / 0.67 / 1.0 for Amplitude) stay fixed.
-        </p>
+        <h3 className="text-xl font-semibold mb-6">HEIGHT & AMPLITUDE Thresholds</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <h4 className="font-semibold mb-3">Height (vertical, meters)</h4>
+            <h4 className="font-semibold mb-3">Height</h4>
             <div className="grid grid-cols-3 gap-3">
               {(['t1', 't2', 't3'] as const).map((tier) => (
                 <div key={tier}>
@@ -260,17 +262,18 @@ export default function PresetEvents() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {(['b1', 'b2', 'b3', 'b4'] as const).map((b) => (
-                <Badge key={b} variant="outline">
-                  {heightBracketLabel(b, draftThresholds.height)}: {HEIGHT_BRACKET_POINTS[b]} pts
+            <div className="flex flex-col gap-2 mt-3">
+              {(['b1', 'b2', 'b3', 'b4'] as const).map((b, i) => (
+                <Badge key={b} variant="outline" className={`${BRACKET_BADGE_COLORS[i]} justify-between font-normal`}>
+                  <span>{heightBracketLabel(b, draftThresholds.height)}</span>
+                  <span>{HEIGHT_BRACKET_POINTS[b]} pts</span>
                 </Badge>
               ))}
             </div>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3">Amplitude (horizontal, meters)</h4>
+            <h4 className="font-semibold mb-3">Amplitude</h4>
             <div className="grid grid-cols-3 gap-3">
               {(['t1', 't2', 't3'] as const).map((tier) => (
                 <div key={tier}>
@@ -289,10 +292,11 @@ export default function PresetEvents() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {(['b1', 'b2', 'b3', 'b4'] as const).map((b) => (
-                <Badge key={b} variant="outline">
-                  {amplitudeBracketLabel(b, draftThresholds.amplitude)}: {AMPLITUDE_BRACKET_POINTS[b]} pts
+            <div className="flex flex-col gap-2 mt-3">
+              {(['b1', 'b2', 'b3', 'b4'] as const).map((b, i) => (
+                <Badge key={b} variant="outline" className={`${BRACKET_BADGE_COLORS[i]} justify-between font-normal`}>
+                  <span>{amplitudeBracketLabel(b, draftThresholds.amplitude)}</span>
+                  <span>{AMPLITUDE_BRACKET_POINTS[b]} pts</span>
                 </Badge>
               ))}
             </div>
