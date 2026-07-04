@@ -723,9 +723,6 @@ function JumpCard({
               </Badge>
             </div>
             <p className="text-sm font-semibold text-orange-500">{jump.trick}</p>
-            <p className="text-xs text-muted-foreground">
-              Real judges' score: <span className="font-semibold text-foreground">{jump.realScore.toFixed(2)}</span>
-            </p>
           </div>
           <div className="flex items-center gap-6 ml-4">
             <div className="flex items-center gap-2">

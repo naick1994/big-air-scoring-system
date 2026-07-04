@@ -19,6 +19,9 @@ export default function ParametersGuide() {
           <p className="text-muted-foreground">
             Complete reference for all judging areas and scoring parameters
           </p>
+          <p className="text-sm text-muted-foreground mt-3 max-w-3xl">
+            HEIGHT & AMPLITUDE, EXTREMITY and TECHNICALITY are all <span className="font-semibold text-foreground">objective</span> — measured from real Woo sensor data or fixed, verifiable categories. EXECUTION is the only <span className="font-semibold text-foreground">subjective</span> area: it's scored live by the judges.
+          </p>
         </div>
 
         {/* Active Preset Card */}
@@ -67,6 +70,9 @@ export default function ParametersGuide() {
             </AccordionTrigger>
             <AccordionContent className="px-6 pb-6">
               <div className="space-y-6 pt-4">
+                <p className="text-sm text-muted-foreground bg-muted/50 border border-border rounded-lg p-3">
+                  Height and Amplitude brackets aren't fixed — the chief judge sets the meter thresholds for each event based on conditions (wind, spot, swell), in Event Presets. The numbers below reflect what's currently configured.
+                </p>
                 {/* Height */}
                 <div className="border-l-4 border-cyan-500 pl-4">
                   <h4 className="font-semibold mb-2 text-foreground">{PARAMETER_CONFIG.HEIGHT.height.label}</h4>
