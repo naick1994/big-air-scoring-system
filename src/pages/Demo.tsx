@@ -1,7 +1,7 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { X, Play, Film, ChevronRight, BarChart2 } from 'lucide-react';
+import { X, Play, Film, ChevronRight, BarChart2, Gauge, RotateCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -97,28 +97,26 @@ const DEMO_JUMPS_BASE: JumpDemoBase[] = [
 
 // ─── Default scoring params (used when scorer hasn't been loaded) ─────────────
 // HEIGHT is derived live from each jump's real Woo numbers (maxHeight/distance)
-// against the currently configured thresholds — see effectiveParams in Demo().
+// against the currently configured thresholds, and EXECUTION comes from the
+// judge's own slider input (executionByJump) — see effectiveParams in Demo().
 
-type DemoParamsWithoutHeight = Omit<JumpParameters, 'HEIGHT'>;
+type DemoParamsCore = Omit<JumpParameters, 'HEIGHT' | 'EXECUTION'>;
 
-const DEMO_SCORING_PARAMS: [DemoParamsWithoutHeight, DemoParamsWithoutHeight, DemoParamsWithoutHeight] = [
+const DEMO_SCORING_PARAMS: [DemoParamsCore, DemoParamsCore, DemoParamsCore] = [
   {
     landingOutcome: 'clean',
     EXTREMITY:    { kite_angle: 'low', yank_power: 'bomb', free_fall: 'high' },
     TECHNICALITY: { rotations: '3', rotation_axis: 'horizontal', board_off: 'no' },
-    EXECUTION:    { style: 0.32, stability_control: 0.32, landing_control: 0.32, board_control: 0.32, kite_control: 0.32 },
   },
   {
     landingOutcome: 'clean',
     EXTREMITY:    { kite_angle: 'low', yank_power: 'bomb', free_fall: 'high' },
     TECHNICALITY: { rotations: '2', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '0', board_tic_tac: '0' },
-    EXECUTION:    { style: 0.30, stability_control: 0.28, landing_control: 0.30, board_control: 0.30, kite_control: 0.28 },
   },
   {
     landingOutcome: 'clean',
     EXTREMITY:    { kite_angle: 'low', yank_power: 'bomb', free_fall: 'high' },
     TECHNICALITY: { rotations: '3', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '1', board_tic_tac: '0' },
-    EXECUTION:    { style: 0.38, stability_control: 0.38, landing_control: 0.38, board_control: 0.38, kite_control: 0.38 },
   },
 ];
 
@@ -138,6 +136,17 @@ const VALUE_DISPLAY: Record<string, string> = {
   'yes': 'Yes', 'no': 'No',
   '0': '0', '1': '×1', '2': '×2', '3': '×3', '3+': '3+',
 };
+
+// Splits the 4 computed areas into the objective ones (HEIGHT/EXTREMITY/
+// TECHNICALITY, always visible) and EXECUTION (hidden until the judge
+// confirms it) — shared by JumpCard's static summary and RecapScreen.
+function splitObjectiveAndExecution(areas: AreaScore[]) {
+  const objectiveAreas = areas.filter(a => a.name !== 'EXECUTION');
+  const executionMeta = areas.find(a => a.name === 'EXECUTION');
+  const objectiveSubtotal = objectiveAreas.reduce((s, a) => s + a.score, 0);
+  const objectiveMax = objectiveAreas.reduce((s, a) => s + a.maxScore, 0);
+  return { objectiveAreas, executionMeta, objectiveSubtotal, objectiveMax };
+}
 
 function resultToAreas(result: ScoringResult, thresholds: HeightAmplitudeThresholds): AreaScore[] {
   return result.areaScores.map(as => ({
@@ -195,10 +204,7 @@ function RecapScreen({
   const executionValues = execution.values;
   const executionRevealed = execution.revealed;
 
-  const objectiveAreas = jump.areas.filter(a => a.name !== 'EXECUTION');
-  const executionMeta = jump.areas.find(a => a.name === 'EXECUTION');
-  const objectiveSubtotal = objectiveAreas.reduce((s, a) => s + a.score, 0);
-  const objectiveMax = objectiveAreas.reduce((s, a) => s + a.maxScore, 0);
+  const { objectiveAreas, executionMeta, objectiveSubtotal, objectiveMax } = splitObjectiveAndExecution(jump.areas);
 
   const executionSliderFraction = Object.values(executionValues).reduce((a, b) => a + b, 0) / 5 / 10;
   const executionScore = executionMeta ? executionSliderFraction * executionMeta.maxScore : 0;
@@ -454,13 +460,15 @@ function RecapScreen({
 
 type VState = 'idle' | 'playing' | 'recap';
 
-function VideoPlayer({
-  jump, execution, onExecutionChange,
-}: {
+export interface VideoPlayerHandle {
+  open: () => void;
+}
+
+const VideoPlayer = forwardRef<VideoPlayerHandle, {
   jump: JumpDemo;
   execution: ExecutionJudgeState;
   onExecutionChange: (state: ExecutionJudgeState) => void;
-}) {
+}>(({ jump, execution, onExecutionChange }, ref) => {
   const [open, setOpen]     = useState(false);
   const [vState, setVState] = useState<VState>('idle');
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -470,6 +478,8 @@ function VideoPlayer({
     setOpen(true);
     setVState('playing');
   };
+
+  useImperativeHandle(ref, () => ({ open: openModal }));
 
   const closeModal = () => {
     videoRef.current?.pause();
@@ -524,7 +534,8 @@ function VideoPlayer({
       )}
     </>
   );
-}
+});
+VideoPlayer.displayName = 'VideoPlayer';
 
 // ─── Score bar (card) ─────────────────────────────────────────────────────────
 
@@ -586,6 +597,14 @@ function JumpCard({
   onExecutionChange: (state: ExecutionJudgeState) => void;
 }) {
   const [showRecap, setShowRecap] = useState(false);
+  const videoPlayerRef = useRef<VideoPlayerHandle>(null);
+
+  const { objectiveAreas, objectiveSubtotal, objectiveMax } = splitObjectiveAndExecution(jump.areas);
+  const revealed = execution.revealed;
+  const displayScore = revealed ? jump.score : objectiveSubtotal;
+  const displayMax = revealed ? 10 : objectiveMax;
+  const displayAreas = revealed ? jump.areas : objectiveAreas;
+  const hasExecutionInput = execution.revealed || Object.values(execution.values).some(v => v !== 0);
 
   return (
     <>
@@ -597,32 +616,57 @@ function JumpCard({
             <p className="text-xs text-muted-foreground mt-0.5">Capital.com GKA Big Air</p>
           </div>
           <div className="flex items-center gap-4 ml-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 text-xs"
-              onClick={() => setShowRecap(true)}
-            >
-              <BarChart2 className="w-3.5 h-3.5" />
-              Score Breakdown
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => setShowRecap(true)}
+              >
+                <BarChart2 className="w-3.5 h-3.5" />
+                Score Breakdown
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => videoPlayerRef.current?.open()}
+              >
+                <Gauge className="w-3.5 h-3.5" />
+                Score Execution
+              </Button>
+              {hasExecutionInput && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 text-xs text-muted-foreground"
+                  onClick={() => onExecutionChange(DEFAULT_EXECUTION_JUDGE_STATE)}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Reset Execution
+                </Button>
+              )}
+            </div>
             <div className="text-right shrink-0">
-              <div className="text-4xl font-black text-primary leading-none">{jump.score.toFixed(2)}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">/ 10</div>
+              <div className="text-4xl font-black text-primary leading-none">{displayScore.toFixed(2)}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">/ {displayMax.toFixed(2)}</div>
+              {!revealed && <div className="text-[10px] text-amber-600 font-semibold uppercase tracking-wide mt-0.5">Partial</div>}
             </div>
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 pb-4">
-          <VideoPlayer jump={jump} execution={execution} onExecutionChange={onExecutionChange} />
+          <VideoPlayer ref={videoPlayerRef} jump={jump} execution={execution} onExecutionChange={onExecutionChange} />
           <div className="flex flex-col justify-center gap-4">
-            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Score Breakdown</h4>
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Score Breakdown {!revealed && <span className="text-amber-600 normal-case font-normal">(Execution pending)</span>}
+            </h4>
             <div className="space-y-4">
-              {jump.areas.map(area => <ScoreBar key={area.name} area={area} />)}
+              {displayAreas.map(area => <ScoreBar key={area.name} area={area} />)}
             </div>
             <div className="mt-2 pt-4 border-t border-border flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-sm text-muted-foreground">{revealed ? 'Total' : 'Partial Total'}</span>
               <span className="text-2xl font-black text-primary">
-                {jump.score.toFixed(2)}<span className="text-base font-normal text-muted-foreground"> / 10</span>
+                {displayScore.toFixed(2)}<span className="text-base font-normal text-muted-foreground"> / {displayMax.toFixed(2)}</span>
               </span>
             </div>
           </div>
@@ -675,18 +719,34 @@ export default function Demo() {
     });
   };
 
-  // HEIGHT bracket is derived from each jump's real Woo numbers against the
-  // currently configured thresholds, so it stays correct if thresholds change.
+  // HEIGHT is derived from each jump's real Woo numbers against the currently
+  // configured thresholds; EXECUTION comes from whatever the judge has
+  // entered so far — both stay correct as thresholds/scoring change live.
   const demoDefaults = useMemo<[JumpParameters, JumpParameters, JumpParameters]>(() =>
-    DEMO_JUMPS_BASE.map((base, i) => ({
-      ...DEMO_SCORING_PARAMS[i],
-      HEIGHT: {
-        height: heightBracketForValue(base.woo.maxHeight, heightAmplitudeThresholds.height),
-        amplitude: amplitudeBracketForValue(base.woo.distance, heightAmplitudeThresholds.amplitude),
-      },
-    })) as [JumpParameters, JumpParameters, JumpParameters],
-    [heightAmplitudeThresholds]
+    DEMO_JUMPS_BASE.map((base, i) => {
+      const execValues = executionByJump[base.id]?.values ?? DEFAULT_EXECUTION_JUDGE_STATE.values;
+      return {
+        ...DEMO_SCORING_PARAMS[i],
+        HEIGHT: {
+          height: heightBracketForValue(base.woo.maxHeight, heightAmplitudeThresholds.height),
+          amplitude: amplitudeBracketForValue(base.woo.distance, heightAmplitudeThresholds.amplitude),
+        },
+        EXECUTION: {
+          style: (execValues.style * 0.4) / 10,
+          stability_control: (execValues.stability_control * 0.4) / 10,
+          landing_control: (execValues.landing_control * 0.4) / 10,
+          board_control: (execValues.board_control * 0.4) / 10,
+          kite_control: (execValues.kite_control * 0.4) / 10,
+        },
+      };
+    }) as [JumpParameters, JumpParameters, JumpParameters],
+    [heightAmplitudeThresholds, executionByJump]
   );
+
+  // Only let the chief judge load this into the real scorer once Execution
+  // has actually been confirmed for all 3 jumps — otherwise it'd carry over
+  // an incomplete/zeroed Execution score as if it were final.
+  const allExecutionConfirmed = DEMO_JUMPS_BASE.every(base => executionByJump[base.id]?.revealed);
 
   const loadDemoSession = () => {
     setActivePreset('GKA');
@@ -730,10 +790,16 @@ export default function Demo() {
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             <span className="text-sm font-semibold text-primary">Woo Sensor Data</span>
           </div>
-          <Button onClick={loadDemoSession} className="gap-2 font-semibold">
-            Load Demo in Scorer
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+          {allExecutionConfirmed ? (
+            <Button onClick={loadDemoSession} className="gap-2 font-semibold">
+              Load Demo in Scorer
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          ) : (
+            <p className="text-xs text-muted-foreground max-w-[220px]">
+              Confirm Execution for all 3 jumps to load this session into the Scorer.
+            </p>
+          )}
         </div>
       </div>
       <div className="space-y-8">
