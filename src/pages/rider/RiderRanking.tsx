@@ -6,11 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GKA_BIG_AIR_MEN_RANKINGS_2026, RankingRow } from '@/data/gkaRankings';
 import { getFakeAthleteScore } from '@/data/fakeAthleteScores';
 import { getLeonardoAverageBreakdown } from '@/data/demoJumps';
-import { GKA_EVENTS_2026, GkaEvent, LEONARDO_EVENT_TIMELINE, getPhotoForAthlete, getCountryForAthlete } from '@/data/riderEvents';
+import { GKA_EVENTS_2026, GkaEvent, getPhotoForAthlete, getCountryForAthlete } from '@/data/riderEvents';
 import { useScoring } from '@/contexts/ScoringContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { AREA_DISPLAY_NAMES } from '@/lib/scoring';
-import { Trophy, Calendar } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 
 const RIDER_NAME = 'Leonardo Casati';
 
@@ -129,10 +129,7 @@ function SeasonRanking({ onSelect, showYouBadge }: { onSelect: (row: RankingRow)
 function EventStandings({ event, showYouBadge }: { event: GkaEvent; showYouBadge: boolean }) {
   return (
     <>
-      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-        <Calendar className="w-4 h-4" />
-        {new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {event.location}
-      </div>
+      <p className="text-sm text-muted-foreground mb-4">{event.location}</p>
       <Card className="overflow-hidden shadow-[var(--shadow-card)]">
         <table className="w-full border-collapse">
           <thead>
@@ -181,62 +178,6 @@ function EventStandings({ event, showYouBadge }: { event: GkaEvent; showYouBadge
   );
 }
 
-function EventsSection({ showYouBadge }: { showYouBadge: boolean }) {
-  const [eventId, setEventId] = useState(GKA_EVENTS_2026[0].id);
-  const event = GKA_EVENTS_2026.find(e => e.id === eventId) ?? GKA_EVENTS_2026[0];
-
-  return (
-    <div>
-      <div className="flex gap-2 mb-4">
-        {GKA_EVENTS_2026.map(e => (
-          <button
-            key={e.id}
-            onClick={() => setEventId(e.id)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-              e.id === eventId
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'border-border text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {e.location}
-          </button>
-        ))}
-      </div>
-      <h3 className="font-semibold mb-1">{event.name}</h3>
-      <EventStandings event={event} showYouBadge={showYouBadge} />
-    </div>
-  );
-}
-
-function Progression() {
-  return (
-    <div className="space-y-4">
-      {LEONARDO_EVENT_TIMELINE.map((stage, idx) => (
-        <Card key={idx} className="p-5 shadow-[var(--shadow-card)] relative">
-          <div className="flex items-start gap-4">
-            <div className="flex flex-col items-center pt-1">
-              <div className="w-3 h-3 rounded-full bg-primary shrink-0" />
-              {idx < LEONARDO_EVENT_TIMELINE.length - 1 && <div className="w-px flex-1 bg-border mt-1" style={{ minHeight: '2.5rem' }} />}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h4 className="font-semibold">{stage.event}</h4>
-                {stage.date && (
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(stage.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </span>
-                )}
-              </div>
-              <div className="text-2xl font-bold text-primary mt-1">{stage.headline}</div>
-              <p className="text-sm text-muted-foreground mt-1">{stage.detail}</p>
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
 export default function RiderRanking() {
   const { heightAmplitudeThresholds } = useScoring();
   const { role } = useAuth();
@@ -272,8 +213,9 @@ export default function RiderRanking() {
       <Tabs defaultValue="season">
         <TabsList className="mb-6">
           <TabsTrigger value="season">Season Ranking</TabsTrigger>
-          <TabsTrigger value="event">Events</TabsTrigger>
-          <TabsTrigger value="progression">Progression</TabsTrigger>
+          {GKA_EVENTS_2026.map(event => (
+            <TabsTrigger key={event.id} value={event.id}>{event.shortLabel}</TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value="season">
@@ -281,13 +223,12 @@ export default function RiderRanking() {
           <SeasonRanking onSelect={setSelected} showYouBadge={showYouBadge} />
         </TabsContent>
 
-        <TabsContent value="event">
-          <EventsSection showYouBadge={showYouBadge} />
-        </TabsContent>
-
-        <TabsContent value="progression">
-          <Progression />
-        </TabsContent>
+        {GKA_EVENTS_2026.map(event => (
+          <TabsContent key={event.id} value={event.id}>
+            <h3 className="font-semibold mb-1">{event.name}</h3>
+            <EventStandings event={event} showYouBadge={showYouBadge} />
+          </TabsContent>
+        ))}
       </Tabs>
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>

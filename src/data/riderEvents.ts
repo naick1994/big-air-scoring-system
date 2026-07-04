@@ -13,6 +13,7 @@ export interface EventStandingRow {
 export interface GkaEvent {
   id: string;
   name: string;
+  shortLabel: string;
   location: string;
   date: string;
   standings: EventStandingRow[];
@@ -33,6 +34,7 @@ export function getPhotoForAthlete(athlete: string): string {
 export const LORDS_OF_TRAM_FRANCE_2026: GkaEvent = {
   id: 'france',
   name: 'Lords of Tram — GKA Big Air Kite World Cup',
+  shortLabel: 'France',
   location: 'France',
   date: '2026-03-31',
   standings: [
@@ -66,6 +68,7 @@ export const LORDS_OF_TRAM_FRANCE_2026: GkaEvent = {
 export const MYKONOS_GREECE_2026: GkaEvent = {
   id: 'mykonos',
   name: 'Capital.com GKA Big Air Kite World Cup',
+  shortLabel: 'Greece',
   location: 'Mykonos, Greece',
   date: '2026-05-01',
   standings: [
@@ -88,6 +91,7 @@ export const MYKONOS_GREECE_2026: GkaEvent = {
     { rank: 17, athlete: 'Cohan Van Dijk', points: 140 },
     { rank: 17, athlete: 'Marten Koblischke', points: 140 },
     { rank: 17, athlete: 'Josh Gillitt', points: 140 },
+    { rank: 17, athlete: 'Kimo Verkerk', points: 140 },
     { rank: 21, athlete: 'Luca Ceruti', points: 90 },
     { rank: 21, athlete: 'Baptiste Bourdoulous', points: 90 },
     { rank: 21, athlete: 'Max Tullett', points: 90 },
@@ -96,20 +100,3 @@ export const MYKONOS_GREECE_2026: GkaEvent = {
 };
 
 export const GKA_EVENTS_2026: GkaEvent[] = [LORDS_OF_TRAM_FRANCE_2026, MYKONOS_GREECE_2026];
-
-// Leonardo's own result at each event this season, in chronological order —
-// used for the Progression view.
-export const LEONARDO_EVENT_TIMELINE = [
-  {
-    event: 'Lords of Tram — France 2026',
-    date: '2026-03-31',
-    headline: '3rd place',
-    detail: '770 tour points · lost to Jamie Overbeek (1st) and Finn Flügel (2nd)',
-  },
-  {
-    event: 'Capital.com GKA Big Air World Cup — Mykonos 2026',
-    date: '2026-05-01',
-    headline: '1st place — 1000 pts',
-    detail: 'Also his real jumps in this system: 23.66 / 30, within 0.11 of the real judges’ 23.77 — see Results',
-  },
-];
