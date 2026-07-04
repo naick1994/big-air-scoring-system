@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Play, Film, ChevronRight, BarChart2, Gauge, RotateCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import logo from '@/assets/gka-logo.svg';
 import wooLogo from '@/assets/woo-logo.svg';
@@ -627,9 +628,9 @@ function JumpCard({
                 Score Breakdown
               </Button>
               <Button
-                variant="outline"
+                variant={revealed ? 'outline' : 'default'}
                 size="sm"
-                className="gap-1.5 text-xs"
+                className={`gap-1.5 text-xs ${!revealed ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse' : ''}`}
                 onClick={() => videoPlayerRef.current?.open()}
               >
                 <Gauge className="w-3.5 h-3.5" />
@@ -648,24 +649,31 @@ function JumpCard({
               )}
             </div>
             <div className="text-right shrink-0">
-              <div className="text-4xl font-black text-primary leading-none">{displayScore.toFixed(2)}</div>
+              <div className={`text-4xl font-black leading-none ${revealed ? 'text-primary' : 'text-amber-600'}`}>
+                {displayScore.toFixed(2)}
+              </div>
               <div className="text-xs text-muted-foreground mt-0.5">/ {displayMax.toFixed(2)}</div>
-              {!revealed && <div className="text-[10px] text-amber-600 font-semibold uppercase tracking-wide mt-0.5">Partial</div>}
+              {!revealed && (
+                <Badge className="bg-amber-600 hover:bg-amber-600 mt-1.5 text-[10px] tracking-wide">PARTIAL</Badge>
+              )}
             </div>
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 pb-4">
           <VideoPlayer ref={videoPlayerRef} jump={jump} execution={execution} onExecutionChange={onExecutionChange} />
           <div className="flex flex-col justify-center gap-4">
-            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Score Breakdown {!revealed && <span className="text-amber-600 normal-case font-normal">(Execution pending)</span>}
-            </h4>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Score Breakdown</h4>
+              {!revealed && (
+                <Badge variant="outline" className="border-amber-600 text-amber-600 text-[10px]">Execution pending</Badge>
+              )}
+            </div>
             <div className="space-y-4">
               {displayAreas.map(area => <ScoreBar key={area.name} area={area} />)}
             </div>
             <div className="mt-2 pt-4 border-t border-border flex justify-between items-center">
               <span className="text-sm text-muted-foreground">{revealed ? 'Total' : 'Partial Total'}</span>
-              <span className="text-2xl font-black text-primary">
+              <span className={`text-2xl font-black ${revealed ? 'text-primary' : 'text-amber-600'}`}>
                 {displayScore.toFixed(2)}<span className="text-base font-normal text-muted-foreground"> / {displayMax.toFixed(2)}</span>
               </span>
             </div>
