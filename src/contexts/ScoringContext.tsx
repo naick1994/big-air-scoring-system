@@ -25,6 +25,10 @@ interface ScoringContextType {
   setOverallImpressionScore: (score: number) => void;
   heightAmplitudeThresholds: HeightAmplitudeThresholds;
   setHeightAmplitudeThresholds: (thresholds: HeightAmplitudeThresholds) => void;
+  realTotalReference: number | null;
+  setRealTotalReference: (value: number | null) => void;
+  jumpMeta: { trick: string; category: string }[] | null;
+  setJumpMeta: (value: { trick: string; category: string }[] | null) => void;
 }
 
 const ScoringContext = createContext<ScoringContextType | undefined>(undefined);
@@ -43,6 +47,8 @@ export function ScoringProvider({ children }: { children: React.ReactNode }) {
   
   const [overallImpression, setOverallImpression] = useState<OverallImpressionParams | null>(null);
   const [overallImpressionScore, setOverallImpressionScore] = useState<number>(0);
+  const [realTotalReference, setRealTotalReference] = useState<number | null>(null);
+  const [jumpMeta, setJumpMeta] = useState<{ trick: string; category: string }[] | null>(null);
   // Lazy initializer so the very first render already has the persisted
   // value — an effect-based hydration would leave a one-render window where
   // this (and anything reading it on mount, like the thresholds form) sees
@@ -107,6 +113,10 @@ export function ScoringProvider({ children }: { children: React.ReactNode }) {
       setOverallImpressionScore,
       heightAmplitudeThresholds,
       setHeightAmplitudeThresholds,
+      realTotalReference,
+      setRealTotalReference,
+      jumpMeta,
+      setJumpMeta,
     }}>
       {children}
     </ScoringContext.Provider>

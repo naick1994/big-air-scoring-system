@@ -54,6 +54,8 @@ export default function Result() {
     overallImpressionScore,
     overallImpression,
     heightAmplitudeThresholds,
+    realTotalReference, setRealTotalReference,
+    jumpMeta, setJumpMeta,
   } = useScoring();
   
   const [selectedPreset, setSelectedPreset] = useState<EventPreset>(activePreset);
@@ -89,6 +91,8 @@ export default function Result() {
     setJump1Result(null);
     setJump2Result(null);
     setJump3Result(null);
+    setRealTotalReference(null);
+    setJumpMeta(null);
     navigate('/');
   };
 
@@ -179,6 +183,14 @@ export default function Result() {
             </div>
           )}
         </div>
+        {realTotalReference !== null && (
+          <div className="text-sm text-muted-foreground mt-3">
+            vs real total {realTotalReference.toFixed(2)}{' '}
+            <span className={`font-bold ${finalTotalScore - realTotalReference >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              ({finalTotalScore - realTotalReference >= 0 ? '+' : ''}{(finalTotalScore - realTotalReference).toFixed(2)})
+            </span>
+          </div>
+        )}
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -186,9 +198,15 @@ export default function Result() {
           { result: jump1Result, label: 'Jump 1' },
           { result: jump2Result, label: 'Jump 2' },
           { result: jump3Result, label: 'Jump 3' },
-        ].map(({ result, label }) => (
+        ].map(({ result, label }, idx) => (
           <Card key={label} className="p-6 shadow-[var(--shadow-card)]">
             <h3 className="text-lg font-semibold mb-2 text-center">{label}</h3>
+            {jumpMeta?.[idx] && (
+              <div className="text-center mb-2">
+                <div className="text-sm font-medium text-primary">{jumpMeta[idx].trick}</div>
+                <div className="text-xs text-muted-foreground">{jumpMeta[idx].category}</div>
+              </div>
+            )}
             <div className="text-center">
               <div className="text-4xl font-bold text-primary">
                 {result.totalScore.toFixed(2)}
@@ -203,6 +221,9 @@ export default function Result() {
       <Card className="p-6 mb-6 shadow-[var(--shadow-card)]">
         <CardHeader className="p-0 mb-6">
           <CardTitle>Jump 1 - Detailed Breakdown</CardTitle>
+          {jumpMeta?.[0] && (
+            <p className="text-sm text-muted-foreground font-normal">{jumpMeta[0].trick} · {jumpMeta[0].category}</p>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-4 mb-6">
@@ -260,6 +281,9 @@ export default function Result() {
       <Card className="p-6 mb-6 shadow-[var(--shadow-card)]">
         <CardHeader className="p-0 mb-6">
           <CardTitle>Jump 2 - Detailed Breakdown</CardTitle>
+          {jumpMeta?.[1] && (
+            <p className="text-sm text-muted-foreground font-normal">{jumpMeta[1].trick} · {jumpMeta[1].category}</p>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-4 mb-6">
@@ -317,6 +341,9 @@ export default function Result() {
       <Card className="p-6 mb-6 shadow-[var(--shadow-card)]">
         <CardHeader className="p-0 mb-6">
           <CardTitle>Jump 3 - Detailed Breakdown</CardTitle>
+          {jumpMeta?.[2] && (
+            <p className="text-sm text-muted-foreground font-normal">{jumpMeta[2].trick} · {jumpMeta[2].category}</p>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-4 mb-6">

@@ -10,7 +10,7 @@ import logo from '@/assets/gka-logo.svg';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
-import { calculateScore, heightBracketLabel, amplitudeBracketLabel, heightBracketForValue, amplitudeBracketForValue, PARAMETER_CONFIG, AREA_DISPLAY_NAMES, KITE_ANGLE_RANGES, YANK_POWER_RANGES, FREE_FALL_RANGES } from '@/lib/scoring';
+import { calculateScore, heightBracketLabel, amplitudeBracketLabel, heightBracketForValue, amplitudeBracketForValue, PARAMETER_CONFIG, AREA_DISPLAY_NAMES, KITE_ANGLE_RANGES, YANK_POWER_RANGES, FREE_FALL_RANGES, PRESET_WEIGHTS } from '@/lib/scoring';
 import type { JumpParameters, ScoringResult, HeightAmplitudeThresholds } from '@/types/scoring';
 
 const EXECUTION_LABELS: Record<string, string> = Object.fromEntries(
@@ -129,7 +129,7 @@ const DEMO_SCORING_PARAMS: [DemoParamsCore, DemoParamsCore, DemoParamsCore] = [
   {
     landingOutcome: 'clean',
     EXTREMITY:    { kite_angle: 'super_low', yank_power: 'medium', free_fall: 'high' },
-    TECHNICALITY: { rotations: '3', rotation_axis: 'horizontal', board_off: 'no' },
+    TECHNICALITY: { rotations: '3', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '0', board_spin: '0' },
   },
 ];
 
@@ -464,7 +464,7 @@ function RecapScreen({
             <span className="text-zinc-500 text-xs tabular-nums">
               Real judges' score: <span className="text-zinc-300 font-semibold">{jump.realScore.toFixed(2)}</span>
               {showFull && (
-                <span className="text-zinc-600">
+                <span className={`font-bold ${projectedTotal - jump.realScore >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {' '}({projectedTotal - jump.realScore >= 0 ? '+' : ''}{(projectedTotal - jump.realScore).toFixed(2)})
                 </span>
               )}
@@ -769,7 +769,10 @@ function JumpCard({
               )}
               {revealed && (
                 <div className="text-[10px] text-muted-foreground mt-1">
-                  vs real {jump.realScore.toFixed(2)} ({displayScore - jump.realScore >= 0 ? '+' : ''}{(displayScore - jump.realScore).toFixed(2)})
+                  vs real {jump.realScore.toFixed(2)}{' '}
+                  <span className={`font-bold ${displayScore - jump.realScore >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    ({displayScore - jump.realScore >= 0 ? '+' : ''}{(displayScore - jump.realScore).toFixed(2)})
+                  </span>
                 </div>
               )}
             </div>
@@ -822,6 +825,7 @@ function JumpCard({
 export default function Demo() {
   const navigate = useNavigate();
   const { weights, activePreset, setActivePreset, setJump1Params, setJump2Params, setJump3Params,
+          setJump1Result, setJump2Result, setJump3Result, setRealTotalReference, setJumpMeta,
           jump1Params, jump2Params, jump3Params, heightAmplitudeThresholds } = useScoring();
 
   // Judge's Execution slider input per jump, persisted so reopening a jump's
@@ -877,7 +881,12 @@ export default function Demo() {
     setJump1Params(demoDefaults[0]);
     setJump2Params(demoDefaults[1]);
     setJump3Params(demoDefaults[2]);
-    navigate('/');
+    setJump1Result(calculateScore(demoDefaults[0], PRESET_WEIGHTS.GKA, 'GKA'));
+    setJump2Result(calculateScore(demoDefaults[1], PRESET_WEIGHTS.GKA, 'GKA'));
+    setJump3Result(calculateScore(demoDefaults[2], PRESET_WEIGHTS.GKA, 'GKA'));
+    setRealTotalReference(DEMO_JUMPS_BASE.reduce((sum, j) => sum + j.realScore, 0));
+    setJumpMeta(DEMO_JUMPS_BASE.map(j => ({ trick: j.trick, category: j.category })));
+    navigate('/result');
   };
 
   // Use params from scorer if loaded, otherwise fall back to demo defaults
@@ -905,15 +914,8 @@ export default function Demo() {
       <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-1">Live Demo</h2>
-          <p className="text-muted-foreground">
-            3 real competition jumps · objective Woo sensor data · no judge subjectivity.
-          </p>
         </div>
         <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm font-semibold text-primary">Woo Sensor Data</span>
-          </div>
           {allExecutionConfirmed ? (
             <Button onClick={loadDemoSession} className="gap-2 font-semibold">
               Load Demo in Scorer
