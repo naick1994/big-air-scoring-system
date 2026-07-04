@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { useScoring } from '@/contexts/ScoringContext';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 import { heightBracketLabel, amplitudeBracketLabel, AREA_DISPLAY_NAMES } from '@/lib/scoring';
 import { DEMO_JUMPS_BASE, buildDemoJumpResult } from '@/data/demoJumps';
 import { HeightAmplitudeThresholds } from '@/types/scoring';
@@ -51,10 +53,16 @@ export default function RiderResults() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <h2 className="text-3xl font-bold mb-1">My Results</h2>
+      <div className="flex items-start justify-between flex-wrap gap-4 mb-1">
+        <h2 className="text-3xl font-bold">My Results</h2>
+        <Button onClick={() => window.print()} variant="outline" className="gap-2 no-print">
+          <Download className="w-4 h-4" />
+          Download PDF
+        </Button>
+      </div>
       <p className="text-muted-foreground mb-8">Capital.com GKA Big Air World Cup Mykonos 2026</p>
 
-      <Card className="p-8 mb-6 shadow-[var(--shadow-card)] text-center bg-gradient-to-br from-card to-primary/5">
+      <Card className="p-8 mb-6 shadow-[var(--shadow-card)] text-center bg-gradient-to-br from-card to-primary/5 print-avoid-break">
         <h3 className="text-lg text-muted-foreground mb-2">Total Score</h3>
         <div className="text-7xl font-bold text-primary mb-4">
           {totalJumpsScore.toFixed(2)}
@@ -70,7 +78,7 @@ export default function RiderResults() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {DEMO_JUMPS_BASE.map((jump, idx) => (
-          <Card key={jump.id} className="p-6 shadow-[var(--shadow-card)]">
+          <Card key={jump.id} className="p-6 shadow-[var(--shadow-card)] print-avoid-break">
             <div className="text-center mb-2">
               <div className="flex items-center justify-center gap-2">
                 <h3 className="text-lg font-bold">{jump.label}</h3>
@@ -92,7 +100,7 @@ export default function RiderResults() {
       </div>
 
       {DEMO_JUMPS_BASE.map((jump, idx) => (
-        <Card key={jump.id} className="p-6 mb-6 shadow-[var(--shadow-card)]">
+        <Card key={jump.id} className="p-6 mb-6 shadow-[var(--shadow-card)] print-avoid-break">
           <div className="mb-6">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold">{jump.label} - Detailed Breakdown</h3>

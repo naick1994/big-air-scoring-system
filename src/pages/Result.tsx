@@ -164,9 +164,15 @@ export default function Result() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <h2 className="text-3xl font-bold mb-8">Final Result</h2>
+      <div className="flex items-start justify-between flex-wrap gap-4 mb-8">
+        <h2 className="text-3xl font-bold">Final Result</h2>
+        <Button onClick={() => window.print()} variant="outline" className="gap-2 no-print">
+          <Download className="w-4 h-4" />
+          Download PDF
+        </Button>
+      </div>
 
-      <Card className="p-8 mb-6 shadow-[var(--shadow-card)] text-center bg-gradient-to-br from-card to-primary/5">
+      <Card className="p-8 mb-6 shadow-[var(--shadow-card)] text-center bg-gradient-to-br from-card to-primary/5 print-avoid-break">
         <h3 className="text-lg text-muted-foreground mb-2">Final Total Score</h3>
         <div className="text-7xl font-bold text-primary mb-4">
           {finalTotalScore.toFixed(2)}
@@ -225,7 +231,7 @@ export default function Result() {
         ))}
       </div>
 
-      <Card className="p-6 mb-6 shadow-[var(--shadow-card)]">
+      <Card className="p-6 mb-6 shadow-[var(--shadow-card)] print-avoid-break">
         <CardHeader className="p-0 mb-6">
           <div className="flex items-center gap-2">
             <CardTitle>Jump 1 - Detailed Breakdown{jumpMeta?.[0] && ` · ${jumpMeta[0].athlete}`}</CardTitle>
@@ -292,7 +298,7 @@ export default function Result() {
         </CardContent>
       </Card>
 
-      <Card className="p-6 mb-6 shadow-[var(--shadow-card)]">
+      <Card className="p-6 mb-6 shadow-[var(--shadow-card)] print-avoid-break">
         <CardHeader className="p-0 mb-6">
           <div className="flex items-center gap-2">
             <CardTitle>Jump 2 - Detailed Breakdown{jumpMeta?.[1] && ` · ${jumpMeta[1].athlete}`}</CardTitle>
@@ -359,7 +365,7 @@ export default function Result() {
         </CardContent>
       </Card>
 
-      <Card className="p-6 mb-6 shadow-[var(--shadow-card)]">
+      <Card className="p-6 mb-6 shadow-[var(--shadow-card)] print-avoid-break">
         <CardHeader className="p-0 mb-6">
           <div className="flex items-center gap-2">
             <CardTitle>Jump 3 - Detailed Breakdown{jumpMeta?.[2] && ` · ${jumpMeta[2].athlete}`}</CardTitle>
@@ -427,7 +433,7 @@ export default function Result() {
       </Card>
 
       {showOverallImpression && overallImpression && (
-        <Card className="p-6 mb-6 shadow-[var(--shadow-card)]">
+        <Card className="p-6 mb-6 shadow-[var(--shadow-card)] print-avoid-break">
           <CardHeader className="p-0 mb-6">
             <CardTitle>Overall Impression - Detailed Breakdown</CardTitle>
           </CardHeader>
@@ -481,7 +487,7 @@ export default function Result() {
         </Card>
       )}
 
-      <Card className="p-6 mb-6 shadow-[var(--shadow-card)]">
+      <Card className="p-6 mb-6 shadow-[var(--shadow-card)] print-avoid-break no-print">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-lg font-medium">Preset:</span>
@@ -504,7 +510,7 @@ export default function Result() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
         <Button onClick={handleNewJumps} variant="outline" className="gap-2">
           <Plus className="w-4 h-4" />
           New Score
