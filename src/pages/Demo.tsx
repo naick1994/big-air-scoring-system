@@ -8,8 +8,8 @@ import logo from '@/assets/gka-logo.svg';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
-import { calculateScore } from '@/lib/scoring';
-import type { JumpParameters, ScoringResult } from '@/types/scoring';
+import { calculateScore, heightBracketLabel, amplitudeBracketLabel } from '@/lib/scoring';
+import type { JumpParameters, ScoringResult, HeightAmplitudeThresholds } from '@/types/scoring';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -83,21 +83,21 @@ const DEMO_JUMPS_BASE: JumpDemoBase[] = [
 const DEMO_SCORING_PARAMS: [JumpParameters, JumpParameters, JumpParameters] = [
   {
     landingOutcome: 'clean',
-    HEIGHT:       { height: '16_20m', amplitude: 'gt121m'  },
+    HEIGHT:       { height: 'b3', amplitude: 'b4' },
     EXTREMITY:    { kite_angle: 'low', yank_power: 'bomb', free_fall: 'high' },
     TECHNICALITY: { rotations: '3', rotation_axis: 'horizontal', board_off: 'no' },
     EXECUTION:    { speed_in_out: 0.32, stability_control: 0.32, landing_control: 0.32, board_control: 0.32, kite_control: 0.32 },
   },
   {
     landingOutcome: 'clean',
-    HEIGHT:       { height: '16_20m', amplitude: '81_120m' },
+    HEIGHT:       { height: 'b3', amplitude: 'b3' },
     EXTREMITY:    { kite_angle: 'low', yank_power: 'bomb', free_fall: 'high' },
     TECHNICALITY: { rotations: '2', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '0', board_tic_tac: '0' },
     EXECUTION:    { speed_in_out: 0.30, stability_control: 0.28, landing_control: 0.30, board_control: 0.30, kite_control: 0.28 },
   },
   {
     landingOutcome: 'clean',
-    HEIGHT:       { height: '16_20m', amplitude: '81_120m' },
+    HEIGHT:       { height: 'b3', amplitude: 'b3' },
     EXTREMITY:    { kite_angle: 'low', yank_power: 'bomb', free_fall: 'high' },
     TECHNICALITY: { rotations: '3', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '1', board_tic_tac: '0' },
     EXECUTION:    { speed_in_out: 0.38, stability_control: 0.38, landing_control: 0.38, board_control: 0.38, kite_control: 0.38 },
@@ -114,8 +114,6 @@ const AREA_GRADIENT: Record<string, string> = {
 };
 
 const VALUE_DISPLAY: Record<string, string> = {
-  '0_10m': '0–10 m', '11_15m': '11–15 m', '16_20m': '16–20 m', 'gt20m': '>20 m',
-  '0_40m': '0–40 m', '41_80m': '41–80 m', '81_120m': '81–120 m', 'gt121m': '>121 m',
   'super_low': 'Super Low (71°+)', 'low': 'Low (51–70°)', 'average': 'Average (31–50°)', 'high': 'High (0–30°)',
   'none': 'None', 'medium': 'Medium', 'bomb': 'Bomb', 'poor': 'Poor',
   'horizontal': 'Horizontal', 'vertical': 'Vertical',
@@ -123,19 +121,19 @@ const VALUE_DISPLAY: Record<string, string> = {
   '0': '0', '1': '×1', '2': '×2', '3': '×3', '3+': '3+',
 };
 
-function resultToAreas(result: ScoringResult): AreaScore[] {
+function resultToAreas(result: ScoringResult, thresholds: HeightAmplitudeThresholds): AreaScore[] {
   return result.areaScores.map(as => ({
     name: as.area,
     score: Math.round(as.finalScore * 100) / 100,
     maxScore: Math.round(as.weight * 10 * 100) / 100,
     weight: Math.round(as.weight * 100),
     gradient: AREA_GRADIENT[as.area] ?? 'from-gray-500 to-gray-400',
-    params: as.parameters.map(p => ({
-      label: p.label,
-      detail: VALUE_DISPLAY[String(p.value)] ?? String(p.value),
-      pts: p.points,
-      maxPts: p.max,
-    })),
+    params: as.parameters.map(p => {
+      let detail = VALUE_DISPLAY[String(p.value)] ?? String(p.value);
+      if (p.label === 'Height') detail = heightBracketLabel(p.value as 'b1' | 'b2' | 'b3' | 'b4', thresholds.height);
+      if (p.label === 'Amplitude') detail = amplitudeBracketLabel(p.value as 'b1' | 'b2' | 'b3' | 'b4', thresholds.amplitude);
+      return { label: p.label, detail, pts: p.points, maxPts: p.max };
+    }),
   }));
 }
 
@@ -490,7 +488,7 @@ function JumpCard({ jump }: { jump: JumpDemo }) {
 export default function Demo() {
   const navigate = useNavigate();
   const { weights, activePreset, setActivePreset, setJump1Params, setJump2Params, setJump3Params,
-          jump1Params, jump2Params, jump3Params } = useScoring();
+          jump1Params, jump2Params, jump3Params, heightAmplitudeThresholds } = useScoring();
 
   const loadDemoSession = () => {
     setActivePreset('GKA');
@@ -514,10 +512,10 @@ export default function Demo() {
       return {
         ...base,
         score: result.totalScore,
-        areas: resultToAreas(result),
+        areas: resultToAreas(result, heightAmplitudeThresholds),
       };
     }),
-    [effectiveParams, weights, activePreset]
+    [effectiveParams, weights, activePreset, heightAmplitudeThresholds]
   );
 
   return (

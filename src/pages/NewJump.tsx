@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useScoring } from '@/contexts/ScoringContext';
 import { JumpParameters, LandingOutcome } from '@/types/scoring';
-import { calculateScore, PRESET_CONFIG } from '@/lib/scoring';
+import { calculateScore, PRESET_CONFIG, HEIGHT_BRACKET_POINTS, AMPLITUDE_BRACKET_POINTS, heightBracketLabel, amplitudeBracketLabel } from '@/lib/scoring';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,6 +12,8 @@ import { Slider } from '@/components/ui/slider';
 import { AlertCircle, Loader2, AlertTriangle, Check } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+
+const BRACKET_COLORS = ['text-red-600', 'text-amber-600', 'text-lime-600', 'text-green-600'];
 
 const getSliderValueColor = (value: number): string => {
   const percentage = (value / 10) * 100;
@@ -39,12 +41,24 @@ const initialFormState: JumpFormState = {
 
 export default function NewJump() {
   const navigate = useNavigate();
-  const { 
+  const {
     weights, activePreset,
     jump1Params, jump2Params, jump3Params,
     setJump1Result, setJump2Result, setJump3Result,
-    setJump1Params, setJump2Params, setJump3Params
+    setJump1Params, setJump2Params, setJump3Params,
+    heightAmplitudeThresholds,
   } = useScoring();
+
+  const heightBrackets = (['b1', 'b2', 'b3', 'b4'] as const).map((b) => ({
+    value: b,
+    label: heightBracketLabel(b, heightAmplitudeThresholds.height),
+    points: HEIGHT_BRACKET_POINTS[b],
+  }));
+  const amplitudeBrackets = (['b1', 'b2', 'b3', 'b4'] as const).map((b) => ({
+    value: b,
+    label: amplitudeBracketLabel(b, heightAmplitudeThresholds.amplitude),
+    points: AMPLITUDE_BRACKET_POINTS[b],
+  }));
   
   const [activeTab, setActiveTab] = useState('jump1');
   const [isCalculating, setIsCalculating] = useState(false);
@@ -204,10 +218,11 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="0_10m" className="text-red-600">0-10m (0 points)</SelectItem>
-                        <SelectItem value="11_15m" className="text-lime-600">11-15m (0.6 points)</SelectItem>
-                        <SelectItem value="16_20m" className="text-green-600">16-20m (0.9 points)</SelectItem>
-                        <SelectItem value="gt20m" className="text-green-600">+20m (1.5 points)</SelectItem>
+                        {heightBrackets.map((b, i) => (
+                          <SelectItem key={b.value} value={b.value} className={BRACKET_COLORS[i]}>
+                            {b.label} ({b.points} points)
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -219,10 +234,11 @@ export default function NewJump() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="0_40m" className="text-red-600">0-40m (0 points)</SelectItem>
-                        <SelectItem value="41_80m" className="text-amber-600">41-80m (0.33 points)</SelectItem>
-                        <SelectItem value="81_120m" className="text-lime-600">81-120m (0.67 points)</SelectItem>
-                        <SelectItem value="gt121m" className="text-green-600">+121m (1.0 points)</SelectItem>
+                        {amplitudeBrackets.map((b, i) => (
+                          <SelectItem key={b.value} value={b.value} className={BRACKET_COLORS[i]}>
+                            {b.label} ({b.points} points)
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

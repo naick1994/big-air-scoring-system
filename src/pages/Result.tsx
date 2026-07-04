@@ -6,18 +6,10 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Plus, AlertCircle, Edit } from 'lucide-react';
 import { toast } from 'sonner';
-import { calculateScore, PRESET_WEIGHTS, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG } from '@/lib/scoring';
-import { EventPreset } from '@/types/scoring';
+import { calculateScore, PRESET_WEIGHTS, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG, heightBracketLabel, amplitudeBracketLabel } from '@/lib/scoring';
+import { EventPreset, HeightAmplitudeThresholds } from '@/types/scoring';
 
 const VALUE_LABELS: Record<string, string> = {
-  '0_10m': '0-10m',
-  '11_15m': '11-15m',
-  '16_20m': '16-20m',
-  'gt20m': '+20m',
-  '0_40m': '0-40m',
-  '41_80m': '41-80m',
-  '81_120m': '81-120m',
-  'gt121m': '+121m',
   'low': 'Low',
   'medium': 'Medium',
   'high': 'High',
@@ -27,10 +19,12 @@ const VALUE_LABELS: Record<string, string> = {
   'poor': 'Poor',
 };
 
-const formatValue = (value: string | number): string => {
+const formatValue = (paramLabel: string, value: string | number, thresholds: HeightAmplitudeThresholds): string => {
   if (typeof value === 'number') {
     return value.toFixed(2);
   }
+  if (paramLabel === 'Height') return heightBracketLabel(value as 'b1' | 'b2' | 'b3' | 'b4', thresholds.height);
+  if (paramLabel === 'Amplitude') return amplitudeBracketLabel(value as 'b1' | 'b2' | 'b3' | 'b4', thresholds.amplitude);
   return VALUE_LABELS[value] || value.charAt(0).toUpperCase() + value.slice(1).replace('_', ' ');
 };
 
@@ -58,7 +52,8 @@ export default function Result() {
     setJump1Result, setJump2Result, setJump3Result,
     setJump1Params, setJump2Params, setJump3Params,
     overallImpressionScore,
-    overallImpression
+    overallImpression,
+    heightAmplitudeThresholds,
   } = useScoring();
   
   const [selectedPreset, setSelectedPreset] = useState<EventPreset>(activePreset);
@@ -250,7 +245,7 @@ export default function Result() {
                         </td>
                       )}
                       <td className="py-3 px-4">{param.label}</td>
-                      <td className="py-3 px-4">{formatValue(param.value)}</td>
+                      <td className="py-3 px-4">{formatValue(param.label, param.value, heightAmplitudeThresholds)}</td>
                       <td className={`text-center py-3 px-4 font-semibold ${getPointsColor(param.points, param.max)}`}>{param.points.toFixed(2)}</td>
                       <td className="text-center py-3 px-4 text-muted-foreground">{param.max.toFixed(2)}</td>
                     </tr>
@@ -307,7 +302,7 @@ export default function Result() {
                         </td>
                       )}
                       <td className="py-3 px-4">{param.label}</td>
-                      <td className="py-3 px-4">{formatValue(param.value)}</td>
+                      <td className="py-3 px-4">{formatValue(param.label, param.value, heightAmplitudeThresholds)}</td>
                       <td className={`text-center py-3 px-4 font-semibold ${getPointsColor(param.points, param.max)}`}>{param.points.toFixed(2)}</td>
                       <td className="text-center py-3 px-4 text-muted-foreground">{param.max.toFixed(2)}</td>
                     </tr>
@@ -364,7 +359,7 @@ export default function Result() {
                         </td>
                       )}
                       <td className="py-3 px-4">{param.label}</td>
-                      <td className="py-3 px-4">{formatValue(param.value)}</td>
+                      <td className="py-3 px-4">{formatValue(param.label, param.value, heightAmplitudeThresholds)}</td>
                       <td className={`text-center py-3 px-4 font-semibold ${getPointsColor(param.points, param.max)}`}>{param.points.toFixed(2)}</td>
                       <td className="text-center py-3 px-4 text-muted-foreground">{param.max.toFixed(2)}</td>
                     </tr>

@@ -28,6 +28,14 @@ export interface PresetConfig {
   hasOverallImpression: boolean;
 }
 
+// Boundaries (in meters) between the 4 scoring brackets, set by the chief
+// judge per event based on wind/conditions. Bracket 1 = [0, t1], bracket 2 =
+// (t1, t2], bracket 3 = (t2, t3], bracket 4 = (t3, +inf).
+export interface HeightAmplitudeThresholds {
+  height: { t1: number; t2: number; t3: number };
+  amplitude: { t1: number; t2: number; t3: number };
+}
+
 export interface JumpParameters {
   landingOutcome: LandingOutcome;
   HEIGHT: {

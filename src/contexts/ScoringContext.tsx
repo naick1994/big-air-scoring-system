@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { EventPreset, PresetWeights, JumpParameters, ScoringResult, OverallImpressionParams } from '@/types/scoring';
-import { PRESET_WEIGHTS } from '@/lib/scoring';
+import { EventPreset, PresetWeights, JumpParameters, ScoringResult, OverallImpressionParams, HeightAmplitudeThresholds } from '@/types/scoring';
+import { PRESET_WEIGHTS, DEFAULT_HEIGHT_AMPLITUDE_THRESHOLDS } from '@/lib/scoring';
 
 interface ScoringContextType {
   activePreset: EventPreset;
@@ -23,6 +23,8 @@ interface ScoringContextType {
   setOverallImpression: (params: OverallImpressionParams | null) => void;
   overallImpressionScore: number;
   setOverallImpressionScore: (score: number) => void;
+  heightAmplitudeThresholds: HeightAmplitudeThresholds;
+  setHeightAmplitudeThresholds: (thresholds: HeightAmplitudeThresholds) => void;
 }
 
 const ScoringContext = createContext<ScoringContextType | undefined>(undefined);
@@ -41,16 +43,27 @@ export function ScoringProvider({ children }: { children: React.ReactNode }) {
   
   const [overallImpression, setOverallImpression] = useState<OverallImpressionParams | null>(null);
   const [overallImpressionScore, setOverallImpressionScore] = useState<number>(0);
+  const [heightAmplitudeThresholds, setHeightAmplitudeThresholdsState] = useState<HeightAmplitudeThresholds>(DEFAULT_HEIGHT_AMPLITUDE_THRESHOLDS);
 
   useEffect(() => {
     const saved = localStorage.getItem('activePreset');
     if (saved && saved in PRESET_WEIGHTS) {
       setActivePresetState(saved as EventPreset);
-      setWeightsState(saved === 'Custom' 
+      setWeightsState(saved === 'Custom'
         ? JSON.parse(localStorage.getItem('customWeights') || JSON.stringify(PRESET_WEIGHTS.KOTA))
         : PRESET_WEIGHTS[saved as keyof typeof PRESET_WEIGHTS]);
     }
+
+    const savedThresholds = localStorage.getItem('heightAmplitudeThresholds');
+    if (savedThresholds) {
+      setHeightAmplitudeThresholdsState(JSON.parse(savedThresholds));
+    }
   }, []);
+
+  const setHeightAmplitudeThresholds = (thresholds: HeightAmplitudeThresholds) => {
+    setHeightAmplitudeThresholdsState(thresholds);
+    localStorage.setItem('heightAmplitudeThresholds', JSON.stringify(thresholds));
+  };
 
   const setActivePreset = (preset: EventPreset) => {
     setActivePresetState(preset);
@@ -90,6 +103,8 @@ export function ScoringProvider({ children }: { children: React.ReactNode }) {
       setOverallImpression,
       overallImpressionScore,
       setOverallImpressionScore,
+      heightAmplitudeThresholds,
+      setHeightAmplitudeThresholds,
     }}>
       {children}
     </ScoringContext.Provider>

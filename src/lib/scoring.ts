@@ -1,4 +1,32 @@
-import { JumpParameters, PresetWeights, ScoringResult, AreaScore, ParameterScore } from '@/types/scoring';
+import { JumpParameters, PresetWeights, ScoringResult, AreaScore, ParameterScore, HeightAmplitudeThresholds } from '@/types/scoring';
+
+export const DEFAULT_HEIGHT_AMPLITUDE_THRESHOLDS: HeightAmplitudeThresholds = {
+  height: { t1: 10, t2: 15, t3: 20 },
+  amplitude: { t1: 40, t2: 80, t3: 120 },
+};
+
+// Bracket ids are stable identifiers independent of the actual meter
+// boundaries, which the chief judge can reconfigure per event.
+export const HEIGHT_BRACKET_POINTS: Record<string, number> = { b1: 0, b2: 0.6, b3: 0.9, b4: 1.5 };
+export const AMPLITUDE_BRACKET_POINTS: Record<string, number> = { b1: 0, b2: 0.33, b3: 0.67, b4: 1.0 };
+
+export function heightBracketLabel(bracket: 'b1' | 'b2' | 'b3' | 'b4', t: HeightAmplitudeThresholds['height']): string {
+  switch (bracket) {
+    case 'b1': return `0-${t.t1}m`;
+    case 'b2': return `${t.t1 + 1}-${t.t2}m`;
+    case 'b3': return `${t.t2 + 1}-${t.t3}m`;
+    case 'b4': return `+${t.t3}m`;
+  }
+}
+
+export function amplitudeBracketLabel(bracket: 'b1' | 'b2' | 'b3' | 'b4', t: HeightAmplitudeThresholds['amplitude']): string {
+  switch (bracket) {
+    case 'b1': return `0-${t.t1}m`;
+    case 'b2': return `${t.t1 + 1}-${t.t2}m`;
+    case 'b3': return `${t.t2 + 1}-${t.t3}m`;
+    case 'b4': return `+${t.t3 + 1}m`;
+  }
+}
 
 export const PRESET_WEIGHTS: Record<string, PresetWeights> = {
   GKA: { HEIGHT: 30, EXTREMITY: 30, TECHNICALITY: 20, EXECUTION: 20 },
@@ -88,12 +116,12 @@ export const PARAMETER_CONFIG = {
     height: {
       label: 'Height',
       max: 1.5,
-      map: { '0_10m': 0, '11_15m': 0.6, '16_20m': 0.9, 'gt20m': 1.5 },
+      map: HEIGHT_BRACKET_POINTS,
     },
     amplitude: {
       label: 'Amplitude',
       max: 1.0,
-      map: { '0_40m': 0, '41_80m': 0.33, '81_120m': 0.67, 'gt121m': 1.0 },
+      map: AMPLITUDE_BRACKET_POINTS,
     },
   },
   EXTREMITY: {

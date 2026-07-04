@@ -2,11 +2,13 @@ import { useScoring } from '@/contexts/ScoringContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { PARAMETER_CONFIG, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG } from '@/lib/scoring';
+import { PARAMETER_CONFIG, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG, heightBracketLabel, amplitudeBracketLabel } from '@/lib/scoring';
 import { Info } from 'lucide-react';
 
 export default function ParametersGuide() {
-  const { activePreset, weights } = useScoring();
+  const { activePreset, weights, heightAmplitudeThresholds } = useScoring();
+  const ht = heightAmplitudeThresholds.height;
+  const at = heightAmplitudeThresholds.amplitude;
   const showOverallImpression = PRESET_CONFIG[activePreset]?.hasOverallImpression ?? false;
 
   return (
@@ -71,10 +73,10 @@ export default function ParametersGuide() {
                     Maximum vertical height achieved during the jump
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">0-10m: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">11-15m: 0.6 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">16-20m: 0.9 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">&gt;20m: 1.5 pts</Badge>
+                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">{heightBracketLabel('b1', ht)}: 0 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">{heightBracketLabel('b2', ht)}: 0.6 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">{heightBracketLabel('b3', ht)}: 0.9 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">{heightBracketLabel('b4', ht)}: 1.5 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.HEIGHT.height.max} points</div>
                 </div>
@@ -86,10 +88,10 @@ export default function ParametersGuide() {
                     Horizontal distance covered during the jump
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">0-40m: 0 pts</Badge>
-                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">41-80m: 0.33 pts</Badge>
-                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">81-120m: 0.67 pts</Badge>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">&gt;121m: 1.0 pts</Badge>
+                    <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/30">{amplitudeBracketLabel('b1', at)}: 0 pts</Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-700 border-amber-500/30">{amplitudeBracketLabel('b2', at)}: 0.33 pts</Badge>
+                    <Badge variant="outline" className="bg-lime-500/20 text-lime-700 border-lime-500/30">{amplitudeBracketLabel('b3', at)}: 0.67 pts</Badge>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">{amplitudeBracketLabel('b4', at)}: 1.0 pts</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-2">Max: {PARAMETER_CONFIG.HEIGHT.amplitude.max} points</div>
                 </div>

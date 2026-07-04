@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useScoring } from '@/contexts/ScoringContext';
-import { PRESET_WEIGHTS, PRESET_CONFIG } from '@/lib/scoring';
-import { EventPreset, PresetWeights } from '@/types/scoring';
+import { PRESET_WEIGHTS, PRESET_CONFIG, heightBracketLabel, amplitudeBracketLabel, HEIGHT_BRACKET_POINTS, AMPLITUDE_BRACKET_POINTS } from '@/lib/scoring';
+import { EventPreset, PresetWeights, HeightAmplitudeThresholds } from '@/types/scoring';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -33,11 +33,39 @@ const PRESET_NAME_TO_KEY: Record<string, EventPreset> = {
 };
 
 export default function PresetEvents() {
-  const { activePreset, setActivePreset, weights, setWeights } = useScoring();
+  const { activePreset, setActivePreset, weights, setWeights, heightAmplitudeThresholds, setHeightAmplitudeThresholds } = useScoring();
   const [selectedPreset, setSelectedPreset] = useState<EventPreset>(activePreset);
   const [customWeights, setCustomWeights] = useState<PresetWeights>(weights);
   const [isValid, setIsValid] = useState(true);
+  const [draftThresholds, setDraftThresholds] = useState<HeightAmplitudeThresholds>(heightAmplitudeThresholds);
   const isMobile = useIsMobile();
+
+  const thresholdsValid =
+    draftThresholds.height.t1 < draftThresholds.height.t2 &&
+    draftThresholds.height.t2 < draftThresholds.height.t3 &&
+    draftThresholds.amplitude.t1 < draftThresholds.amplitude.t2 &&
+    draftThresholds.amplitude.t2 < draftThresholds.amplitude.t3;
+
+  const handleThresholdChange = (
+    area: 'height' | 'amplitude',
+    tier: 't1' | 't2' | 't3',
+    value: string
+  ) => {
+    const numValue = value === '' ? 0 : parseInt(value) || 0;
+    setDraftThresholds({
+      ...draftThresholds,
+      [area]: { ...draftThresholds[area], [tier]: numValue },
+    });
+  };
+
+  const handleSaveThresholds = () => {
+    if (!thresholdsValid) {
+      toast.error('Each threshold must be greater than the previous one');
+      return;
+    }
+    setHeightAmplitudeThresholds(draftThresholds);
+    toast.success('HEIGHT/AMPLITUDE thresholds saved for this event');
+  };
 
   useEffect(() => {
     const sum = customWeights.HEIGHT + customWeights.EXTREMITY + customWeights.TECHNICALITY + customWeights.EXECUTION;
@@ -186,6 +214,83 @@ export default function PresetEvents() {
             Activate Preset
           </Button>
         </div>
+      </Card>
+
+      <Card className="p-6 mb-8 shadow-[var(--shadow-card)]">
+        <h3 className="text-xl font-semibold mb-2">HEIGHT & AMPLITUDE Thresholds</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Set by the chief judge before the event, based on wind and conditions. These meter boundaries define
+          the 4 scoring brackets for Height and Amplitude — the points per bracket (0 / 0.6 / 0.9 / 1.5 for Height,
+          0 / 0.33 / 0.67 / 1.0 for Amplitude) stay fixed.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h4 className="font-semibold mb-3">Height (vertical, meters)</h4>
+            <div className="grid grid-cols-3 gap-3">
+              {(['t1', 't2', 't3'] as const).map((tier) => (
+                <div key={tier}>
+                  <Label htmlFor={`height-${tier}`} className="mb-1 block text-xs text-muted-foreground">
+                    Threshold {tier.slice(1)}
+                  </Label>
+                  <Input
+                    id={`height-${tier}`}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={draftThresholds.height[tier] === 0 ? '' : draftThresholds.height[tier]}
+                    onChange={(e) => handleThresholdChange('height', tier, e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2 mt-3">
+              {(['b1', 'b2', 'b3', 'b4'] as const).map((b) => (
+                <Badge key={b} variant="outline">
+                  {heightBracketLabel(b, draftThresholds.height)}: {HEIGHT_BRACKET_POINTS[b]} pts
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-3">Amplitude (horizontal, meters)</h4>
+            <div className="grid grid-cols-3 gap-3">
+              {(['t1', 't2', 't3'] as const).map((tier) => (
+                <div key={tier}>
+                  <Label htmlFor={`amplitude-${tier}`} className="mb-1 block text-xs text-muted-foreground">
+                    Threshold {tier.slice(1)}
+                  </Label>
+                  <Input
+                    id={`amplitude-${tier}`}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={draftThresholds.amplitude[tier] === 0 ? '' : draftThresholds.amplitude[tier]}
+                    onChange={(e) => handleThresholdChange('amplitude', tier, e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2 mt-3">
+              {(['b1', 'b2', 'b3', 'b4'] as const).map((b) => (
+                <Badge key={b} variant="outline">
+                  {amplitudeBracketLabel(b, draftThresholds.amplitude)}: {AMPLITUDE_BRACKET_POINTS[b]} pts
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {!thresholdsValid && (
+          <p className="text-sm text-destructive mb-4">Each threshold must be greater than the previous one, for both Height and Amplitude.</p>
+        )}
+
+        <Button onClick={handleSaveThresholds} className="w-full h-12 text-lg font-semibold" size="lg">
+          Save Thresholds
+        </Button>
       </Card>
 
       <Card className="p-6 shadow-[var(--shadow-card)]">
