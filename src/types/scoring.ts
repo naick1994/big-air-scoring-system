@@ -81,6 +81,11 @@ export interface AreaScore {
   parameters: ParameterScore[];
 }
 
+export interface JudgeOverride {
+  score: number;
+  reason: string;
+}
+
 export interface ScoringResult {
   totalScore: number;
   areaScores: AreaScore[];
@@ -89,4 +94,5 @@ export interface ScoringResult {
   jumpParameters: JumpParameters;
   preset: EventPreset;
   weights: PresetWeights;
+  override?: JudgeOverride | null;
 }

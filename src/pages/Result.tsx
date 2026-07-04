@@ -8,7 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Download, Plus, AlertCircle, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { calculateScore, PRESET_WEIGHTS, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG, heightBracketLabel, amplitudeBracketLabel, AREA_DISPLAY_NAMES } from '@/lib/scoring';
-import { EventPreset, HeightAmplitudeThresholds } from '@/types/scoring';
+import { EventPreset, HeightAmplitudeThresholds, JudgeOverride as JudgeOverrideType, ScoringResult } from '@/types/scoring';
+import { JudgeOverride } from '@/components/JudgeOverride';
+
+const effectiveScore = (result: ScoringResult): number => result.override?.score ?? result.totalScore;
 
 const VALUE_LABELS: Record<string, string> = {
   'low': 'Low',
@@ -81,7 +84,7 @@ export default function Result() {
     );
   }
 
-  const totalJumpsScore = jump1Result.totalScore + jump2Result.totalScore + jump3Result.totalScore;
+  const totalJumpsScore = effectiveScore(jump1Result) + effectiveScore(jump2Result) + effectiveScore(jump3Result);
   const finalTotalScore = showOverallImpression ? totalJumpsScore + overallImpressionScore : totalJumpsScore;
   const maxScore = showOverallImpression ? 40 : 30;
 
@@ -150,6 +153,9 @@ export default function Result() {
           csv += `"Jump ${jumpIdx + 1}","${area.area}","${param.label}","${param.value}",${param.points},${param.max}\n`;
         });
       });
+      if (result.override) {
+        csv += `"Jump ${jumpIdx + 1}","OVERRIDE","score=${result.override.score} (calculated ${result.totalScore})","${result.override.reason.replace(/"/g, '""')}",,\n`;
+      }
     });
 
     const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
@@ -222,10 +228,15 @@ export default function Result() {
             )}
             <div className="text-center">
               <div className="text-4xl font-bold text-primary">
-                {result.totalScore.toFixed(2)}
+                {effectiveScore(result).toFixed(2)}
                 <span className="text-xl text-muted-foreground"> / 10</span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">{result.penaltyReason}</p>
+              {result.override && (
+                <Badge variant="outline" className="mt-2 border-amber-500/40 text-amber-400 text-[10px]">
+                  Overridden (calc. {result.totalScore.toFixed(2)})
+                </Badge>
+              )}
             </div>
           </Card>
         ))}
@@ -244,6 +255,14 @@ export default function Result() {
           {jumpMeta?.[0] && (
             <p className="text-sm font-semibold text-amber-400">{jumpMeta[0].trick}</p>
           )}
+          <div className="mt-2 no-print">
+            <JudgeOverride
+              calculatedScore={jump1Result.totalScore}
+              override={jump1Result.override}
+              onApply={(override) => setJump1Result({ ...jump1Result, override })}
+              onRemove={() => setJump1Result({ ...jump1Result, override: null })}
+            />
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-4 mb-6">
@@ -293,6 +312,22 @@ export default function Result() {
                   ))
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-border font-semibold">
+                  <td colSpan={3} className="py-3 px-4 text-right">Calculated Total</td>
+                  <td className="text-center py-3 px-4 text-primary">{jump1Result.totalScore.toFixed(2)}</td>
+                  <td className="text-center py-3 px-4 text-muted-foreground">10.00</td>
+                </tr>
+                {jump1Result.override && (
+                  <tr className="border-t border-amber-500/30 bg-amber-500/10">
+                    <td colSpan={3} className="py-3 px-4 text-right text-amber-400 font-semibold">
+                      Judge Override — {jump1Result.override.reason}
+                    </td>
+                    <td className="text-center py-3 px-4 text-amber-400 font-bold">{jump1Result.override.score.toFixed(2)}</td>
+                    <td className="text-center py-3 px-4 text-muted-foreground">10.00</td>
+                  </tr>
+                )}
+              </tfoot>
             </table>
           </div>
         </CardContent>
@@ -311,6 +346,14 @@ export default function Result() {
           {jumpMeta?.[1] && (
             <p className="text-sm font-semibold text-amber-400">{jumpMeta[1].trick}</p>
           )}
+          <div className="mt-2 no-print">
+            <JudgeOverride
+              calculatedScore={jump2Result.totalScore}
+              override={jump2Result.override}
+              onApply={(override) => setJump2Result({ ...jump2Result, override })}
+              onRemove={() => setJump2Result({ ...jump2Result, override: null })}
+            />
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-4 mb-6">
@@ -360,6 +403,22 @@ export default function Result() {
                   ))
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-border font-semibold">
+                  <td colSpan={3} className="py-3 px-4 text-right">Calculated Total</td>
+                  <td className="text-center py-3 px-4 text-primary">{jump2Result.totalScore.toFixed(2)}</td>
+                  <td className="text-center py-3 px-4 text-muted-foreground">10.00</td>
+                </tr>
+                {jump2Result.override && (
+                  <tr className="border-t border-amber-500/30 bg-amber-500/10">
+                    <td colSpan={3} className="py-3 px-4 text-right text-amber-400 font-semibold">
+                      Judge Override — {jump2Result.override.reason}
+                    </td>
+                    <td className="text-center py-3 px-4 text-amber-400 font-bold">{jump2Result.override.score.toFixed(2)}</td>
+                    <td className="text-center py-3 px-4 text-muted-foreground">10.00</td>
+                  </tr>
+                )}
+              </tfoot>
             </table>
           </div>
         </CardContent>
@@ -378,6 +437,14 @@ export default function Result() {
           {jumpMeta?.[2] && (
             <p className="text-sm font-semibold text-amber-400">{jumpMeta[2].trick}</p>
           )}
+          <div className="mt-2 no-print">
+            <JudgeOverride
+              calculatedScore={jump3Result.totalScore}
+              override={jump3Result.override}
+              onApply={(override) => setJump3Result({ ...jump3Result, override })}
+              onRemove={() => setJump3Result({ ...jump3Result, override: null })}
+            />
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-4 mb-6">
@@ -427,6 +494,22 @@ export default function Result() {
                   ))
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-border font-semibold">
+                  <td colSpan={3} className="py-3 px-4 text-right">Calculated Total</td>
+                  <td className="text-center py-3 px-4 text-primary">{jump3Result.totalScore.toFixed(2)}</td>
+                  <td className="text-center py-3 px-4 text-muted-foreground">10.00</td>
+                </tr>
+                {jump3Result.override && (
+                  <tr className="border-t border-amber-500/30 bg-amber-500/10">
+                    <td colSpan={3} className="py-3 px-4 text-right text-amber-400 font-semibold">
+                      Judge Override — {jump3Result.override.reason}
+                    </td>
+                    <td className="text-center py-3 px-4 text-amber-400 font-bold">{jump3Result.override.score.toFixed(2)}</td>
+                    <td className="text-center py-3 px-4 text-muted-foreground">10.00</td>
+                  </tr>
+                )}
+              </tfoot>
             </table>
           </div>
         </CardContent>

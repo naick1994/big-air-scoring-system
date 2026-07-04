@@ -11,7 +11,8 @@ import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
 import { calculateScore, heightBracketLabel, amplitudeBracketLabel, heightBracketForValue, amplitudeBracketForValue, PARAMETER_CONFIG, AREA_DISPLAY_NAMES, KITE_ANGLE_RANGES, YANK_POWER_RANGES, FREE_FALL_RANGES, PRESET_WEIGHTS } from '@/lib/scoring';
-import type { JumpParameters, ScoringResult, HeightAmplitudeThresholds } from '@/types/scoring';
+import type { JumpParameters, ScoringResult, HeightAmplitudeThresholds, JudgeOverride as JudgeOverrideType } from '@/types/scoring';
+import { JudgeOverride } from '@/components/JudgeOverride';
 import { DEMO_JUMPS_BASE, DEMO_SCORING_PARAMS, type WooData, type JumpDemoBase } from '@/data/demoJumps';
 
 const EXECUTION_LABELS: Record<string, string> = Object.fromEntries(
@@ -29,6 +30,7 @@ const DEFAULT_EXECUTION_JUDGE_STATE: ExecutionJudgeState = {
 };
 
 const EXECUTION_SCORES_STORAGE_KEY = 'demoExecutionScores';
+const OVERRIDE_SCORES_STORAGE_KEY = 'demoJudgeOverrides';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -613,11 +615,14 @@ function WooPanel({ stats }: { stats: { label: string; value: string }[] }) {
 // ─── Jump card ────────────────────────────────────────────────────────────────
 
 function JumpCard({
-  jump, execution, onExecutionChange,
+  jump, execution, onExecutionChange, override, onOverrideApply, onOverrideRemove,
 }: {
   jump: JumpDemo;
   execution: ExecutionJudgeState;
   onExecutionChange: (state: ExecutionJudgeState) => void;
+  override: JudgeOverrideType | null | undefined;
+  onOverrideApply: (override: JudgeOverrideType) => void;
+  onOverrideRemove: () => void;
 }) {
   const [showRecap, setShowRecap] = useState(false);
   const videoPlayerRef = useRef<VideoPlayerHandle>(null);
@@ -625,8 +630,9 @@ function JumpCard({
   const { objectiveAreas, objectiveSubtotal, objectiveMax } = splitObjectiveAndExecution(jump.areas);
   const sensorStats = buildSensorStats(jump.woo, objectiveAreas);
   const revealed = execution.revealed;
-  const displayScore = revealed ? jump.score : objectiveSubtotal;
-  const displayMax = revealed ? 10 : objectiveMax;
+  const calculatedScore = revealed ? jump.score : objectiveSubtotal;
+  const displayScore = override ? override.score : calculatedScore;
+  const displayMax = override ? 10 : (revealed ? 10 : objectiveMax);
   const displayAreas = revealed ? jump.areas : objectiveAreas;
   const hasExecutionInput = execution.revealed || Object.values(execution.values).some(v => v !== 0);
 
@@ -676,16 +682,23 @@ function JumpCard({
                   Reset Execution
                 </Button>
               )}
+              <JudgeOverride
+                calculatedScore={calculatedScore}
+                maxScore={10}
+                override={override}
+                onApply={onOverrideApply}
+                onRemove={onOverrideRemove}
+              />
             </div>
             <div className="text-right shrink-0">
-              <div className={`text-4xl font-black leading-none ${revealed ? 'text-primary' : 'text-amber-600'}`}>
+              <div className={`text-4xl font-black leading-none ${revealed || override ? 'text-primary' : 'text-amber-600'}`}>
                 {displayScore.toFixed(2)}
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">/ {displayMax.toFixed(2)}</div>
-              {!revealed && (
+              {!revealed && !override && (
                 <Badge className="bg-amber-600 hover:bg-amber-600 mt-1.5 text-[10px] tracking-wide">PARTIAL</Badge>
               )}
-              {revealed && (
+              {(revealed || override) && (
                 <div className="text-[10px] text-muted-foreground mt-1">
                   vs real {jump.realScore.toFixed(2)}{' '}
                   <span className={`font-bold ${displayScore - jump.realScore >= 0 ? 'text-green-500' : 'text-red-500'}`}>
@@ -699,7 +712,7 @@ function JumpCard({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 pb-4">
           <VideoPlayer ref={videoPlayerRef} jump={jump} execution={execution} onExecutionChange={onExecutionChange} />
           <div className="flex flex-col justify-center gap-4">
-            {!revealed && (
+            {!revealed && !override && (
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="border-amber-600 text-amber-600 text-[10px]">Execution pending</Badge>
               </div>
@@ -758,6 +771,26 @@ export default function Demo() {
     });
   };
 
+  // Judge Override per demo jump — same accountable-exception mechanism as
+  // the real Result page: replaces the final score but keeps the calculated
+  // one visible, with a mandatory reason.
+  const [overrideByJump, setOverrideByJump] = useState<Record<number, JudgeOverrideType | null>>(() => {
+    try {
+      const saved = localStorage.getItem(OVERRIDE_SCORES_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const updateOverrideForJump = (jumpId: number, override: JudgeOverrideType | null) => {
+    setOverrideByJump(prev => {
+      const next = { ...prev, [jumpId]: override };
+      localStorage.setItem(OVERRIDE_SCORES_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   // HEIGHT is derived from each jump's real Woo numbers against the currently
   // configured thresholds; EXECUTION comes from whatever the judge has
   // entered so far — both stay correct as thresholds/scoring change live.
@@ -792,9 +825,9 @@ export default function Demo() {
     setJump1Params(demoDefaults[0]);
     setJump2Params(demoDefaults[1]);
     setJump3Params(demoDefaults[2]);
-    setJump1Result(calculateScore(demoDefaults[0], PRESET_WEIGHTS.GKA, 'GKA'));
-    setJump2Result(calculateScore(demoDefaults[1], PRESET_WEIGHTS.GKA, 'GKA'));
-    setJump3Result(calculateScore(demoDefaults[2], PRESET_WEIGHTS.GKA, 'GKA'));
+    setJump1Result({ ...calculateScore(demoDefaults[0], PRESET_WEIGHTS.GKA, 'GKA'), override: overrideByJump[DEMO_JUMPS_BASE[0].id] });
+    setJump2Result({ ...calculateScore(demoDefaults[1], PRESET_WEIGHTS.GKA, 'GKA'), override: overrideByJump[DEMO_JUMPS_BASE[1].id] });
+    setJump3Result({ ...calculateScore(demoDefaults[2], PRESET_WEIGHTS.GKA, 'GKA'), override: overrideByJump[DEMO_JUMPS_BASE[2].id] });
     setRealTotalReference(DEMO_JUMPS_BASE.reduce((sum, j) => sum + j.realScore, 0));
     setJumpMeta(DEMO_JUMPS_BASE.map(j => ({ trick: j.trick, category: j.category, athlete: j.athlete })));
     navigate('/result');
@@ -846,6 +879,9 @@ export default function Demo() {
             jump={jump}
             execution={executionByJump[jump.id] ?? DEFAULT_EXECUTION_JUDGE_STATE}
             onExecutionChange={(state) => updateExecutionForJump(jump.id, state)}
+            override={overrideByJump[jump.id]}
+            onOverrideApply={(override) => updateOverrideForJump(jump.id, override)}
+            onOverrideRemove={() => updateOverrideForJump(jump.id, null)}
           />
         ))}
       </div>
