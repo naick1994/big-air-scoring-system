@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { X, Play, Film, ChevronRight, BarChart2, Gauge, RotateCcw } from 'lucide-react';
+import { X, Play, Pause, Film, ChevronRight, BarChart2, Gauge, RotateCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -524,12 +524,14 @@ const VideoPlayer = forwardRef<VideoPlayerHandle, {
 }>(({ jump, execution, onExecutionChange }, ref) => {
   const [open, setOpen]     = useState(false);
   const [vState, setVState] = useState<VState>('idle');
+  const [isPaused, setIsPaused] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const openModal = () => {
     if (!jump.videoSrc) return;
     setOpen(true);
     setVState('playing');
+    setIsPaused(false);
   };
 
   useImperativeHandle(ref, () => ({ open: openModal }));
@@ -539,6 +541,18 @@ const VideoPlayer = forwardRef<VideoPlayerHandle, {
     if (videoRef.current) videoRef.current.currentTime = 0;
     setOpen(false);
     setVState('idle');
+    setIsPaused(false);
+  };
+
+  const togglePause = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPaused(false);
+    } else {
+      videoRef.current.pause();
+      setIsPaused(true);
+    }
   };
 
   return (
@@ -574,12 +588,20 @@ const VideoPlayer = forwardRef<VideoPlayerHandle, {
       {open && (
         <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center">
           {vState === 'playing' && (
-            <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <>
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <button
+                onClick={togglePause}
+                className="absolute bottom-4 left-4 z-10 w-11 h-11 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              >
+                {isPaused ? <Play className="w-5 h-5 fill-white" /> : <Pause className="w-5 h-5 fill-white" />}
+              </button>
+            </>
           )}
           <div className="relative w-full h-full" style={{ background: '#000' }}>
             <video
@@ -587,6 +609,7 @@ const VideoPlayer = forwardRef<VideoPlayerHandle, {
               src={jump.videoSrc}
               className="absolute inset-0 w-full h-full object-cover"
               onEnded={() => setVState('recap')}
+              onClick={togglePause}
               playsInline
               autoPlay
             />
