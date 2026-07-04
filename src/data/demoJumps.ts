@@ -117,6 +117,60 @@ export function buildDemoJumpResult(index: number, thresholds: HeightAmplitudeTh
   return calculateScore(params, PRESET_WEIGHTS.GKA, 'GKA');
 }
 
+// Raw parameter values a rider can hypothetically swap in for the "What If"
+// simulator — same keys as JumpParameters' EXTREMITY/TECHNICALITY/HEIGHT
+// fields, all optional (only overridden ones deviate from the real jump).
+export interface WhatIfOverrides {
+  height?: string;
+  amplitude?: string;
+  kite_angle?: string;
+  yank_power?: string;
+  free_fall?: string;
+  rotations?: string;
+  rotation_axis?: string;
+  board_off?: string;
+  board_flip?: string;
+  board_spin?: string;
+}
+
+export function buildDemoJumpResultWithOverrides(
+  index: number,
+  thresholds: HeightAmplitudeThresholds,
+  overrides: WhatIfOverrides
+): ScoringResult {
+  const base = DEMO_JUMPS_BASE[index];
+  const core = DEMO_SCORING_PARAMS[index];
+  const execValues = DEMO_EXECUTION_VALUES[index];
+  const params: JumpParameters = {
+    ...core,
+    HEIGHT: {
+      height: overrides.height ?? heightBracketForValue(base.woo.maxHeight, thresholds.height),
+      amplitude: overrides.amplitude ?? amplitudeBracketForValue(base.woo.distance, thresholds.amplitude),
+    },
+    EXTREMITY: {
+      kite_angle: overrides.kite_angle ?? core.EXTREMITY.kite_angle,
+      yank_power: overrides.yank_power ?? core.EXTREMITY.yank_power,
+      free_fall: overrides.free_fall ?? core.EXTREMITY.free_fall,
+    },
+    TECHNICALITY: {
+      ...core.TECHNICALITY,
+      rotations: overrides.rotations ?? core.TECHNICALITY.rotations,
+      rotation_axis: overrides.rotation_axis ?? core.TECHNICALITY.rotation_axis,
+      board_off: overrides.board_off ?? core.TECHNICALITY.board_off,
+      board_flip: overrides.board_flip ?? core.TECHNICALITY.board_flip,
+      board_spin: overrides.board_spin ?? core.TECHNICALITY.board_spin,
+    },
+    EXECUTION: {
+      style: (execValues.style * 0.4) / 10,
+      stability_control: (execValues.stability_control * 0.4) / 10,
+      landing_control: (execValues.landing_control * 0.4) / 10,
+      board_control: (execValues.board_control * 0.4) / 10,
+      kite_control: (execValues.kite_control * 0.4) / 10,
+    },
+  };
+  return calculateScore(params, PRESET_WEIGHTS.GKA, 'GKA');
+}
+
 // Leonardo's real average score and per-area breakdown across his 3 GKA
 // jumps — used as the "real data" side of any athlete comparison view.
 export function getLeonardoAverageBreakdown(thresholds: HeightAmplitudeThresholds): {
