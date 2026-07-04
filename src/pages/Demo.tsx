@@ -4,12 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { X, Play, Film, ChevronRight, BarChart2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import logo from '@/assets/gka-logo.svg';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
-import { calculateScore, heightBracketLabel, amplitudeBracketLabel } from '@/lib/scoring';
+import { calculateScore, heightBracketLabel, amplitudeBracketLabel, PARAMETER_CONFIG } from '@/lib/scoring';
 import type { JumpParameters, ScoringResult, HeightAmplitudeThresholds } from '@/types/scoring';
+
+const EXECUTION_LABELS: Record<string, string> = Object.fromEntries(
+  Object.entries(PARAMETER_CONFIG.EXECUTION).map(([key, cfg]) => [key, cfg.label])
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -167,6 +172,30 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
     { label: 'Quality',    value: jump.woo.quality                  },
   ];
 
+  const [executionValues, setExecutionValues] = useState<Record<string, number>>({
+    style: 0, stability_control: 0, landing_control: 0, board_control: 0, kite_control: 0,
+  });
+  const [executionRevealed, setExecutionRevealed] = useState(false);
+
+  const objectiveAreas = jump.areas.filter(a => a.name !== 'EXECUTION');
+  const executionMeta = jump.areas.find(a => a.name === 'EXECUTION');
+  const objectiveSubtotal = objectiveAreas.reduce((s, a) => s + a.score, 0);
+  const objectiveMax = objectiveAreas.reduce((s, a) => s + a.maxScore, 0);
+
+  const executionSliderFraction = Object.values(executionValues).reduce((a, b) => a + b, 0) / 5 / 10;
+  const executionScore = executionMeta ? executionSliderFraction * executionMeta.maxScore : 0;
+
+  const showFull = !executionMeta || executionRevealed;
+  const displayTotal = showFull ? objectiveSubtotal + executionScore : objectiveSubtotal;
+  const displayMax = showFull ? 10 : objectiveMax;
+
+  const executionParams: AreaParam[] = Object.entries(executionValues).map(([key, v]) => ({
+    label: EXECUTION_LABELS[key] ?? key,
+    detail: '',
+    pts: (v / 10) * 0.4,
+    maxPts: 0.4,
+  }));
+
   return (
     <div
       className="absolute inset-0 bg-black flex flex-col overflow-hidden"
@@ -201,11 +230,16 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
           <div className="font-mono text-zinc-500 text-[10px] tracking-widest mt-1">{jump.label.toUpperCase()}</div>
         </div>
         <div className="text-right">
-          <div className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase mb-1">Score</div>
-          <div className="text-white font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}>
-            {jump.score.toFixed(2)}
+          <div className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase mb-1">
+            {showFull ? 'Score' : 'Partial Score'}
           </div>
-          <div className="text-zinc-500 text-xs mt-1">/ 10</div>
+          <div className="text-white font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}>
+            {displayTotal.toFixed(2)}
+          </div>
+          <div className="text-zinc-500 text-xs mt-1">/ {displayMax.toFixed(2)}</div>
+          {!showFull && (
+            <div className="text-amber-400 text-[9px] font-semibold tracking-widest uppercase mt-1">Execution Pending</div>
+          )}
         </div>
       </div>
 
@@ -218,7 +252,7 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
         <div className="col-span-3 border-r border-white/10 px-8 py-6 overflow-y-auto flex flex-col gap-5">
           <div className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase">Score Breakdown</div>
 
-          {jump.areas.map(area => {
+          {objectiveAreas.map(area => {
             const pct = (area.score / area.maxScore) * 100;
             const subtotal = area.params.reduce((s, p) => s + p.pts, 0);
             const subtotalMax = area.params.reduce((s, p) => s + p.maxPts, 0);
@@ -256,12 +290,81 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
             );
           })}
 
+          {/* EXECUTION — judge input or revealed breakdown */}
+          {executionMeta && (executionRevealed ? (
+            (() => {
+              const pct = (executionScore / executionMeta.maxScore) * 100;
+              const subtotal = executionParams.reduce((s, p) => s + p.pts, 0);
+              const subtotalMax = executionParams.reduce((s, p) => s + p.maxPts, 0);
+              const norm = subtotalMax > 0 ? (subtotal / subtotalMax) * 100 : 0;
+              return (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-mono text-white text-xs font-bold tracking-widest">EXECUTION</span>
+                      <span className="bg-white/10 text-zinc-300 text-[10px] font-mono px-2 py-0.5 rounded">
+                        ×{executionMeta.weight}%
+                      </span>
+                    </div>
+                    <span className="text-white text-sm font-bold tabular-nums">
+                      {executionScore.toFixed(2)}
+                      <span className="text-zinc-500 font-normal">/{executionMeta.maxScore.toFixed(2)}</span>
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full mb-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className={`h-full rounded-full bg-gradient-to-r ${executionMeta.gradient}`} style={{ width: `${pct}%` }} />
+                  </div>
+                  <div className="font-mono text-zinc-500 text-[10px] mb-3 leading-relaxed">
+                    {subtotal.toFixed(2)}/{subtotalMax.toFixed(2)} = {norm.toFixed(0)}% &nbsp;×&nbsp;
+                    10 &nbsp;×&nbsp; {executionMeta.weight}% weight &nbsp;=&nbsp;
+                    <span className="text-zinc-300">{executionScore.toFixed(2)} pts</span>
+                  </div>
+                  <div className="pl-3 border-l border-white/10">
+                    {executionParams.map((p, i) => <ParamRow key={i} p={p} />)}
+                  </div>
+                </div>
+              );
+            })()
+          ) : (
+            <div className="border border-dashed border-white/15 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-white text-xs font-bold tracking-widest">EXECUTION</span>
+                <span className="bg-white/10 text-zinc-300 text-[10px] font-mono px-2 py-0.5 rounded">
+                  ×{executionMeta.weight}%
+                </span>
+              </div>
+              <p className="text-zinc-500 text-[10px] mb-4">Scored live by the judge — drag each slider, then confirm.</p>
+              <div className="space-y-4">
+                {Object.entries(executionValues).map(([key, v]) => (
+                  <div key={key}>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-zinc-400 text-[11px]">{EXECUTION_LABELS[key] ?? key}</span>
+                      <span className="text-zinc-300 text-[11px] font-semibold tabular-nums">{v.toFixed(1)}</span>
+                    </div>
+                    <Slider
+                      min={0}
+                      max={10}
+                      step={0.1}
+                      value={[v]}
+                      onValueChange={([nv]) => setExecutionValues(prev => ({ ...prev, [key]: nv }))}
+                    />
+                  </div>
+                ))}
+              </div>
+              <Button className="w-full mt-5" size="sm" onClick={() => setExecutionRevealed(true)}>
+                Confirm Execution Score
+              </Button>
+            </div>
+          ))}
+
           {/* Total */}
           <div className="flex justify-between items-baseline pt-4 border-t border-white/10 mt-2">
-            <span className="font-mono text-zinc-400 text-[11px] tracking-widest uppercase">Total Score</span>
+            <span className="font-mono text-zinc-400 text-[11px] tracking-widest uppercase">
+              {showFull ? 'Total Score' : 'Partial Total'}
+            </span>
             <span className="text-white font-black text-lg tabular-nums">
-              {jump.score.toFixed(2)}
-              <span className="text-zinc-500 text-sm font-normal"> / 10</span>
+              {displayTotal.toFixed(2)}
+              <span className="text-zinc-500 text-sm font-normal"> / {displayMax.toFixed(2)}</span>
             </span>
           </div>
         </div>
