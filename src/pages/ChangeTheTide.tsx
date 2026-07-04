@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, X } from 'lucide-react';
 import logo from '@/assets/gka-logo.svg';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
@@ -114,39 +114,67 @@ export default function ChangeTheTide() {
         </div>
       </section>
 
-      {/* ───────── Why now: real proof ───────── */}
+      {/* ───────── Reductionist vs Holistic ───────── */}
+      <section className="border-b border-border">
+        <div className="container mx-auto px-4 py-24 max-w-5xl">
+          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The comparison</div>
+          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-12">
+            Holistic vs. reductionist, side by side.
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-7 shadow-[var(--shadow-card)]">
+              <div className="text-sm font-mono uppercase tracking-wide text-muted-foreground mb-5">Holistic (today)</div>
+              <ul className="space-y-4">
+                {[
+                  'One overall impression, formed in seconds',
+                  'Not tied to any fixed, published parameter',
+                  'Hard to audit after the fact',
+                  'Varies between judges and events',
+                ].map((line) => (
+                  <li key={line} className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <X className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground/70" />
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+            <Card className="p-7 shadow-[var(--shadow-card)] border-primary/30">
+              <div className="text-sm font-mono uppercase tracking-wide text-primary mb-5">Reductionist (this system)</div>
+              <ul className="space-y-4">
+                {[
+                  'Four weighted areas, scored independently',
+                  'Every point tied to a published parameter',
+                  'Fully auditable — every score is explainable',
+                  'Same method, every judge, every event',
+                ].map((line) => (
+                  <li key={line} className="flex items-start gap-3 text-sm">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── Why now ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-4xl">
           <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Why now</div>
           <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
-            The data already exists.
+            The data doesn't need to be invented.
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-            Woo's sensors are already strapped to riders in competition, recording height, speed,
-            rotations, and load on every jump. This doesn't call for new hardware — it calls for
-            structuring the data that's already being collected.
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Woo's sensors are already strapped to riders in competition today, recording height, speed,
+            rotations, and load on every jump. This demo isn't running on live sensor feeds yet — but
+            every parameter it scores is something already being measured on the water, jump after jump.
           </p>
-
-          <Card className="p-10 shadow-[var(--shadow-card)] text-center bg-gradient-to-br from-card to-primary/5">
-            <div className="text-sm text-muted-foreground mb-4 font-mono uppercase tracking-wide">
-              Run against a real World Cup heat, after the fact
-            </div>
-            <div className="flex items-center justify-center gap-10 flex-wrap">
-              <div>
-                <div className="text-6xl md:text-7xl font-bold text-primary">23.66</div>
-                <div className="text-sm text-muted-foreground mt-2">Model score</div>
-              </div>
-              <div className="text-2xl text-muted-foreground font-mono">Δ 0.11</div>
-              <div>
-                <div className="text-6xl md:text-7xl font-bold">23.77</div>
-                <div className="text-sm text-muted-foreground mt-2">Real judging panel</div>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground mt-8 max-w-lg mx-auto">
-              On a 30-point scale, using only the four measured areas above — no video review, no
-              re-judging after the fact.
-            </p>
-          </Card>
+          <p className="text-lg text-muted-foreground max-w-2xl mt-4">
+            Turning that into a scoring model isn't a hardware problem. It's a matter of structuring
+            data that's already being collected.
+          </p>
         </div>
       </section>
 
@@ -203,8 +231,8 @@ export default function ChangeTheTide() {
           <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">See it work</div>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">The system is live.</h2>
           <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-            Every screen referenced here — the four-area breakdown, the coaching receipt, the real
-            scoring run — exists today, running, not as a slide.
+            Every screen referenced here — the four-area breakdown, the coaching receipt — exists
+            today, running, not as a slide.
           </p>
           <Link
             to="/login"
