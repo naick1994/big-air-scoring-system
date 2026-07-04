@@ -6,8 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GKA_BIG_AIR_MEN_RANKINGS_2026, RankingRow } from '@/data/gkaRankings';
 import { getFakeAthleteScore } from '@/data/fakeAthleteScores';
 import { getLeonardoAverageBreakdown } from '@/data/demoJumps';
-import { LORDS_OF_TRAM_FRANCE_2026, LEONARDO_EVENT_TIMELINE, getPhotoForAthlete, getCountryForAthlete } from '@/data/riderEvents';
+import { GKA_EVENTS_2026, GkaEvent, LEONARDO_EVENT_TIMELINE, getPhotoForAthlete, getCountryForAthlete } from '@/data/riderEvents';
 import { useScoring } from '@/contexts/ScoringContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { AREA_DISPLAY_NAMES } from '@/lib/scoring';
 import { Trophy, Calendar } from 'lucide-react';
 
@@ -48,6 +49,11 @@ const COUNTRY_FLAGS: Record<string, string> = {
   'Greece': '🇬🇷',
 };
 
+function TrophyIcon({ rank }: { rank: number }) {
+  if (rank > 3) return null;
+  return <Trophy className={`w-3.5 h-3.5 ${rank === 1 ? 'text-yellow-400' : rank === 2 ? 'text-zinc-300' : 'text-amber-700'}`} />;
+}
+
 function AthletePhoto({ name, photoUrl, size = 'w-9 h-9' }: { name: string; photoUrl: string; size?: string }) {
   const [failed, setFailed] = useState(false);
 
@@ -69,7 +75,7 @@ function AthletePhoto({ name, photoUrl, size = 'w-9 h-9' }: { name: string; phot
   );
 }
 
-function SeasonRanking({ onSelect }: { onSelect: (row: RankingRow) => void }) {
+function SeasonRanking({ onSelect, showYouBadge }: { onSelect: (row: RankingRow) => void; showYouBadge: boolean }) {
   return (
     <Card className="overflow-hidden shadow-[var(--shadow-card)]">
       <table className="w-full border-collapse">
@@ -92,12 +98,17 @@ function SeasonRanking({ onSelect }: { onSelect: (row: RankingRow) => void }) {
                   isMe ? 'bg-primary/10' : 'hover:bg-muted/50 cursor-pointer'
                 }`}
               >
-                <td className="py-3 px-4 font-semibold text-muted-foreground">#{row.rank}</td>
+                <td className="py-3 px-4 font-semibold text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <TrophyIcon rank={row.rank} />
+                    #{row.rank}
+                  </span>
+                </td>
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-3">
                     <AthletePhoto name={row.athlete} photoUrl={row.photoUrl} />
                     <span className={`font-medium ${isMe ? 'text-primary font-bold' : ''}`}>{row.athlete}</span>
-                    {isMe && (
+                    {isMe && showYouBadge && (
                       <Badge className="bg-primary/20 text-primary border border-primary/30 hover:bg-primary/20 text-[10px]">
                         You
                       </Badge>
@@ -115,8 +126,7 @@ function SeasonRanking({ onSelect }: { onSelect: (row: RankingRow) => void }) {
   );
 }
 
-function EventStandings() {
-  const event = LORDS_OF_TRAM_FRANCE_2026;
+function EventStandings({ event, showYouBadge }: { event: GkaEvent; showYouBadge: boolean }) {
   return (
     <>
       <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
@@ -144,7 +154,7 @@ function EventStandings() {
                 >
                   <td className="py-3 px-4 font-semibold text-muted-foreground">
                     <span className="inline-flex items-center gap-1.5">
-                      {row.rank <= 3 && <Trophy className={`w-3.5 h-3.5 ${row.rank === 1 ? 'text-yellow-400' : row.rank === 2 ? 'text-zinc-300' : 'text-amber-700'}`} />}
+                      <TrophyIcon rank={row.rank} />
                       #{row.rank}
                     </span>
                   </td>
@@ -152,7 +162,7 @@ function EventStandings() {
                     <div className="flex items-center gap-3">
                       <AthletePhoto name={row.athlete} photoUrl={getPhotoForAthlete(row.athlete)} />
                       <span className={`font-medium ${isMe ? 'text-primary font-bold' : ''}`}>{row.athlete}</span>
-                      {isMe && (
+                      {isMe && showYouBadge && (
                         <Badge className="bg-primary/20 text-primary border border-primary/30 hover:bg-primary/20 text-[10px]">
                           You
                         </Badge>
@@ -168,6 +178,33 @@ function EventStandings() {
         </table>
       </Card>
     </>
+  );
+}
+
+function EventsSection({ showYouBadge }: { showYouBadge: boolean }) {
+  const [eventId, setEventId] = useState(GKA_EVENTS_2026[0].id);
+  const event = GKA_EVENTS_2026.find(e => e.id === eventId) ?? GKA_EVENTS_2026[0];
+
+  return (
+    <div>
+      <div className="flex gap-2 mb-4">
+        {GKA_EVENTS_2026.map(e => (
+          <button
+            key={e.id}
+            onClick={() => setEventId(e.id)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+              e.id === eventId
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'border-border text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {e.location}
+          </button>
+        ))}
+      </div>
+      <h3 className="font-semibold mb-1">{event.name}</h3>
+      <EventStandings event={event} showYouBadge={showYouBadge} />
+    </div>
   );
 }
 
@@ -202,6 +239,8 @@ function Progression() {
 
 export default function RiderRanking() {
   const { heightAmplitudeThresholds } = useScoring();
+  const { role } = useAuth();
+  const showYouBadge = role === 'rider';
   const [selected, setSelected] = useState<RankingRow | null>(null);
 
   const leonardo = useMemo(
@@ -233,17 +272,17 @@ export default function RiderRanking() {
       <Tabs defaultValue="season">
         <TabsList className="mb-6">
           <TabsTrigger value="season">Season Ranking</TabsTrigger>
-          <TabsTrigger value="event">Lords of Tram — France</TabsTrigger>
+          <TabsTrigger value="event">Events</TabsTrigger>
           <TabsTrigger value="progression">Progression</TabsTrigger>
         </TabsList>
 
         <TabsContent value="season">
           <p className="text-sm text-muted-foreground mb-4">Click any rider to compare against Leonardo.</p>
-          <SeasonRanking onSelect={setSelected} />
+          <SeasonRanking onSelect={setSelected} showYouBadge={showYouBadge} />
         </TabsContent>
 
         <TabsContent value="event">
-          <EventStandings />
+          <EventsSection showYouBadge={showYouBadge} />
         </TabsContent>
 
         <TabsContent value="progression">
