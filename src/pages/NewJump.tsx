@@ -232,7 +232,7 @@ export default function NewJump() {
           <>
             {weights.HEIGHT > 0 && (
               <Card className="p-6 shadow-[var(--shadow-card)]">
-                <h3 className="text-xl font-semibold mb-6">HEIGHT</h3>
+                <h3 className="text-xl font-semibold mb-6">HEIGHT & AMPLITUDE</h3>
                 <div className="space-y-6">
                   <div>
                     <Label htmlFor={`height-${jumpNumber}`} className="text-base mb-2 block">Height (vertical)</Label>

@@ -10,7 +10,7 @@ import logo from '@/assets/gka-logo.svg';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
-import { calculateScore, heightBracketLabel, amplitudeBracketLabel, heightBracketForValue, amplitudeBracketForValue, PARAMETER_CONFIG } from '@/lib/scoring';
+import { calculateScore, heightBracketLabel, amplitudeBracketLabel, heightBracketForValue, amplitudeBracketForValue, PARAMETER_CONFIG, AREA_DISPLAY_NAMES } from '@/lib/scoring';
 import type { JumpParameters, ScoringResult, HeightAmplitudeThresholds } from '@/types/scoring';
 
 const EXECUTION_LABELS: Record<string, string> = Object.fromEntries(
@@ -155,7 +155,7 @@ function splitObjectiveAndExecution(areas: AreaScore[]) {
 
 function resultToAreas(result: ScoringResult, thresholds: HeightAmplitudeThresholds): AreaScore[] {
   return result.areaScores.map(as => ({
-    name: as.area,
+    name: AREA_DISPLAY_NAMES[as.area] ?? as.area,
     score: Math.round(as.finalScore * 100) / 100,
     maxScore: Math.round(as.weight * 10 * 100) / 100,
     weight: Math.round(as.weight * 100),

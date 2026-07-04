@@ -46,6 +46,15 @@ export function amplitudeBracketForValue(value: number, t: HeightAmplitudeThresh
   return 'b4';
 }
 
+// Display label for the HEIGHT area — it covers both height and amplitude
+// sub-parameters, so it's always shown as "HEIGHT & AMPLITUDE" to the user.
+export const AREA_DISPLAY_NAMES: Record<string, string> = {
+  HEIGHT: 'HEIGHT & AMPLITUDE',
+  EXTREMITY: 'EXTREMITY',
+  TECHNICALITY: 'TECHNICALITY',
+  EXECUTION: 'EXECUTION',
+};
+
 export const PRESET_WEIGHTS: Record<string, PresetWeights> = {
   GKA: { HEIGHT: 30, EXTREMITY: 30, TECHNICALITY: 20, EXECUTION: 20 },
   KOTA: { HEIGHT: 30, EXTREMITY: 30, TECHNICALITY: 25, EXECUTION: 15 },

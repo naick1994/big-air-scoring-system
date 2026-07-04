@@ -13,14 +13,14 @@ import { CheckCircle2, XCircle, Check } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const JUDGE_NAMES = {
-  HEIGHT: 'HEIGHT',
+  HEIGHT: 'HEIGHT & AMPLITUDE',
   EXTREMITY: 'EXTREMITY',
   TECHNICALITY: 'TECHNICALITY',
   EXECUTION: 'EXECUTION'
 };
 
 const JUDGE_NAMES_SHORT = {
-  HEIGHT: 'Height',
+  HEIGHT: 'Height & Amplitude',
   EXTREMITY: 'Extremity',
   TECHNICALITY: 'Technicality',
   EXECUTION: 'Execution'

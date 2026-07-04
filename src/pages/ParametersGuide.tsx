@@ -33,7 +33,7 @@ export default function ParametersGuide() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-card rounded-lg border">
-                <div className="text-sm text-muted-foreground mb-1">HEIGHT</div>
+                <div className="text-sm text-muted-foreground mb-1">HEIGHT & AMPLITUDE</div>
                 <div className="text-2xl font-bold text-primary">{weights.HEIGHT}%</div>
               </div>
               <div className="text-center p-4 bg-card rounded-lg border">
@@ -59,7 +59,7 @@ export default function ParametersGuide() {
             <AccordionTrigger className="px-6 hover:no-underline">
               <div className="flex items-center gap-3 text-left">
                 <div>
-                  <div className="text-lg font-semibold">HEIGHT</div>
+                  <div className="text-lg font-semibold">HEIGHT & AMPLITUDE</div>
                   <div className="text-sm text-muted-foreground">Weight: {weights.HEIGHT}%</div>
                 </div>
               </div>

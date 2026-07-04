@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Plus, AlertCircle, Edit } from 'lucide-react';
 import { toast } from 'sonner';
-import { calculateScore, PRESET_WEIGHTS, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG, heightBracketLabel, amplitudeBracketLabel } from '@/lib/scoring';
+import { calculateScore, PRESET_WEIGHTS, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG, heightBracketLabel, amplitudeBracketLabel, AREA_DISPLAY_NAMES } from '@/lib/scoring';
 import { EventPreset, HeightAmplitudeThresholds } from '@/types/scoring';
 
 const VALUE_LABELS: Record<string, string> = {
@@ -209,7 +209,7 @@ export default function Result() {
             {jump1Result.areaScores.map((area, idx) => (
               <div key={idx}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">{area.area}</span>
+                  <span className="font-medium">{AREA_DISPLAY_NAMES[area.area] ?? area.area}</span>
                   <span className="font-semibold text-primary">
                     {area.finalScore.toFixed(2)} / {(area.weight * 10).toFixed(2)}
                   </span>
@@ -241,7 +241,7 @@ export default function Result() {
                     <tr key={`${areaIdx}-${paramIdx}`} className="border-b border-border hover:bg-muted/50 transition-colors">
                       {paramIdx === 0 && (
                         <td rowSpan={area.parameters.length} className="py-3 px-4 font-medium border-r border-border">
-                          {area.area}
+                          {AREA_DISPLAY_NAMES[area.area] ?? area.area}
                         </td>
                       )}
                       <td className="py-3 px-4">{param.label}</td>
@@ -266,7 +266,7 @@ export default function Result() {
             {jump2Result.areaScores.map((area, idx) => (
               <div key={idx}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">{area.area}</span>
+                  <span className="font-medium">{AREA_DISPLAY_NAMES[area.area] ?? area.area}</span>
                   <span className="font-semibold text-primary">
                     {area.finalScore.toFixed(2)} / {(area.weight * 10).toFixed(2)}
                   </span>
@@ -298,7 +298,7 @@ export default function Result() {
                     <tr key={`${areaIdx}-${paramIdx}`} className="border-b border-border hover:bg-muted/50 transition-colors">
                       {paramIdx === 0 && (
                         <td rowSpan={area.parameters.length} className="py-3 px-4 font-medium border-r border-border">
-                          {area.area}
+                          {AREA_DISPLAY_NAMES[area.area] ?? area.area}
                         </td>
                       )}
                       <td className="py-3 px-4">{param.label}</td>
@@ -323,7 +323,7 @@ export default function Result() {
             {jump3Result.areaScores.map((area, idx) => (
               <div key={idx}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">{area.area}</span>
+                  <span className="font-medium">{AREA_DISPLAY_NAMES[area.area] ?? area.area}</span>
                   <span className="font-semibold text-primary">
                     {area.finalScore.toFixed(2)} / {(area.weight * 10).toFixed(2)}
                   </span>
@@ -355,7 +355,7 @@ export default function Result() {
                     <tr key={`${areaIdx}-${paramIdx}`} className="border-b border-border hover:bg-muted/50 transition-colors">
                       {paramIdx === 0 && (
                         <td rowSpan={area.parameters.length} className="py-3 px-4 font-medium border-r border-border">
-                          {area.area}
+                          {AREA_DISPLAY_NAMES[area.area] ?? area.area}
                         </td>
                       )}
                       <td className="py-3 px-4">{param.label}</td>
