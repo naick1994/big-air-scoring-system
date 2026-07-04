@@ -12,6 +12,7 @@ import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
 import { calculateScore, heightBracketLabel, amplitudeBracketLabel, heightBracketForValue, amplitudeBracketForValue, PARAMETER_CONFIG, AREA_DISPLAY_NAMES, KITE_ANGLE_RANGES, YANK_POWER_RANGES, FREE_FALL_RANGES, PRESET_WEIGHTS } from '@/lib/scoring';
 import type { JumpParameters, ScoringResult, HeightAmplitudeThresholds } from '@/types/scoring';
+import { DEMO_JUMPS_BASE, DEMO_SCORING_PARAMS, type WooData, type JumpDemoBase } from '@/data/demoJumps';
 
 const EXECUTION_LABELS: Record<string, string> = Object.fromEntries(
   Object.entries(PARAMETER_CONFIG.EXECUTION).map(([key, cfg]) => [key, cfg.label])
@@ -31,22 +32,6 @@ const EXECUTION_SCORES_STORAGE_KEY = 'demoExecutionScores';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface WooData {
-  maxHeight: number;
-  airtime: number;
-  distance: number;
-  maxSpeed: number;
-  approachSpeed: number;
-  windAngle: number;
-  quality: 'Good' | 'OK';
-  peakTimeRatio: number;
-  takeoffOffset: number;
-  yankForce: number;      // peak IMU acceleration at loading moment, g-force
-  freeFallTime: number;   // time spent near 0g during the jump, seconds
-  kiteAngleDeg: number;   // angle from zenith, degrees (0=overhead, 180=level with rider)
-  landingSpeedG: number;  // impact g-force at touchdown — informational only, doesn't affect scoring
-}
-
 interface AreaParam {
   label: string;
   detail: string;
@@ -63,76 +48,10 @@ interface AreaScore {
   params: AreaParam[];
 }
 
-interface JumpDemoBase {
-  id: number;
-  label: string;
-  athlete: string;
-  trick: string;
-  category: string;
-  videoSrc?: string;
-  woo: WooData;
-  realScore: number;
-  realScoreEvent: string;
-}
-
 interface JumpDemo extends JumpDemoBase {
   score: number;
   areas: AreaScore[];
 }
-
-// ─── Static data (no scores — computed live) ──────────────────────────────────
-
-const DEMO_JUMPS_BASE: JumpDemoBase[] = [
-  {
-    id: 1, label: 'Jump 1', athlete: 'Leonardo Casati',
-    trick: 'Late Backroll Kiteloop Double Flip Added Rotation',
-    category: 'KLBRFL',
-    videoSrc: `${import.meta.env.BASE_URL}videos/LEO_7.33.mp4`,
-    woo: { maxHeight: 15.9, airtime: 7.6, distance: 76,  maxSpeed: 46, approachSpeed: 32, windAngle: 18, quality: 'OK',   peakTimeRatio: 0.30, takeoffOffset: 0, yankForce: 3.3, freeFallTime: 0.9, kiteAngleDeg: 76, landingSpeedG: 2.1 },
-    realScore: 7.33, realScoreEvent: 'Capital.com GKA Big Air World Cup Mykonos 2026',
-  },
-  {
-    id: 2, label: 'Jump 2', athlete: 'Leonardo Casati',
-    trick: 'Doobie Loop Boardoff by the Fin',
-    category: 'KLFRBO',
-    videoSrc: `${import.meta.env.BASE_URL}videos/LEO_8.37.mp4`,
-    woo: { maxHeight: 19.8, airtime: 7.5, distance: 83,  maxSpeed: 52, approachSpeed: 30, windAngle: 11, quality: 'Good', peakTimeRatio: 0.33, takeoffOffset: 0, yankForce: 4.1, freeFallTime: 1.6, kiteAngleDeg: 73, landingSpeedG: 1.9 },
-    realScore: 8.37, realScoreEvent: 'Capital.com GKA Big Air World Cup Mykonos 2026',
-  },
-  {
-    id: 3, label: 'Jump 3', athlete: 'Leonardo Casati',
-    trick: 'Backroll Kiteloop Tornado',
-    category: 'KLBRBO',
-    videoSrc: `${import.meta.env.BASE_URL}videos/LEO_8.07.mp4`,
-    woo: { maxHeight: 17.5, airtime: 7.0, distance: 121, maxSpeed: 65, approachSpeed: 28, windAngle: 6,  quality: 'Good', peakTimeRatio: 0.30, takeoffOffset: 0, yankForce: 3.5, freeFallTime: 1.0, kiteAngleDeg: 78, landingSpeedG: 2.3 },
-    realScore: 8.07, realScoreEvent: 'Capital.com GKA Big Air World Cup Mykonos 2026',
-  },
-];
-
-// ─── Default scoring params (used when scorer hasn't been loaded) ─────────────
-// HEIGHT is derived live from each jump's real Woo numbers (maxHeight/distance)
-// against the currently configured thresholds, and EXECUTION comes from the
-// judge's own slider input (executionByJump) — see effectiveParams in Demo().
-
-type DemoParamsCore = Omit<JumpParameters, 'HEIGHT' | 'EXECUTION'>;
-
-const DEMO_SCORING_PARAMS: [DemoParamsCore, DemoParamsCore, DemoParamsCore] = [
-  {
-    landingOutcome: 'clean',
-    EXTREMITY:    { kite_angle: 'super_low', yank_power: 'medium', free_fall: 'medium' },
-    TECHNICALITY: { rotations: '1', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '2', board_spin: '0' },
-  },
-  {
-    landingOutcome: 'clean',
-    EXTREMITY:    { kite_angle: 'low', yank_power: 'bomb', free_fall: 'high' },
-    TECHNICALITY: { rotations: '2', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '0', board_spin: '0' },
-  },
-  {
-    landingOutcome: 'clean',
-    EXTREMITY:    { kite_angle: 'super_low', yank_power: 'medium', free_fall: 'medium' },
-    TECHNICALITY: { rotations: '3', rotation_axis: 'horizontal', board_off: 'yes', board_flip: '0', board_spin: '0' },
-  },
-];
 
 // ─── Score computation helpers ────────────────────────────────────────────────
 

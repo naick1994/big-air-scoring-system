@@ -11,18 +11,24 @@ import { PRESET_CONFIG } from '@/lib/scoring';
 export function Header() {
   const location = useLocation();
   const { activePreset } = useScoring();
-  const { logout } = useAuth();
+  const { logout, role } = useAuth();
 
   const showOverallImpression = PRESET_CONFIG[activePreset]?.hasOverallImpression ?? false;
 
-  const navItems = [
-    { path: '/parameters-guide', label: 'Parameters Guide' },
-    { path: '/preset', label: 'Event Presets' },
-    { path: '/', label: 'New Score' },
-    ...(showOverallImpression ? [{ path: '/overall-impression', label: 'Overall Impression' }] : []),
-    { path: '/result', label: 'Result' },
-    { path: '/demo', label: 'Demo' },
-  ];
+  const navItems = role === 'rider'
+    ? [
+        { path: '/parameters-guide', label: 'Parameters Guide' },
+        { path: '/rider', label: 'Results' },
+        { path: '/rider/feedback', label: 'Feedback' },
+      ]
+    : [
+        { path: '/parameters-guide', label: 'Parameters Guide' },
+        { path: '/preset', label: 'Event Presets' },
+        { path: '/', label: 'New Score' },
+        ...(showOverallImpression ? [{ path: '/overall-impression', label: 'Overall Impression' }] : []),
+        { path: '/result', label: 'Result' },
+        { path: '/demo', label: 'Demo' },
+      ];
 
   return (
     <header className="bg-card border-b border-border shadow-sm sticky top-0 z-50">
@@ -56,10 +62,12 @@ export function Header() {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="text-sm text-muted-foreground">
-              Active Preset: <span className="font-semibold text-foreground">{activePreset}</span>
-            </div>
-            <Button 
+            {role !== 'rider' && (
+              <div className="text-sm text-muted-foreground">
+                Active Preset: <span className="font-semibold text-foreground">{activePreset}</span>
+              </div>
+            )}
+            <Button
               variant="outline" 
               size="sm" 
               onClick={logout}

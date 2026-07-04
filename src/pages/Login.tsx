@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 
 const Login = () => {
+  const [role, setRole] = useState<UserRole>('judge');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,9 +20,9 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    const success = login(email, password);
+    const success = login(email, password, role);
     if (success) {
-      navigate('/');
+      navigate(role === 'rider' ? '/rider' : '/');
     } else {
       setError('Invalid credentials. Please try again.');
     }
@@ -38,10 +39,31 @@ const Login = () => {
             <div className="w-px h-6 bg-border" />
             <img src={capitalLogo} alt="Capital.com" className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
           </div>
-          
+
           <h1 className="text-2xl font-bold text-center text-foreground mb-6">
             Big Air Scoring System
           </h1>
+
+          <div className="flex bg-muted rounded-full p-1 mb-6">
+            <button
+              type="button"
+              onClick={() => setRole('judge')}
+              className={`flex-1 py-2 rounded-full text-sm font-semibold transition-colors ${
+                role === 'judge' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              Judge
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole('rider')}
+              className={`flex-1 py-2 rounded-full text-sm font-semibold transition-colors ${
+                role === 'rider' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              Rider
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

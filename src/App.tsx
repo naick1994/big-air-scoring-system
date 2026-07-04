@@ -15,6 +15,8 @@ import OverallImpression from "./pages/OverallImpression";
 import Demo from "./pages/Demo";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import RiderResults from "./pages/rider/RiderResults";
+import RiderFeedback from "./pages/rider/RiderFeedback";
 
 const queryClient = new QueryClient();
 
@@ -40,12 +42,14 @@ const App = () => (
                   <ProtectedRoute>
                     <Header />
                     <Routes>
-                      <Route path="/" element={<NewJump />} />
-                      <Route path="/preset" element={<PresetEvents />} />
-                      <Route path="/result" element={<Result />} />
+                      <Route path="/" element={<ProtectedRoute allowedRoles={['judge']}><NewJump /></ProtectedRoute>} />
+                      <Route path="/preset" element={<ProtectedRoute allowedRoles={['judge']}><PresetEvents /></ProtectedRoute>} />
+                      <Route path="/result" element={<ProtectedRoute allowedRoles={['judge']}><Result /></ProtectedRoute>} />
                       <Route path="/parameters-guide" element={<ParametersGuide />} />
-                      <Route path="/overall-impression" element={<OverallImpression />} />
-                      <Route path="/demo" element={<Demo />} />
+                      <Route path="/overall-impression" element={<ProtectedRoute allowedRoles={['judge']}><OverallImpression /></ProtectedRoute>} />
+                      <Route path="/demo" element={<ProtectedRoute allowedRoles={['judge']}><Demo /></ProtectedRoute>} />
+                      <Route path="/rider" element={<ProtectedRoute allowedRoles={['rider']}><RiderResults /></ProtectedRoute>} />
+                      <Route path="/rider/feedback" element={<ProtectedRoute allowedRoles={['rider']}><RiderFeedback /></ProtectedRoute>} />
                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>
