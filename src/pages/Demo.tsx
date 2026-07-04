@@ -627,15 +627,17 @@ function JumpCard({
                 <BarChart2 className="w-3.5 h-3.5" />
                 Score Breakdown
               </Button>
-              <Button
-                variant={revealed ? 'outline' : 'default'}
-                size="sm"
-                className={`gap-1.5 text-xs ${!revealed ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse' : ''}`}
-                onClick={() => videoPlayerRef.current?.open()}
-              >
-                <Gauge className="w-3.5 h-3.5" />
-                Score Execution
-              </Button>
+              {!revealed && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="gap-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white animate-pulse"
+                  onClick={() => videoPlayerRef.current?.open()}
+                >
+                  <Gauge className="w-3.5 h-3.5" />
+                  Score Execution
+                </Button>
+              )}
               {hasExecutionInput && (
                 <Button
                   variant="ghost"
