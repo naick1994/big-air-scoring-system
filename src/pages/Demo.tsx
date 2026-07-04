@@ -144,15 +144,15 @@ function resultToAreas(result: ScoringResult): AreaScore[] {
 function ParamRow({ p }: { p: AreaParam }) {
   const pct = p.maxPts > 0 ? (p.pts / p.maxPts) * 100 : 0;
   return (
-    <div className="flex items-center gap-2 py-0.5">
+    <div className="flex items-center gap-3 py-1.5">
       <div className="w-1 h-1 rounded-full bg-white/20 shrink-0" />
-      <span className="text-zinc-500 text-[10px] tracking-wide min-w-[6rem]">{p.label}</span>
-      {p.detail && <span className="text-zinc-400 text-[10px] font-semibold">{p.detail}</span>}
-      <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden min-w-[2rem]">
+      <span className="text-zinc-400 text-[11px] tracking-wide min-w-[7.5rem]">{p.label}</span>
+      {p.detail && <span className="text-zinc-300 text-[11px] font-semibold min-w-[5rem]">{p.detail}</span>}
+      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden min-w-[2rem]">
         <div className="h-full bg-white/30 rounded-full" style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-zinc-400 text-[10px] tabular-nums shrink-0">
-        {p.pts.toFixed(2)}<span className="text-zinc-700">/{p.maxPts.toFixed(2)}</span>
+      <span className="text-zinc-300 text-[11px] tabular-nums shrink-0">
+        {p.pts.toFixed(2)}<span className="text-zinc-600">/{p.maxPts.toFixed(2)}</span>
       </span>
     </div>
   );
@@ -177,8 +177,8 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
       <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
 
       {/* ── Top bar ── */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 shrink-0">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between px-8 py-4 border-b border-white/10 shrink-0">
+        <div className="flex items-center gap-5">
           <img src={logo}        alt="GKA"        className="h-8" />
           <div className="w-px h-5 bg-white/15" />
           <img src={wooLogo}     alt="Woo"        className="h-5" style={{ filter: 'brightness(0) invert(1)' }} />
@@ -187,38 +187,38 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
         </div>
         <button
           onClick={onClose}
-          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
+          className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
         >
           <X className="w-4 h-4 text-white" />
         </button>
       </div>
 
       {/* ── Athlete + score ── */}
-      <div className="flex items-center justify-between px-6 py-3 shrink-0">
+      <div className="flex items-center justify-between px-8 py-5 shrink-0">
         <div>
           <div className="font-mono text-white text-lg font-black tracking-widest leading-tight">
             {jump.athlete.toUpperCase()}
           </div>
-          <div className="text-orange-400 text-xs font-semibold tracking-wide mt-0.5">{jump.trick}</div>
-          <div className="font-mono text-zinc-600 text-[9px] tracking-widest mt-0.5">{jump.label.toUpperCase()}</div>
+          <div className="text-orange-400 text-xs font-semibold tracking-wide mt-1">{jump.trick}</div>
+          <div className="font-mono text-zinc-500 text-[10px] tracking-widest mt-1">{jump.label.toUpperCase()}</div>
         </div>
         <div className="text-right">
-          <div className="font-mono text-zinc-500 text-[9px] tracking-widest uppercase mb-0.5">Score</div>
+          <div className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase mb-1">Score</div>
           <div className="text-white font-black tabular-nums leading-none" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}>
             {jump.score.toFixed(2)}
           </div>
-          <div className="text-zinc-500 text-xs mt-0.5">/ 10</div>
+          <div className="text-zinc-500 text-xs mt-1">/ 10</div>
         </div>
       </div>
 
-      <div className="h-px bg-white/10 mx-6 shrink-0" />
+      <div className="h-px bg-white/10 mx-8 shrink-0" />
 
       {/* ── Main content ── */}
       <div className="flex-1 grid grid-cols-5 gap-0 min-h-0">
 
         {/* ── Score breakdown (3/5 width) ── */}
-        <div className="col-span-3 border-r border-white/10 px-6 py-4 overflow-y-auto flex flex-col gap-3">
-          <div className="font-mono text-zinc-500 text-[9px] tracking-widest uppercase">Score Breakdown</div>
+        <div className="col-span-3 border-r border-white/10 px-8 py-6 overflow-y-auto flex flex-col gap-5">
+          <div className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase">Score Breakdown</div>
 
           {jump.areas.map(area => {
             const pct = (area.score / area.maxScore) * 100;
@@ -228,30 +228,30 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
             return (
               <div key={area.name}>
                 {/* Area header */}
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-white text-[10px] font-bold tracking-widest">{area.name}</span>
-                    <span className="bg-white/10 text-zinc-400 text-[9px] font-mono px-1.5 py-0.5 rounded">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono text-white text-xs font-bold tracking-widest">{area.name}</span>
+                    <span className="bg-white/10 text-zinc-300 text-[10px] font-mono px-2 py-0.5 rounded">
                       ×{area.weight}%
                     </span>
                   </div>
-                  <span className="text-white text-xs font-bold tabular-nums">
+                  <span className="text-white text-sm font-bold tabular-nums">
                     {area.score.toFixed(2)}
-                    <span className="text-zinc-600 font-normal">/{area.maxScore.toFixed(2)}</span>
+                    <span className="text-zinc-500 font-normal">/{area.maxScore.toFixed(2)}</span>
                   </span>
                 </div>
                 {/* Area bar */}
-                <div className="w-full h-1.5 rounded-full mb-1.5 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <div className="w-full h-2 rounded-full mb-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
                   <div className={`h-full rounded-full bg-gradient-to-r ${area.gradient}`} style={{ width: `${pct}%` }} />
                 </div>
                 {/* Formula line */}
-                <div className="font-mono text-zinc-600 text-[9px] mb-2">
+                <div className="font-mono text-zinc-500 text-[10px] mb-3 leading-relaxed">
                   {subtotal.toFixed(2)}/{subtotalMax.toFixed(2)} = {norm.toFixed(0)}% &nbsp;×&nbsp;
                   10 &nbsp;×&nbsp; {area.weight}% weight &nbsp;=&nbsp;
-                  <span className="text-zinc-400">{area.score.toFixed(2)} pts</span>
+                  <span className="text-zinc-300">{area.score.toFixed(2)} pts</span>
                 </div>
                 {/* Sub-params */}
-                <div className="pl-2 border-l border-white/10">
+                <div className="pl-3 border-l border-white/10">
                   {area.params.map((p, i) => <ParamRow key={i} p={p} />)}
                 </div>
               </div>
@@ -259,43 +259,43 @@ function RecapScreen({ jump, onClose }: { jump: JumpDemo; onClose: () => void })
           })}
 
           {/* Total */}
-          <div className="flex justify-between items-baseline pt-3 border-t border-white/10 mt-1">
-            <span className="font-mono text-zinc-400 text-[10px] tracking-widest uppercase">Total Score</span>
+          <div className="flex justify-between items-baseline pt-4 border-t border-white/10 mt-2">
+            <span className="font-mono text-zinc-400 text-[11px] tracking-widest uppercase">Total Score</span>
             <span className="text-white font-black text-lg tabular-nums">
               {jump.score.toFixed(2)}
-              <span className="text-zinc-600 text-sm font-normal"> / 10</span>
+              <span className="text-zinc-500 text-sm font-normal"> / 10</span>
             </span>
           </div>
         </div>
 
         {/* ── Woo sensor data (2/5 width) ── */}
-        <div className="col-span-2 px-6 py-4 flex flex-col gap-4">
+        <div className="col-span-2 px-8 py-6 flex flex-col gap-5">
           <div className="flex items-center gap-2">
             <img src={wooLogo} alt="Woo" className="h-4" style={{ filter: 'brightness(0) invert(1)' }} />
-            <span className="font-mono text-zinc-500 text-[9px] tracking-widest uppercase">Sensor Data</span>
+            <span className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase">Sensor Data</span>
           </div>
-          <div className="grid grid-cols-2 gap-x-5 gap-y-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-6">
             {wooStats.map(stat => (
               <div key={stat.label}>
-                <div className="font-mono text-zinc-600 text-[9px] tracking-widest uppercase leading-tight">{stat.label}</div>
-                <div className="text-white font-bold text-sm tabular-nums mt-0.5">{stat.value}</div>
+                <div className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase leading-tight">{stat.label}</div>
+                <div className="text-white font-bold text-base tabular-nums mt-1">{stat.value}</div>
               </div>
             ))}
           </div>
 
           {/* GKA weights legend */}
-          <div className="mt-auto pt-4 border-t border-white/10">
-            <div className="font-mono text-zinc-600 text-[9px] tracking-widest uppercase mb-2">GKA Weights</div>
+          <div className="mt-auto pt-5 border-t border-white/10">
+            <div className="font-mono text-zinc-500 text-[10px] tracking-widest uppercase mb-3">GKA Weights</div>
             {[
               { label: 'Height',       pct: 30, color: 'bg-cyan-500' },
               { label: 'Extremity',    pct: 30, color: 'bg-pink-500' },
               { label: 'Technicality', pct: 20, color: 'bg-yellow-500' },
               { label: 'Execution',    pct: 20, color: 'bg-lime-500' },
             ].map(w => (
-              <div key={w.label} className="flex items-center gap-2 mb-1">
+              <div key={w.label} className="flex items-center gap-2.5 mb-1.5">
                 <div className={`w-1.5 h-1.5 rounded-full ${w.color} shrink-0`} />
-                <span className="text-zinc-500 text-[9px] tracking-wide flex-1">{w.label}</span>
-                <span className="font-mono text-zinc-400 text-[9px] font-bold">{w.pct}%</span>
+                <span className="text-zinc-400 text-[10px] tracking-wide flex-1">{w.label}</span>
+                <span className="font-mono text-zinc-300 text-[10px] font-bold">{w.pct}%</span>
               </div>
             ))}
           </div>
