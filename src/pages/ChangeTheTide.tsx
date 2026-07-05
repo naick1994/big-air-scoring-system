@@ -198,6 +198,84 @@ function WhatIfParamRow({ label, tip, max, state }: { label: string; tip: string
   );
 }
 
+// Real per-jump area breakdowns for Leonardo Casati's 3 Mykonos jumps (GKA
+// preset) — same numbers shown throughout the rest of the page.
+const JUMP_BREAKDOWNS = [
+  {
+    label: 'Jump 1', total: 7.14,
+    areas: [
+      { name: 'HEIGHT & AMPLITUDE', score: 1.88, max: 3.0 },
+      { name: 'EXTREMITY', score: 2.25, max: 3.0 },
+      { name: 'TECHNICALITY', score: 1.30, max: 2.0 },
+      { name: 'EXECUTION', score: 1.70, max: 2.0 },
+    ],
+  },
+  {
+    label: 'Jump 2', total: 8.35,
+    areas: [
+      { name: 'HEIGHT & AMPLITUDE', score: 2.60, max: 3.0 },
+      { name: 'EXTREMITY', score: 2.63, max: 3.0 },
+      { name: 'TECHNICALITY', score: 1.33, max: 2.0 },
+      { name: 'EXECUTION', score: 1.78, max: 2.0 },
+    ],
+  },
+  {
+    label: 'Jump 3', total: 8.33,
+    areas: [
+      { name: 'HEIGHT & AMPLITUDE', score: 3.00, max: 3.0 },
+      { name: 'EXTREMITY', score: 2.25, max: 3.0 },
+      { name: 'TECHNICALITY', score: 1.50, max: 2.0 },
+      { name: 'EXECUTION', score: 1.58, max: 2.0 },
+    ],
+  },
+];
+
+function JumpBreakdownCard() {
+  const [selected, setSelected] = useState(0);
+  const jump = JUMP_BREAKDOWNS[selected];
+
+  return (
+    <Card className="p-8 shadow-[var(--shadow-card)]">
+      <div className="text-center mb-8">
+        <div className="text-xs text-muted-foreground mb-1 font-mono uppercase tracking-wide">Total Score</div>
+        <div className="text-6xl font-bold text-primary">23.82<span className="text-2xl text-muted-foreground"> / 30</span></div>
+        <div className="flex items-center justify-center gap-2 mt-4">
+          {JUMP_BREAKDOWNS.map((j, i) => (
+            <button
+              key={j.label}
+              onClick={() => setSelected(i)}
+              className={`rounded-lg px-4 py-2 text-sm transition-colors ${
+                i === selected ? 'bg-primary/15 border border-primary/40' : 'bg-muted/40 hover:bg-muted/60 border border-transparent'
+              }`}
+            >
+              <span className="font-bold text-primary">{j.total}</span>
+              <span className="text-muted-foreground"> · {j.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="text-sm font-semibold mb-4 text-left">{jump.label} — Detailed Breakdown</div>
+      <div key={jump.label} className="space-y-4" style={{ animation: 'whatIfPop 0.35s ease' }}>
+        {jump.areas.map((area) => (
+          <div key={area.name}>
+            <div className="flex justify-between items-center mb-1.5 text-sm">
+              <span className="font-medium">{area.name}</span>
+              <span className="font-semibold text-primary">{area.score.toFixed(2)} / {area.max.toFixed(2)}</span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+              <div
+                className={`h-full bg-gradient-to-r ${AREA_GRADIENT[area.name]}`}
+                style={{ width: `${(area.score / area.max) * 100}%`, transition: 'width 0.5s ease' }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function AutoWhatIfDemo() {
   const heightIndex = useCyclingIndex(HEIGHT_WHATIF_STATES.length, 2200);
   const amplitudeIndex = useCyclingIndex(AMPLITUDE_WHATIF_STATES.length, 1700);
@@ -254,7 +332,6 @@ function AutoWhatIfDemo() {
         Auto-playing — Height and Amplitude cycling independently through their real thresholds, live on
         the actual scoring model. Two separate data streams, one combined score.
       </p>
-      <style>{`@keyframes whatIfPop { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </Card>
   );
 }
@@ -477,23 +554,38 @@ const WOO_SENSOR_JUMPS = [
 function WooSensorPanel() {
   const [index, setIndex] = useState(0);
   const userInteractedRef = useRef(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
   const reducedMotion = useRef(
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   ).current;
 
+  // Only auto-advance while the panel is actually on screen — otherwise the
+  // pop transition can fire mid-scroll, which reads as an unwanted jump
+  // rather than a deliberate demo.
   useEffect(() => {
-    if (reducedMotion) return;
+    if (reducedMotion || !panelRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.6 }
+    );
+    observer.observe(panelRef.current);
+    return () => observer.disconnect();
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    if (reducedMotion || !inView) return;
     const id = setInterval(() => {
       if (userInteractedRef.current) return;
       setIndex(prev => (prev + 1) % WOO_SENSOR_JUMPS.length);
     }, 3000);
     return () => clearInterval(id);
-  }, [reducedMotion]);
+  }, [reducedMotion, inView]);
 
   const jump = WOO_SENSOR_JUMPS[index];
 
   return (
-    <Card className="p-6 shadow-[var(--shadow-card)] mt-8">
+    <Card ref={panelRef} className="p-6 shadow-[var(--shadow-card)] mt-8">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <img src={wooLogo} alt="Woo" className="h-4" style={{ filter: 'brightness(0) invert(1)' }} />
@@ -526,6 +618,133 @@ function WooSensorPanel() {
   );
 }
 
+const COMPARISON_PAIRS = [
+  {
+    problem: 'One overall impression, formed in seconds',
+    fix: 'Four weighted areas, scored independently',
+  },
+  {
+    problem: 'Not tied to any fixed, published parameter',
+    fix: 'Every point tied to a published parameter',
+  },
+  {
+    problem: 'Hard to audit after the fact',
+    fix: 'Fully auditable — every score is explainable',
+  },
+  {
+    problem: 'Varies between judges and events',
+    fix: 'Same method, every judge, every event',
+  },
+  {
+    problem: 'No specific feedback on what to improve',
+    fix: 'Precise, per-parameter feedback for every rider',
+  },
+  {
+    problem: 'Rewards how it looked, not what it measured',
+    fix: 'Every score traced to a real measurement',
+  },
+  {
+    problem: 'No answer to "what should I train?"',
+    fix: 'The exact parameter that cost you points',
+  },
+  {
+    problem: 'No way to compare beyond the final rank',
+    fix: 'Area-by-area comparison against any rider',
+  },
+];
+
+function ComparisonSection() {
+  const [selected, setSelected] = useState(0);
+  const userInteractedRef = useRef(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ).current;
+
+  useEffect(() => {
+    if (reducedMotion || !sectionRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.4 }
+    );
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    if (reducedMotion || !inView) return;
+    const id = setInterval(() => {
+      if (userInteractedRef.current) return;
+      setSelected(prev => (prev + 1) % COMPARISON_PAIRS.length);
+    }, 2400);
+    return () => clearInterval(id);
+  }, [reducedMotion, inView]);
+
+  const handleSelect = (i: number) => {
+    userInteractedRef.current = true;
+    setSelected(i);
+  };
+
+  return (
+    <section className="border-b border-border">
+      <div ref={sectionRef} className="container mx-auto px-4 py-24 max-w-5xl">
+        <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The comparison</div>
+        <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+          Holistic vs. reductionist, side by side.
+        </h2>
+        <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+          Eight problems with today's judging, and the eight things the reductionist model does instead.
+          Pick one to line them up.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="p-7 shadow-[var(--shadow-card)]">
+            <div className="text-sm font-mono uppercase tracking-wide text-muted-foreground mb-5">Holistic (today)</div>
+            <div className="space-y-2">
+              {COMPARISON_PAIRS.map((pair, i) => {
+                const isSelected = i === selected;
+                return (
+                  <button
+                    key={pair.problem}
+                    onClick={() => handleSelect(i)}
+                    className={`w-full flex items-center gap-3 text-sm text-left rounded-lg px-3 h-11 transition-colors ${
+                      isSelected ? 'bg-red-500/10 text-foreground' : 'text-muted-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    <X className={`w-4 h-4 shrink-0 ${isSelected ? 'text-red-400' : 'text-red-400/50'}`} />
+                    <span className="truncate">{pair.problem}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </Card>
+          <Card className="p-7 shadow-[var(--shadow-card)] border-green-500/30">
+            <div className="text-sm font-mono uppercase tracking-wide text-green-400 mb-5">Reductionist (this system)</div>
+            <div className="space-y-2">
+              {COMPARISON_PAIRS.map((pair, i) => {
+                const isSelected = i === selected;
+                return (
+                  <button
+                    key={pair.fix}
+                    onClick={() => handleSelect(i)}
+                    className={`w-full flex items-center gap-3 text-sm text-left rounded-lg px-3 h-11 transition-colors ${
+                      isSelected ? 'bg-green-500/10 text-foreground' : 'text-muted-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    <CheckCircle2 className={`w-4 h-4 shrink-0 ${isSelected ? 'text-green-400' : 'text-green-400/50'}`} />
+                    <span className="truncate">{pair.fix}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </Card>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function useRoundRobinIndex(length: number, periodMs: number) {
   const [index, setIndex] = useState(0);
   const reducedMotion = useRef(
@@ -546,6 +765,9 @@ export default function ChangeTheTide() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Shared entrance transition for auto-cycling values — never drops to
+          opacity 0, so a fast tick never reads as content vanishing. */}
+      <style>{`@keyframes whatIfPop { from { opacity: 0.5; transform: translateY(1px); } to { opacity: 1; transform: translateY(0); } }`}</style>
       {/* ───────── Hero ───────── */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent pointer-events-none" />
@@ -657,49 +879,7 @@ export default function ChangeTheTide() {
       </section>
 
       {/* ───────── Reductionist vs Holistic ───────── */}
-      <section className="border-b border-border">
-        <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The comparison</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-12">
-            Holistic vs. reductionist, side by side.
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-7 shadow-[var(--shadow-card)]">
-              <div className="text-sm font-mono uppercase tracking-wide text-muted-foreground mb-5">Holistic (today)</div>
-              <ul className="space-y-4">
-                {[
-                  'One overall impression, formed in seconds',
-                  'Not tied to any fixed, published parameter',
-                  'Hard to audit after the fact',
-                  'Varies between judges and events',
-                ].map((line) => (
-                  <li key={line} className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <X className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground/70" />
-                    {line}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-            <Card className="p-7 shadow-[var(--shadow-card)] border-primary/30">
-              <div className="text-sm font-mono uppercase tracking-wide text-primary mb-5">Reductionist (this system)</div>
-              <ul className="space-y-4">
-                {[
-                  'Four weighted areas, scored independently',
-                  'Every point tied to a published parameter',
-                  'Fully auditable — every score is explainable',
-                  'Same method, every judge, every event',
-                ].map((line) => (
-                  <li key={line} className="flex items-start gap-3 text-sm">
-                    <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-                    {line}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </div>
-        </div>
-      </section>
+      <ComparisonSection />
 
       {/* ───────── Tunable, not rigid ───────── */}
       <section className="border-b border-border">
@@ -816,44 +996,7 @@ export default function ChangeTheTide() {
             for every jump — not just a final number.
           </p>
 
-          <Card className="p-8 shadow-[var(--shadow-card)]">
-            <div className="text-center mb-8">
-              <div className="text-xs text-muted-foreground mb-1 font-mono uppercase tracking-wide">Total Score</div>
-              <div className="text-6xl font-bold text-primary">23.82<span className="text-2xl text-muted-foreground"> / 30</span></div>
-              <div className="flex items-center justify-center gap-2 mt-4">
-                {[
-                  { label: 'Jump 1', score: 7.14 },
-                  { label: 'Jump 2', score: 8.35 },
-                  { label: 'Jump 3', score: 8.33 },
-                ].map((j) => (
-                  <span key={j.label} className="bg-muted/40 rounded-lg px-4 py-2 text-sm">
-                    <span className="font-bold text-primary">{j.score}</span>
-                    <span className="text-muted-foreground"> · {j.label}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="text-sm font-semibold mb-4 text-left">Jump 1 — Detailed Breakdown</div>
-            <div className="space-y-4">
-              {[
-                { name: 'HEIGHT & AMPLITUDE', score: 1.88, max: 3.0 },
-                { name: 'EXTREMITY', score: 2.25, max: 3.0 },
-                { name: 'TECHNICALITY', score: 1.3, max: 2.0 },
-                { name: 'EXECUTION', score: 1.7, max: 2.0 },
-              ].map((area) => (
-                <div key={area.name}>
-                  <div className="flex justify-between items-center mb-1.5 text-sm">
-                    <span className="font-medium">{area.name}</span>
-                    <span className="font-semibold text-primary">{area.score.toFixed(2)} / {area.max.toFixed(2)}</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                    <div className={`h-full bg-gradient-to-r ${AREA_GRADIENT[area.name]}`} style={{ width: `${(area.score / area.max) * 100}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+          <JumpBreakdownCard />
         </div>
       </section>
 
