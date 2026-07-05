@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Mail, Phone, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -79,7 +79,11 @@ const TRACK_RECORD: TimelineItem[] = [
 const EDUCATION: TimelineItem[] = [
   {
     title: 'MSc in Management', org: 'Bocconi University', period: 'Sep 2016 - Dec 2018', logo: logoBocconi,
-    desc: ['Top grades (110/110).', 'Final thesis on budgeting effectiveness and behavior.'],
+    desc: [
+      'Top grades (110/110).',
+      'Final thesis on budgeting effectiveness and behavior.',
+      'Bocconi is consistently ranked among the world\'s top business schools in Financial Times rankings.',
+    ],
   },
   {
     title: 'Exchange Program', org: 'National Taiwan University of Taipei', period: 'Aug 2016 - Dec 2018', logo: logoNtuTaiwan,
@@ -97,22 +101,39 @@ const LANGUAGES = [
   { flag: '🇪🇸', text: 'Spanish: Professional working proficiency' },
 ];
 
+// Fires once when the wrapped element scrolls into view, so every
+// section on this page animates in as you scroll to it, not just once
+// on page load.
+function useInViewOnce<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    if (!ref.current || seen) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setSeen(true); },
+      { threshold: 0.15 }
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [seen]);
+  return { ref, seen };
+}
+
 // Each entry: logo in a fixed neutral box (object-contain, so non-square
 // logos never crop or stretch), then title / org / period stacked in
 // that order, left-aligned, identically across every entry.
 function Timeline({ items }: { items: TimelineItem[] }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { const id = requestAnimationFrame(() => setMounted(true)); return () => cancelAnimationFrame(id); }, []);
+  const { ref, seen } = useInViewOnce<HTMLDivElement>();
 
   return (
-    <div className="divide-y divide-border border-t border-border">
+    <div ref={ref} className="divide-y divide-border border-t border-border">
       {items.map((item, i) => (
         <div
           key={item.title + item.org}
           className="flex gap-4 py-5"
           style={{
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? 'translateX(0)' : 'translateX(-12px)',
+            opacity: seen ? 1 : 0,
+            transform: seen ? 'translateX(0)' : 'translateX(-12px)',
             transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms`,
           }}
         >
@@ -142,9 +163,31 @@ function Timeline({ items }: { items: TimelineItem[] }) {
   );
 }
 
+// Fade + slide reveal for a whole block (heading + content), used for
+// the sections that aren't a Timeline (Languages, Contact).
+function Reveal({ children }: { children: ReactNode }) {
+  const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: seen ? 1 : 0,
+        transform: seen ? 'translateY(0)' : 'translateY(16px)',
+        transition: 'opacity 0.6s ease, transform 0.6s ease',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function AboutNick() {
   const [heroIn, setHeroIn] = useState(false);
-  useEffect(() => { const id = requestAnimationFrame(() => setHeroIn(true)); return () => cancelAnimationFrame(id); }, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const id = requestAnimationFrame(() => setHeroIn(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -219,14 +262,14 @@ export default function AboutNick() {
             <Timeline items={EDUCATION} />
           </div>
 
-          <div>
+          <Reveal>
             <h2 className="font-bold mb-3">Languages</h2>
             <ul className="space-y-1.5 text-sm text-muted-foreground">
               {LANGUAGES.map((l) => <li key={l.text}>{l.flag} {l.text}</li>)}
             </ul>
-          </div>
+          </Reveal>
 
-          <div>
+          <Reveal>
             <h2 className="font-bold mb-3">Contact</h2>
             <div className="flex flex-col gap-2 text-sm">
               <a href="mailto:nicholas.baruffaldi@gmail.com" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
@@ -236,7 +279,7 @@ export default function AboutNick() {
                 <Phone className="w-4 h-4" /> +39 348 3409712
               </a>
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </div>
