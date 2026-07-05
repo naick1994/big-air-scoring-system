@@ -922,18 +922,19 @@ function SensorCardsGrid() {
   return (
     <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {SENSOR_CARDS.map((card, i) => (
-        <Card
-          key={card.label}
-          className="p-6 shadow-[var(--shadow-card)]"
-          style={{
-            opacity: seen ? 1 : 0,
-            transform: seen ? 'translateY(0)' : 'translateY(16px)',
-            transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms`,
-          }}
-        >
-          <h3 className="font-bold mb-2"><span className="text-primary">{card.label}:</span> {card.title}</h3>
-          <p className="text-sm text-muted-foreground">{card.desc}</p>
-        </Card>
+        <div key={card.label} className="transition-transform duration-300 hover:-translate-y-1.5">
+          <Card
+            className="p-6 h-full shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40"
+            style={{
+              opacity: seen ? 1 : 0,
+              transform: seen ? 'translateY(0)' : 'translateY(16px)',
+              transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms, box-shadow 0.3s ease, border-color 0.3s ease`,
+            }}
+          >
+            <h3 className="font-bold mb-2"><span className="text-primary">{card.label}:</span> {card.title}</h3>
+            <p className="text-sm text-muted-foreground">{card.desc}</p>
+          </Card>
+        </div>
       ))}
     </div>
   );
@@ -971,18 +972,19 @@ function UnlockCardsGrid() {
   return (
     <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {UNLOCK_CARDS.map((card, i) => (
-        <Card
-          key={card.title}
-          className="p-6 shadow-[var(--shadow-card)]"
-          style={{
-            opacity: seen ? 1 : 0,
-            transform: seen ? 'translateY(0)' : 'translateY(16px)',
-            transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms`,
-          }}
-        >
-          <h3 className="font-bold mb-2">{card.title}</h3>
-          <p className="text-sm text-muted-foreground">{card.desc}</p>
-        </Card>
+        <div key={card.title} className="transition-transform duration-300 hover:-translate-y-1.5">
+          <Card
+            className="p-6 h-full shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40"
+            style={{
+              opacity: seen ? 1 : 0,
+              transform: seen ? 'translateY(0)' : 'translateY(16px)',
+              transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms, box-shadow 0.3s ease, border-color 0.3s ease`,
+            }}
+          >
+            <h3 className="font-bold mb-2">{card.title}</h3>
+            <p className="text-sm text-muted-foreground">{card.desc}</p>
+          </Card>
+        </div>
       ))}
     </div>
   );
@@ -1110,6 +1112,7 @@ const HISTORY_COLOR_CLASSES: Record<string, { border: string; text: string }> = 
 
 function HistorySection() {
   const activeIndex = useRoundRobinIndex(HISTORY_ITEMS.length, 3000);
+  const { ref: gridRef, seen: gridSeen } = useInViewOnce<HTMLDivElement>();
 
   return (
     <section className="border-b border-border">
@@ -1125,23 +1128,37 @@ function HistorySection() {
           </p>
         </RevealOnScroll>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {HISTORY_ITEMS.map((item, i) => {
             const isActive = i === activeIndex;
             const colors = HISTORY_COLOR_CLASSES[item.color];
             return (
-              <Card
+              <div
                 key={item.sport}
-                className="p-6 shadow-[var(--shadow-card)] transition-colors duration-500"
-                style={isActive ? { borderColor: colors.border } : undefined}
+                style={{
+                  opacity: gridSeen ? 1 : 0,
+                  transform: gridSeen ? 'translateY(0)' : 'translateY(16px)',
+                  transitionProperty: 'opacity, transform',
+                  transitionDuration: '0.5s',
+                  transitionDelay: `${i * 90}ms`,
+                }}
               >
-                <div className={`text-3xl font-bold mb-1 tabular-nums transition-colors duration-500 ${isActive ? colors.text : 'text-foreground'}`}>
-                  {item.year}
+                <div className="transition-transform duration-300 hover:-translate-y-1.5">
+                  <Card
+                    className={`p-6 h-full shadow-[var(--shadow-card)] transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 ${
+                      isActive ? 'scale-[1.03]' : 'scale-100'
+                    }`}
+                    style={isActive ? { borderColor: colors.border } : undefined}
+                  >
+                    <div className={`text-3xl font-bold mb-1 tabular-nums transition-colors duration-500 ${isActive ? colors.text : 'text-foreground'}`}>
+                      {item.year}
+                    </div>
+                    <div className="font-bold text-sm mb-3">{item.sport}</div>
+                    <p className="text-sm text-muted-foreground mb-3">{item.change}</p>
+                    <p className="text-xs text-muted-foreground/80 border-t border-border pt-3">{item.why}</p>
+                  </Card>
                 </div>
-                <div className="font-bold text-sm mb-3">{item.sport}</div>
-                <p className="text-sm text-muted-foreground mb-3">{item.change}</p>
-                <p className="text-xs text-muted-foreground/80 border-t border-border pt-3">{item.why}</p>
-              </Card>
+              </div>
             );
           })}
         </div>
