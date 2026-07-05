@@ -52,19 +52,30 @@ function useTweenedNumber(target: number, duration = 650) {
   return value;
 }
 
-// Real Jump 1 (Leonardo Casati, Mykonos) numbers under the GKA preset, with
-// Height swapped through all 4 real thresholds — everything else (Amplitude,
-// Extremity, Technicality, Execution) held fixed at their real values.
-// b3 (15-17.5m, 0.90 pts) is the real jump; the rest are hypothetical.
+// Real Jump 1 (Leonardo Casati, Mykonos) numbers under the GKA preset.
+// Height and Amplitude each cycle through all 4 real thresholds
+// independently (different periods, so they visibly move out of sync) —
+// everything else (Extremity, Technicality, Execution) held fixed at its
+// real value. b3 is the real jump on each axis; the rest are hypothetical.
 const HEIGHT_WHATIF_STATES = [
-  { label: '0–10m',     pts: 0.00, areaScore: 0.80, total: 6.05, isReal: false },
-  { label: '10–15m',    pts: 0.60, areaScore: 1.52, total: 6.77, isReal: false },
-  { label: '15–17.5m',  pts: 0.90, areaScore: 1.88, total: 7.14, isReal: true },
-  { label: '+17.5m',    pts: 1.50, areaScore: 2.60, total: 7.85, isReal: false },
+  { label: '0–10m',    pts: 0.00, isReal: false },
+  { label: '10–15m',   pts: 0.60, isReal: false },
+  { label: '15–17.5m', pts: 0.90, isReal: true },
+  { label: '+17.5m',   pts: 1.50, isReal: false },
 ];
+const AMPLITUDE_WHATIF_STATES = [
+  { label: '0–50m',   pts: 0.00, isReal: false },
+  { label: '50–75m',  pts: 0.33, isReal: false },
+  { label: '75–100m', pts: 0.67, isReal: true },
+  { label: '+100m',   pts: 1.00, isReal: false },
+];
+// Extremity (2.25) + Technicality (1.30) + Execution (1.70), Leonardo's real
+// Jump 1 values — held fixed while Height & Amplitude vary.
+const OTHER_AREAS_TOTAL = 5.25;
+const REAL_TOTAL = 7.14;
 
-function AutoWhatIfDemo() {
-  const [index, setIndex] = useState(2); // start on the real value
+function useCyclingIndex(length: number, periodMs: number) {
+  const [index, setIndex] = useState(2); // both arrays keep "real" at index 2
   const directionRef = useRef<1 | -1>(1);
   const reducedMotion = useRef(
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -75,19 +86,56 @@ function AutoWhatIfDemo() {
     const id = setInterval(() => {
       setIndex(prev => {
         let next = prev + directionRef.current;
-        if (next >= HEIGHT_WHATIF_STATES.length) { directionRef.current = -1; next = prev - 1; }
+        if (next >= length) { directionRef.current = -1; next = prev - 1; }
         if (next < 0) { directionRef.current = 1; next = prev + 1; }
         return next;
       });
-    }, 2200);
+    }, periodMs);
     return () => clearInterval(id);
-  }, [reducedMotion]);
+  }, [reducedMotion, length, periodMs]);
 
-  const state = HEIGHT_WHATIF_STATES[index];
-  const animatedTotal = useTweenedNumber(state.total);
-  const animatedAreaScore = useTweenedNumber(state.areaScore);
-  const animatedHeightPts = useTweenedNumber(state.pts);
-  const delta = state.total - HEIGHT_WHATIF_STATES[2].total;
+  return index;
+}
+
+function WhatIfParamRow({ label, tip, max, state }: { label: string; tip: string; max: number; state: { label: string; pts: number; isReal: boolean } }) {
+  const animatedPts = useTweenedNumber(state.pts);
+  return (
+    <div className="flex items-start justify-between gap-4 py-2 px-3 rounded-lg bg-muted/40">
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm">{label}</span>
+          <span className="text-xs font-semibold text-amber-400 tabular-nums">{animatedPts.toFixed(2)} / {max.toFixed(2)}</span>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">{tip}</p>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">What if:</span>
+          <span
+            key={state.label}
+            className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[11px] gap-1"
+            style={{ animation: 'whatIfPop 0.4s ease' }}
+          >
+            <Sparkles className="w-3 h-3 text-primary" /> {state.label} — {state.pts.toFixed(2)} pts
+            {state.isReal && <span className="text-muted-foreground">(real)</span>}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AutoWhatIfDemo() {
+  const heightIndex = useCyclingIndex(HEIGHT_WHATIF_STATES.length, 2200);
+  const amplitudeIndex = useCyclingIndex(AMPLITUDE_WHATIF_STATES.length, 1700);
+  const heightState = HEIGHT_WHATIF_STATES[heightIndex];
+  const amplitudeState = AMPLITUDE_WHATIF_STATES[amplitudeIndex];
+
+  const areaScore = (heightState.pts + amplitudeState.pts) * 1.2;
+  const total = OTHER_AREAS_TOTAL + areaScore;
+  const bothReal = heightState.isReal && amplitudeState.isReal;
+
+  const animatedTotal = useTweenedNumber(total);
+  const animatedAreaScore = useTweenedNumber(areaScore);
+  const delta = total - REAL_TOTAL;
 
   return (
     <Card className="p-6 shadow-[var(--shadow-card)] max-w-3xl">
@@ -101,7 +149,7 @@ function AutoWhatIfDemo() {
         </div>
         <div className="text-right">
           <div className="text-xl font-bold text-primary tabular-nums">{animatedTotal.toFixed(2)} / 10</div>
-          {state.isReal ? (
+          {bothReal ? (
             <p className="text-xs text-muted-foreground font-semibold">Leonardo's real score</p>
           ) : (
             <p className={`text-xs font-semibold ${delta >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -123,40 +171,13 @@ function AutoWhatIfDemo() {
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-start justify-between gap-4 py-2 px-3 rounded-lg bg-muted/40">
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">Height</span>
-              <span className="text-xs font-semibold text-amber-400 tabular-nums">{animatedHeightPts.toFixed(2)} / 1.50</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Push for more raw airtime off the kicker.</p>
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-[10px] uppercase tracking-wide text-muted-foreground">What if:</span>
-              <span
-                key={state.label}
-                className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[11px] gap-1"
-                style={{ animation: 'whatIfPop 0.4s ease' }}
-              >
-                <Sparkles className="w-3 h-3 text-primary" /> {state.label} — {state.pts.toFixed(2)} pts
-                {state.isReal && <span className="text-muted-foreground">(real)</span>}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-start justify-between gap-4 py-2 px-3 rounded-lg bg-muted/40">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">Amplitude</span>
-              <span className="text-xs font-semibold text-amber-400">0.67 / 1.00</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Ride more power into the takeoff to extend the arc.</p>
-          </div>
-          <span className="text-xs font-semibold text-red-400 shrink-0">-0.33</span>
-        </div>
+        <WhatIfParamRow label="Height" tip="Push for more raw airtime off the kicker." max={1.5} state={heightState} />
+        <WhatIfParamRow label="Amplitude" tip="Ride more power into the takeoff to extend the arc." max={1.0} state={amplitudeState} />
       </div>
 
       <p className="text-[11px] text-muted-foreground mt-4 pt-4 border-t border-border font-mono">
-        Auto-playing — real Height &amp; Amplitude thresholds cycling through, live on the actual scoring model.
+        Auto-playing — Height and Amplitude cycling independently through their real thresholds, live on
+        the actual scoring model. Two separate data streams, one combined score.
       </p>
       <style>{`@keyframes whatIfPop { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </Card>
