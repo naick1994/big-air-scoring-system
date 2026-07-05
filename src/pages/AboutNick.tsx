@@ -4,7 +4,7 @@ import { ArrowLeft, Mail, Phone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import nickAvatar from '@/assets/nick-avatar.jpg';
 import logoFlightMode from '@/assets/logo-flight-mode.jpg';
-import logoLorenzoCasati from '@/assets/logo-lorenzo-casati.jpg';
+import logoCasatiBrothers from '@/assets/logo-casati-brothers.svg';
 import logoRidesk from '@/assets/logo-ridesk.jpg';
 import logoHarlem from '@/assets/logo-harlem.jpg';
 import logoSnowit from '@/assets/logo-snowit.jpg';
@@ -31,7 +31,7 @@ const CURRENT_ROLES: TimelineItem[] = [
     ],
   },
   {
-    title: 'Manager', org: 'Casati Brothers', period: 'Mar 2025 - Present · 1 yr 5 mos', logo: logoLorenzoCasati,
+    title: 'Manager', org: 'Casati Brothers', period: 'Mar 2025 - Present · 1 yr 5 mos', logo: logoCasatiBrothers,
     desc: [
       'Athlete representation, sponsorships, partnerships, and strategic growth.',
       'Currently managing two of the most talented riders in the world.',
