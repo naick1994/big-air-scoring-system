@@ -63,8 +63,12 @@ const TRACK_RECORD: TimelineItem[] = [
     ],
   },
   {
-    title: 'Chief Operating Officer', org: 'Tribala', period: 'May 2023 - Feb 2025 · 1 yr 10 mos', logo: logoTribala,
-    desc: [],
+    title: 'Co-Founder & Chief Operating Officer', org: 'Tribala', period: 'May 2023 - Feb 2025 · 1 yr 10 mos', logo: logoTribala,
+    desc: [
+      'Co-founded Tribala, taking it from the initial idea to launch and market validation.',
+      'Built the brand identity and product strategy for a sports group travel marketplace.',
+      'Led operations, partnerships, and growth, creating group experiences across multiple sports and destinations.',
+    ],
   },
   {
     title: 'Digital & Innovation Ambassador', org: 'FNM S.p.A.', period: 'Sep 2022 - Oct 2024 · 2 yrs 2 mos', logo: logoFnm,
