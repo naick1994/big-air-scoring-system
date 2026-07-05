@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import nickAvatar from '@/assets/nick-avatar.jpg';
 import logoFlightMode from '@/assets/logo-flight-mode.jpg';
@@ -20,7 +20,7 @@ const STATS = [
   { value: '110/110', label: 'Bocconi MSc in Management' },
 ];
 
-type TimelineItem = { title: string; org: string; period: string; desc: string[]; logo?: string };
+type TimelineItem = { title: string; org: string; period: string; desc: string[]; logo?: string; logoScale?: number };
 
 const CURRENT_ROLES: TimelineItem[] = [
   {
@@ -31,7 +31,7 @@ const CURRENT_ROLES: TimelineItem[] = [
     ],
   },
   {
-    title: 'Manager', org: 'Casati Brothers', period: 'Mar 2025 - Present · 1 yr 5 mos', logo: logoCasatiBrothers,
+    title: 'Manager', org: 'Casati Brothers', period: 'Mar 2025 - Present · 1 yr 5 mos', logo: logoCasatiBrothers, logoScale: 2.1,
     desc: [
       'Athlete representation, sponsorships, partnerships, and strategic growth.',
       'Currently managing two of the most talented riders in the world.',
@@ -117,7 +117,14 @@ function Timeline({ items }: { items: TimelineItem[] }) {
           }}
         >
           {item.logo && (
-            <img src={item.logo} alt={`${item.org} logo`} className="w-12 h-12 rounded-lg object-contain shrink-0" />
+            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+              <img
+                src={item.logo}
+                alt={`${item.org} logo`}
+                className="w-full h-full object-contain"
+                style={item.logoScale ? { transform: `scale(${item.logoScale})` } : undefined}
+              />
+            </div>
           )}
           <div className="min-w-0 flex-1">
             <div className="font-bold text-sm">{item.title}</div>
@@ -169,15 +176,21 @@ export default function AboutNick() {
               <h1 className="text-3xl md:text-4xl font-bold">Nicholas Baruffaldi</h1>
               <div className="flex flex-wrap gap-2 mt-2">
                 <Badge variant="outline" className="border-primary/40 text-primary text-[11px]">Forbes Under 30</Badge>
+                <Badge variant="outline" className="text-[11px] gap-1">
+                  <MapPin className="w-3 h-3" /> Based in Tarifa
+                </Badge>
               </div>
             </div>
           </div>
           <p className="text-lg text-muted-foreground mb-10">
             I'm a digital enthusiast and sport lover born and raised in the Italian Alps, with the dream of
-            transforming the competitive sport arena into something bigger than performance. Previously a
-            C-level executive in scale-ups, I bring a hybrid mindset blending business, brand building, and
-            athlete development. I believe in clarity, bold execution, and authentic stories, and I follow
-            the motto: "done is better than perfect."
+            transforming the competitive sport arena into something bigger than performance. Today I'm CEO
+            &amp; Co-founder of Flight Mode, official Harlem Kitesurfing distributor for Italy and Spain,
+            CEO &amp; Co-founder of Ridesk (Watersport SaaS) and manager of pro athletes Lorenzo and Leonardo
+            Casati, two of the most iconic talents in international kitesurfing. Previously C-level
+            executive in scale-ups, I bring a hybrid mindset blending business, brand building and athlete
+            development. Selected in Forbes Under 30, I believe in clarity, bold execution and authentic
+            stories. As an avid believer in optimisation, I follow the motto: "done is better than perfect."
           </p>
 
           <div className="grid grid-cols-3 gap-4 mb-14">
