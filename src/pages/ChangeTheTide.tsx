@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowUpRight, CheckCircle2, X, Gavel, Sparkles } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, X, Sparkles } from 'lucide-react';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
@@ -95,6 +95,92 @@ function useCyclingIndex(length: number, periodMs: number) {
   }, [reducedMotion, length, periodMs]);
 
   return index;
+}
+
+function ThresholdCard() {
+  const [t3, setT3] = useState(17.5);
+  const directionRef = useRef<1 | -1>(1);
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ).current;
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const id = setInterval(() => {
+      setT3(prev => {
+        let next = prev + directionRef.current * 0.3;
+        if (next >= 30) { next = 30; directionRef.current = -1; }
+        if (next <= 17.5) { next = 17.5; directionRef.current = 1; }
+        return next;
+      });
+    }, 60);
+    return () => clearInterval(id);
+  }, [reducedMotion]);
+
+  return (
+    <Card className="p-6 shadow-[var(--shadow-card)]">
+      <h3 className="font-bold mb-1">Thresholds, set per event</h3>
+      <p className="text-sm text-muted-foreground mb-5">
+        The chief judge sets what height and distance earn full marks — a big-wind day and a
+        marginal one don't get graded on the same curve.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Badge variant="outline" className="border-red-500/40 text-red-400 text-[11px]">0–10m: 0 pts</Badge>
+        <Badge variant="outline" className="border-amber-500/40 text-amber-400 text-[11px]">10–15m: 0.6 pts</Badge>
+        <Badge variant="outline" className="border-lime-500/40 text-lime-400 text-[11px]">15–17.5m: 0.9 pts</Badge>
+        <Badge variant="outline" className="border-green-500/40 text-green-400 text-[11px] tabular-nums">
+          +{t3.toFixed(1)}m: 1.5 pts
+        </Badge>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-4 font-mono">
+        Top threshold shown adjustable up to 30m — an extreme-wind event can set the bar wherever the
+        conditions call for.
+      </p>
+    </Card>
+  );
+}
+
+// Real preset weights (H&A / Extremity / Technicality / Execution), generic
+// names per the neutral-branding direction — Standard/Technical/Power map to
+// the real GKA/KOTA/Megaloop weight splits without naming a federation.
+const PRESET_ROWS = [
+  { name: 'Standard',  h: 30, e: 30, t: 20, x: 20 },
+  { name: 'Technical', h: 30, e: 30, t: 25, x: 15 },
+  { name: 'Power',     h: 45, e: 45, t: 10, x: 0 },
+];
+
+function PresetWeightsCard() {
+  const activeIndex = useCyclingIndex(PRESET_ROWS.length, 2500);
+  return (
+    <Card className="p-6 shadow-[var(--shadow-card)]">
+      <h3 className="font-bold mb-1">Weights, set per format</h3>
+      <p className="text-sm text-muted-foreground mb-5">
+        Want extremity and load to matter more than technical variety at one event? Change the
+        weights, not the philosophy.
+      </p>
+      <div className="text-xs font-mono">
+        <div className="grid grid-cols-5 gap-2 text-muted-foreground pb-2 border-b border-border">
+          <span>Preset</span><span className="text-right">H&amp;A</span><span className="text-right">Extr.</span><span className="text-right">Tech.</span><span className="text-right">Exec.</span>
+        </div>
+        {PRESET_ROWS.map((row, i) => (
+          <div
+            key={row.name}
+            className="grid grid-cols-5 gap-2 py-1.5 px-1.5 -mx-1.5 rounded-md transition-colors duration-500"
+            style={i === activeIndex ? { background: 'rgba(74, 222, 128, 0.14)' } : undefined}
+          >
+            <span className={`font-sans font-semibold flex items-center gap-1 ${i === activeIndex ? 'text-green-400' : 'text-foreground'}`}>
+              {row.name}
+              {i === activeIndex && <CheckCircle2 className="w-3 h-3" />}
+            </span>
+            <span className="text-right text-primary">{row.h}%</span>
+            <span className="text-right text-primary">{row.e}%</span>
+            <span className="text-right text-primary">{row.t}%</span>
+            <span className="text-right text-primary">{row.x}%</span>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
 }
 
 function WhatIfParamRow({ label, tip, max, state }: { label: string; tip: string; max: number; state: { label: string; pts: number; isReal: boolean } }) {
@@ -477,76 +563,9 @@ export default function ChangeTheTide() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <h3 className="font-bold mb-1">Thresholds, set per event</h3>
-              <p className="text-sm text-muted-foreground mb-5">
-                The chief judge sets what height and distance earn full marks — a big-wind day and a
-                marginal one don't get graded on the same curve.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="border-red-500/40 text-red-400 text-[11px]">0–10m: 0 pts</Badge>
-                <Badge variant="outline" className="border-amber-500/40 text-amber-400 text-[11px]">10–15m: 0.6 pts</Badge>
-                <Badge variant="outline" className="border-lime-500/40 text-lime-400 text-[11px]">15–17.5m: 0.9 pts</Badge>
-                <Badge variant="outline" className="border-green-500/40 text-green-400 text-[11px]">+17.5m: 1.5 pts</Badge>
-              </div>
-            </Card>
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <h3 className="font-bold mb-1">Weights, set per format</h3>
-              <p className="text-sm text-muted-foreground mb-5">
-                Want extremity and load to matter more than technical variety at one event? Change the
-                weights, not the philosophy.
-              </p>
-              <div className="text-xs font-mono">
-                <div className="grid grid-cols-4 gap-2 text-muted-foreground pb-2 border-b border-border">
-                  <span>Preset</span><span className="text-right">H&amp;A</span><span className="text-right">Extr.</span><span className="text-right">Tech.</span>
-                </div>
-                {[
-                  ['Standard', 30, 30, 20],
-                  ['Technical', 30, 30, 25],
-                  ['Power', 45, 45, 10],
-                ].map(([name, a, b, c]) => (
-                  <div key={name as string} className="grid grid-cols-4 gap-2 py-1.5">
-                    <span className="font-sans font-semibold text-foreground">{name}</span>
-                    <span className="text-right text-primary">{a}%</span>
-                    <span className="text-right text-primary">{b}%</span>
-                    <span className="text-right text-primary">{c}%</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            <ThresholdCard />
+            <PresetWeightsCard />
           </div>
-        </div>
-      </section>
-
-      {/* ───────── Judge Override ───────── */}
-      <section className="border-b border-border">
-        <div className="container mx-auto px-4 py-24 max-w-4xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Room for judgment, on the record</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-            Some jumps break the formula. That's allowed.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-10">
-            A chief judge can still override a jump's final score for something the parameters didn't
-            anticipate — but never silently. The calculated number stays visible next to it, with a
-            reason on record.
-          </p>
-
-          <Card className="p-6 shadow-[var(--shadow-card)] max-w-md">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-bold text-sm">Jump 1 · KLBRFL</span>
-              <Badge variant="outline" className="border-amber-500/40 text-amber-400 gap-1 text-[10px]">
-                <Gavel className="w-3 h-3" /> Overridden
-              </Badge>
-            </div>
-            <div className="flex items-end gap-4">
-              <div className="text-4xl font-bold text-primary">9.90</div>
-              <div className="text-sm text-muted-foreground mb-1">calculated: 7.03</div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-              "Reason: an extraordinary, once-a-season execution the parameter model wasn't built to
-              reward on its own."
-            </p>
-          </Card>
         </div>
       </section>
 
