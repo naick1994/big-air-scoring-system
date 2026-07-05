@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, CheckCircle2, X, Sparkles } from 'lucide-react';
 import wooLogo from '@/assets/woo-logo.svg';
@@ -258,49 +259,10 @@ function AutoWhatIfDemo() {
   );
 }
 
-const AUTO_COMPARE_NAMES = ['Jamie Overbeek', 'Lorenzo Casati', 'Finn Flügel'];
-
 function LiveRankingComparison() {
   const { heightAmplitudeThresholds } = useScoring();
   const [selected, setSelected] = useState<RankingRow | null>(null);
   const topEight = GKA_BIG_AIR_MEN_RANKINGS_2026.slice(0, 8);
-  const userInteractedRef = useRef(false);
-  const tableRef = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  const reducedMotion = useRef(
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  ).current;
-
-  // Don't auto-play until this section actually scrolls into view — firing
-  // immediately on mount would pop a fullscreen dialog over the hero before
-  // anyone has scrolled anywhere near it.
-  useEffect(() => {
-    if (reducedMotion || !tableRef.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setInView(true); },
-      { threshold: 0.4 }
-    );
-    observer.observe(tableRef.current);
-    return () => observer.disconnect();
-  }, [reducedMotion]);
-
-  // Auto-plays a rotating comparison (Jamie, Lorenzo, Finn) so the feature
-  // is visible without anyone touching the page — stops for good the
-  // moment a visitor clicks a row or closes the dialog themselves.
-  useEffect(() => {
-    if (reducedMotion || !inView) return;
-    let i = 0;
-    const applySelection = () => {
-      if (userInteractedRef.current) return;
-      const name = AUTO_COMPARE_NAMES[i % AUTO_COMPARE_NAMES.length];
-      const row = GKA_BIG_AIR_MEN_RANKINGS_2026.find(r => r.athlete === name) ?? null;
-      setSelected(row);
-      i += 1;
-    };
-    applySelection();
-    const id = setInterval(applySelection, 4000);
-    return () => clearInterval(id);
-  }, [reducedMotion, inView]);
 
   const leonardo = useMemo(
     () => getLeonardoAverageBreakdown(heightAmplitudeThresholds),
@@ -320,7 +282,7 @@ function LiveRankingComparison() {
 
   return (
     <>
-      <Card ref={tableRef} className="overflow-hidden shadow-[var(--shadow-card)]">
+      <Card className="overflow-hidden shadow-[var(--shadow-card)]">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b-2 border-border bg-muted/40">
@@ -333,12 +295,11 @@ function LiveRankingComparison() {
           <tbody>
             {topEight.map((row, idx) => {
               const isMe = row.athlete === RIDER_NAME;
-              const isSelected = selected?.athlete === row.athlete;
               return (
                 <tr
                   key={idx}
-                  onClick={() => { if (!isMe) { userInteractedRef.current = true; setSelected(row); } }}
-                  className={`border-b border-border transition-colors ${isMe ? 'bg-primary/10' : isSelected ? 'bg-primary/5' : 'hover:bg-muted/50 cursor-pointer'}`}
+                  onClick={() => { if (!isMe) setSelected(row); }}
+                  className={`border-b border-border transition-colors ${isMe ? 'bg-primary/10' : 'hover:bg-muted/50 cursor-pointer'}`}
                 >
                   <td className="py-3 px-4 font-semibold text-muted-foreground text-sm">#{row.rank}</td>
                   <td className="py-3 px-4">
@@ -347,9 +308,6 @@ function LiveRankingComparison() {
                       <span className={`font-medium text-sm ${isMe ? 'text-primary font-bold' : ''}`}>{row.athlete}</span>
                       {isMe && (
                         <Badge className="bg-primary/20 text-primary border border-primary/30 hover:bg-primary/20 text-[10px]">You</Badge>
-                      )}
-                      {isSelected && !isMe && (
-                        <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">Comparing</Badge>
                       )}
                     </div>
                   </td>
@@ -360,33 +318,26 @@ function LiveRankingComparison() {
             })}
           </tbody>
         </table>
+      </Card>
+      <p className="text-xs text-muted-foreground mt-3 font-mono">↑ Real ranking data. Click any rider to compare — try it.</p>
 
-        <div
-          className="overflow-hidden transition-all duration-500 ease-out border-t border-border"
-          style={{ maxHeight: selected && comparison ? 520 : 0, opacity: selected && comparison ? 1 : 0 }}
-        >
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-lg">
           {selected && comparison && (
-            <div key={selected.athlete} className="p-5" style={{ animation: 'whatIfPop 0.45s ease' }}>
-              <div className="flex items-center justify-between mb-4">
+            <>
+              <DialogHeader>
                 <div className="flex items-center gap-3">
-                  <img src={selected.photoUrl} alt={selected.athlete} className="w-12 h-12 rounded-full object-cover border border-border" />
+                  <img src={selected.photoUrl} alt={selected.athlete} className="w-14 h-14 rounded-full object-cover border border-border" />
                   <div>
-                    <div className="font-bold">{selected.athlete}</div>
-                    <p className="text-xs text-muted-foreground">
+                    <DialogTitle className="text-xl">{selected.athlete}</DialogTitle>
+                    <p className="text-sm text-muted-foreground">
                       {COUNTRY_FLAGS[selected.country] ?? selected.country} #{selected.rank} · {selected.points} pts
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => { userInteractedRef.current = true; setSelected(null); }}
-                  className="w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground shrink-0"
-                  aria-label="Close comparison"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+              </DialogHeader>
 
-              <div className="flex items-center justify-between py-2 mb-4">
+              <div className="flex items-center justify-between py-2">
                 <div className="text-center flex-1">
                   <div className="text-2xl font-bold">{comparison.fake.averageScore.toFixed(2)}</div>
                   <div className="text-xs text-muted-foreground">{selected.athlete.split(' ')[0]}'s avg</div>
@@ -416,11 +367,11 @@ function LiveRankingComparison() {
                       </div>
                       <div className="relative w-full bg-muted rounded-full h-3 overflow-hidden">
                         <div
-                          className={`absolute inset-y-0 left-0 bg-gradient-to-r ${AREA_GRADIENT[fakeArea.area]} opacity-40 transition-all duration-700`}
+                          className={`absolute inset-y-0 left-0 bg-gradient-to-r ${AREA_GRADIENT[fakeArea.area]} opacity-40`}
                           style={{ width: `${(fakeArea.score / fakeArea.max) * 100}%` }}
                         />
                         <div
-                          className={`absolute inset-y-0 left-0 bg-gradient-to-r ${AREA_GRADIENT[fakeArea.area]} border-r-2 border-white/80 transition-all duration-700`}
+                          className={`absolute inset-y-0 left-0 bg-gradient-to-r ${AREA_GRADIENT[fakeArea.area]} border-r-2 border-white/80`}
                           style={{ width: `${((leoArea?.score ?? 0) / fakeArea.max) * 100}%` }}
                         />
                       </div>
@@ -428,11 +379,10 @@ function LiveRankingComparison() {
                   );
                 })}
               </div>
-            </div>
+            </>
           )}
-        </div>
-      </Card>
-      <p className="text-xs text-muted-foreground mt-3 font-mono">↑ Real ranking data, auto-playing a few comparisons — click any rider to try your own.</p>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
