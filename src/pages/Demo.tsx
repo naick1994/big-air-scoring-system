@@ -131,15 +131,16 @@ function resultToAreas(result: ScoringResult, thresholds: HeightAmplitudeThresho
 
 // ─── Recap screen ─────────────────────────────────────────────────────────────
 
-function ParamRow({ p }: { p: AreaParam }) {
-  const pct = p.maxPts > 0 ? (p.pts / p.maxPts) * 100 : 0;
+function ParamRow({ p, gradient }: { p: AreaParam; gradient: string }) {
+  const rawPct = p.maxPts > 0 ? (p.pts / p.maxPts) * 100 : 0;
+  const pct = rawPct > 0 ? Math.max(rawPct, 6) : 0;
   return (
     <div className="flex items-center gap-3 py-1.5">
       <div className="w-1 h-1 rounded-full bg-white/20 shrink-0" />
       <span className="text-zinc-400 text-[11px] tracking-wide min-w-[7.5rem]">{p.label}</span>
       {p.detail && <span className="text-zinc-300 text-[11px] font-semibold min-w-[5rem]">{p.detail}</span>}
-      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden min-w-[2rem]">
-        <div className="h-full bg-white/30 rounded-full" style={{ width: `${pct}%` }} />
+      <div className="flex-1 h-2.5 bg-white/10 rounded-full overflow-hidden min-w-[2rem]">
+        <div className={`h-full bg-gradient-to-r ${gradient} rounded-full`} style={{ width: `${pct}%` }} />
       </div>
       <span className="text-zinc-300 text-[11px] tabular-nums shrink-0">
         {p.pts.toFixed(2)}<span className="text-zinc-600">/{p.maxPts.toFixed(2)}</span>
@@ -265,8 +266,8 @@ function RecapScreen({
                   </span>
                 </div>
                 {/* Area bar */}
-                <div className="w-full h-2 rounded-full mb-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                  <div className={`h-full rounded-full bg-gradient-to-r ${area.gradient}`} style={{ width: `${pct}%` }} />
+                <div className="w-full h-3 rounded-full mb-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  <div className={`h-full rounded-full bg-gradient-to-r ${area.gradient}`} style={{ width: `${Math.max(pct, 4)}%` }} />
                 </div>
                 {/* Formula line */}
                 <div className="font-mono text-zinc-500 text-[10px] mb-3 leading-relaxed">
@@ -276,7 +277,7 @@ function RecapScreen({
                 </div>
                 {/* Sub-params */}
                 <div className="pl-3 border-l border-white/10">
-                  {area.params.map((p, i) => <ParamRow key={i} p={p} />)}
+                  {area.params.map((p, i) => <ParamRow key={i} p={p} gradient={area.gradient} />)}
                 </div>
               </div>
             );
@@ -303,8 +304,8 @@ function RecapScreen({
                       <span className="text-zinc-500 font-normal">/{executionMeta.maxScore.toFixed(2)}</span>
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full mb-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                    <div className={`h-full rounded-full bg-gradient-to-r ${executionMeta.gradient}`} style={{ width: `${pct}%` }} />
+                  <div className="w-full h-3 rounded-full mb-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                    <div className={`h-full rounded-full bg-gradient-to-r ${executionMeta.gradient}`} style={{ width: `${Math.max(pct, 4)}%` }} />
                   </div>
                   <div className="font-mono text-zinc-500 text-[10px] mb-3 leading-relaxed">
                     {subtotal.toFixed(2)}/{subtotalMax.toFixed(2)} = {norm.toFixed(0)}% &nbsp;×&nbsp;
@@ -312,7 +313,7 @@ function RecapScreen({
                     <span className="text-zinc-300">{executionScore.toFixed(2)} pts</span>
                   </div>
                   <div className="pl-3 border-l border-white/10">
-                    {executionParams.map((p, i) => <ParamRow key={i} p={p} />)}
+                    {executionParams.map((p, i) => <ParamRow key={i} p={p} gradient={executionMeta.gradient} />)}
                   </div>
                 </div>
               );
@@ -574,7 +575,8 @@ VideoPlayer.displayName = 'VideoPlayer';
 // ─── Score bar (card) ─────────────────────────────────────────────────────────
 
 function ScoreBar({ area }: { area: AreaScore }) {
-  const pct = area.maxScore > 0 ? (area.score / area.maxScore) * 100 : 0;
+  const rawPct = area.maxScore > 0 ? (area.score / area.maxScore) * 100 : 0;
+  const pct = rawPct > 0 ? Math.max(rawPct, 4) : 0;
   return (
     <div>
       <div className="flex justify-between items-center mb-1.5">
@@ -584,7 +586,7 @@ function ScoreBar({ area }: { area: AreaScore }) {
           <span className="text-muted-foreground font-normal"> / {area.maxScore.toFixed(2)}</span>
         </span>
       </div>
-      <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
+      <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
         <div className={`h-full bg-gradient-to-r ${area.gradient} transition-all duration-700`} style={{ width: `${pct}%` }} />
       </div>
     </div>
