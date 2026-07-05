@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowUpRight, CheckCircle2, X, Gavel, Sparkles, TrendingUp } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, X, Gavel, Sparkles } from 'lucide-react';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
@@ -18,6 +18,150 @@ const COUNTRY_FLAGS: Record<string, string> = {
   Italy: '🇮🇹', Netherlands: '🇳🇱', Spain: '🇪🇸', Germany: '🇩🇪',
   Israel: '🇮🇱', Brazil: '🇧🇷', USA: '🇺🇸',
 };
+
+// Smoothly tweens a displayed number toward `target` whenever it changes,
+// so the auto-cycling What If demo reads as a live recalculation rather
+// than a jump-cut. Respects prefers-reduced-motion by snapping instantly.
+function useTweenedNumber(target: number, duration = 650) {
+  const [value, setValue] = useState(target);
+  const fromRef = useRef(target);
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ).current;
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setValue(target);
+      fromRef.current = target;
+      return;
+    }
+    const from = fromRef.current;
+    const start = performance.now();
+    let raf: number;
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setValue(from + (target - from) * eased);
+      if (t < 1) raf = requestAnimationFrame(step);
+      else fromRef.current = target;
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration, reducedMotion]);
+
+  return value;
+}
+
+// Real Jump 1 (Leonardo Casati, Mykonos) numbers under the GKA preset, with
+// Height swapped through all 4 real thresholds — everything else (Amplitude,
+// Extremity, Technicality, Execution) held fixed at their real values.
+// b3 (15-17.5m, 0.90 pts) is the real jump; the rest are hypothetical.
+const HEIGHT_WHATIF_STATES = [
+  { label: '0–10m',     pts: 0.00, areaScore: 0.80, total: 6.05, isReal: false },
+  { label: '10–15m',    pts: 0.60, areaScore: 1.52, total: 6.77, isReal: false },
+  { label: '15–17.5m',  pts: 0.90, areaScore: 1.88, total: 7.14, isReal: true },
+  { label: '+17.5m',    pts: 1.50, areaScore: 2.60, total: 7.85, isReal: false },
+];
+
+function AutoWhatIfDemo() {
+  const [index, setIndex] = useState(2); // start on the real value
+  const directionRef = useRef<1 | -1>(1);
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ).current;
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const id = setInterval(() => {
+      setIndex(prev => {
+        let next = prev + directionRef.current;
+        if (next >= HEIGHT_WHATIF_STATES.length) { directionRef.current = -1; next = prev - 1; }
+        if (next < 0) { directionRef.current = 1; next = prev + 1; }
+        return next;
+      });
+    }, 2200);
+    return () => clearInterval(id);
+  }, [reducedMotion]);
+
+  const state = HEIGHT_WHATIF_STATES[index];
+  const animatedTotal = useTweenedNumber(state.total);
+  const animatedAreaScore = useTweenedNumber(state.areaScore);
+  const animatedHeightPts = useTweenedNumber(state.pts);
+  const delta = state.total - HEIGHT_WHATIF_STATES[2].total;
+
+  return (
+    <Card className="p-6 shadow-[var(--shadow-card)] max-w-3xl">
+      <div className="flex items-start justify-between mb-5 flex-wrap gap-2">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-bold">Jump 1</span>
+            <Badge className="font-mono text-[10px] font-bold tracking-widest bg-primary/15 text-primary border border-primary/30">KLBRFL</Badge>
+          </div>
+          <p className="text-sm font-semibold text-amber-400 mt-0.5">Late Backroll Kiteloop Double Flip Added Rotation</p>
+        </div>
+        <div className="text-right">
+          <div className="text-xl font-bold text-primary tabular-nums">{animatedTotal.toFixed(2)} / 10</div>
+          {state.isReal ? (
+            <p className="text-xs text-muted-foreground font-semibold">Leonardo's real score</p>
+          ) : (
+            <p className={`text-xs font-semibold ${delta >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              What if: {delta >= 0 ? '+' : ''}{delta.toFixed(2)} pts vs. the real jump
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Height &amp; Amplitude</span>
+        <span className="text-xs font-semibold text-muted-foreground tabular-nums">{animatedAreaScore.toFixed(2)} / 3.00</span>
+      </div>
+      <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden mb-4">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400"
+          style={{ width: `${(animatedAreaScore / 3) * 100}%`, transition: 'width 0.65s cubic-bezier(0.33,1,0.68,1)' }}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-start justify-between gap-4 py-2 px-3 rounded-lg bg-muted/40">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Height</span>
+              <span className="text-xs font-semibold text-amber-400 tabular-nums">{animatedHeightPts.toFixed(2)} / 1.50</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Push for more raw airtime off the kicker.</p>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-[10px] uppercase tracking-wide text-muted-foreground">What if:</span>
+              <span
+                key={state.label}
+                className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[11px] gap-1"
+                style={{ animation: 'whatIfPop 0.4s ease' }}
+              >
+                <Sparkles className="w-3 h-3 text-primary" /> {state.label} — {state.pts.toFixed(2)} pts
+                {state.isReal && <span className="text-muted-foreground">(real)</span>}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-start justify-between gap-4 py-2 px-3 rounded-lg bg-muted/40">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Amplitude</span>
+              <span className="text-xs font-semibold text-amber-400">0.67 / 1.00</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Ride more power into the takeoff to extend the arc.</p>
+          </div>
+          <span className="text-xs font-semibold text-red-400 shrink-0">-0.33</span>
+        </div>
+      </div>
+
+      <p className="text-[11px] text-muted-foreground mt-4 pt-4 border-t border-border font-mono">
+        Auto-playing — real Height &amp; Amplitude thresholds cycling through, live on the actual scoring model.
+      </p>
+      <style>{`@keyframes whatIfPop { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+    </Card>
+  );
+}
 
 function LiveRankingComparison() {
   const { heightAmplitudeThresholds } = useScoring();
@@ -403,6 +547,52 @@ export default function ChangeTheTide() {
         </div>
       </section>
 
+      {/* ───────── The sensors ───────── */}
+      <section className="border-b border-border">
+        <div className="container mx-auto px-4 py-24 max-w-5xl">
+          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The sensors</div>
+          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+            One sensor sees the jump. Three see the whole trick.
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mb-3">
+            A single board-mounted sensor already captures height, speed, and rotations. It can't see
+            what the kite is doing in the air, or how hard the rider loaded into the move — and those
+            are exactly the parameters Extremity is built on.
+          </p>
+          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+            A three-point sensor system — kite, harness, board — closes that gap, with each sensor
+            feeding a different part of the model.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="p-6 shadow-[var(--shadow-card)]">
+              <div className="text-xs font-mono uppercase tracking-wide text-primary mb-2">Kite</div>
+              <h3 className="font-bold mb-2">Where the kite is</h3>
+              <p className="text-sm text-muted-foreground">
+                Tracks the kite's position and angle relative to the rider — the core reading behind
+                Kite Angle, one of the most contested calls in holistic judging today.
+              </p>
+            </Card>
+            <Card className="p-6 shadow-[var(--shadow-card)]">
+              <div className="text-xs font-mono uppercase tracking-wide text-primary mb-2">Harness</div>
+              <h3 className="font-bold mb-2">How hard it was loaded</h3>
+              <p className="text-sm text-muted-foreground">
+                Captures the load through the rider's body on entry to the move and the hang time
+                during it — Yank Power and Free Fall, the parameters behind how extreme a jump feels.
+              </p>
+            </Card>
+            <Card className="p-6 shadow-[var(--shadow-card)]">
+              <div className="text-xs font-mono uppercase tracking-wide text-primary mb-2">Board</div>
+              <h3 className="font-bold mb-2">What the trick was</h3>
+              <p className="text-sm text-muted-foreground">
+                Height, distance, rotations, axis, and board variations — the mechanics of the jump
+                itself, plus how in control the landing was.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* ───────── Coaching & education ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
@@ -412,60 +602,12 @@ export default function ChangeTheTide() {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mb-12">
             Today, an athlete who loses a heat gets an opinion. Under this model, every rider gets a
-            jump-by-jump breakdown of exactly where points were left on the table — and a live
-            simulator to see what closing that gap would have been worth.
+            jump-by-jump breakdown of exactly where points were left on the table. Below, watch what
+            happens to one of Leonardo Casati's real Mykonos jumps as just the Height reading changes —
+            the total score recalculates live, on the real scoring model.
           </p>
 
-          <Card className="p-6 shadow-[var(--shadow-card)] max-w-3xl">
-            <div className="flex items-start justify-between mb-5 flex-wrap gap-2">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold">Jump 1</span>
-                  <Badge className="font-mono text-[10px] font-bold tracking-widest bg-primary/15 text-primary border border-primary/30">KLBRFL</Badge>
-                </div>
-                <p className="text-sm font-semibold text-amber-400 mt-0.5">Late Backroll Kiteloop Double Flip Added Rotation</p>
-              </div>
-              <div className="text-right">
-                <div className="text-xl font-bold text-primary">7.14 / 10</div>
-                <p className="text-xs text-red-400 font-semibold">Lost 2.86 pts — mostly on Height &amp; Amplitude</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Height &amp; Amplitude</span>
-              <Badge variant="outline" className="text-[10px] border-red-500/40 text-red-400 gap-1">
-                <TrendingUp className="w-3 h-3" /> Biggest opportunity
-              </Badge>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-start justify-between gap-4 py-2 px-3 rounded-lg bg-muted/40">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">Height</span>
-                    <span className="text-xs font-semibold text-amber-400">0.90 / 1.50</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Push for more raw airtime off the kicker.</p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">What if:</span>
-                    <span className="inline-flex items-center rounded-md border border-border bg-background px-2 py-1 text-[11px] gap-1">
-                      <Sparkles className="w-3 h-3 text-primary" /> +17.5m — 1.50 pts
-                    </span>
-                  </div>
-                </div>
-                <span className="text-xs font-semibold text-red-400 shrink-0">-0.60</span>
-              </div>
-              <div className="flex items-start justify-between gap-4 py-2 px-3 rounded-lg bg-muted/40">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">Amplitude</span>
-                    <span className="text-xs font-semibold text-amber-400">0.67 / 1.00</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Ride more power into the takeoff to extend the arc.</p>
-                </div>
-                <span className="text-xs font-semibold text-red-400 shrink-0">-0.33</span>
-              </div>
-            </div>
-          </Card>
+          <AutoWhatIfDemo />
         </div>
       </section>
 
