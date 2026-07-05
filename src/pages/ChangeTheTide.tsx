@@ -1419,8 +1419,8 @@ export default function ChangeTheTide() {
             <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">See it work</div>
             <h2 className="text-3xl md:text-4xl font-bold mb-6">A working demo <span className="text-primary">is live.</span></h2>
             <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-              Every screen referenced here, the four-area breakdown, the coaching receipt, exists
-              today, running, not as a slide.
+              Every screen referenced here, from the four-area breakdown to the coaching receipt,
+              already exists as a working prototype.
             </p>
             <Link
               to="/login"
