@@ -1,5 +1,4 @@
 import { Link, useLocation } from 'react-router-dom';
-import logo from '@/assets/gka-logo.svg';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
@@ -37,9 +36,7 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-5">
-            <img src={logo}        alt="GKA"        className="h-12" />
-            <div className="w-px h-6 bg-border" />
-            <img src={wooLogo}     alt="Woo"        className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
+            <img src={wooLogo}     alt="Woo"        className="h-8" style={{ filter: 'brightness(0) invert(1)' }} />
             <div className="w-px h-6 bg-border" />
             <img src={capitalLogo} alt="Capital.com" className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
           </div>

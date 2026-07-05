@@ -6,7 +6,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import logo from '@/assets/gka-logo.svg';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import { useScoring } from '@/contexts/ScoringContext';
@@ -191,9 +190,7 @@ function RecapScreen({
       {/* ── Top bar ── */}
       <div className="flex items-center justify-between px-8 py-4 border-b border-white/10 shrink-0">
         <div className="flex items-center gap-5">
-          <img src={logo}        alt="GKA"        className="h-8" />
-          <div className="w-px h-5 bg-white/15" />
-          <img src={wooLogo}     alt="Woo"        className="h-5" style={{ filter: 'brightness(0) invert(1)' }} />
+          <img src={wooLogo}     alt="Woo"        className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
           <div className="w-px h-5 bg-white/15" />
           <img src={capitalLogo} alt="Capital.com" className="h-5" style={{ filter: 'brightness(0) invert(1)' }} />
         </div>
