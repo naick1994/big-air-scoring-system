@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { useState, useRef, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { X, Play, Pause, Film, ChevronRight, BarChart2, Gauge, RotateCcw, SkipBack, SkipForward } from 'lucide-react';
@@ -8,6 +8,19 @@ import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
+
+// Prevents the page behind a fullscreen (fixed inset-0) modal from
+// showing its own scrollbar — without this, the underlying Demo page
+// stays scrollable while visually pinned in place by the overlay,
+// which looks like a broken/non-functional scrollbar.
+function useBodyScrollLock(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previous; };
+  }, [active]);
+}
 import { useScoring } from '@/contexts/ScoringContext';
 import { calculateScore, heightBracketLabel, amplitudeBracketLabel, heightBracketForValue, amplitudeBracketForValue, PARAMETER_CONFIG, AREA_DISPLAY_NAMES, KITE_ANGLE_RANGES, YANK_POWER_RANGES, FREE_FALL_RANGES, PRESET_WEIGHTS } from '@/lib/scoring';
 import type { JumpParameters, ScoringResult, HeightAmplitudeThresholds, JudgeOverride as JudgeOverrideType } from '@/types/scoring';
@@ -93,6 +106,7 @@ function buildSensorStats(woo: WooData, objectiveAreas: AreaScore[]): { label: s
     { label: 'Distance', value: `${woo.distance} m` },
     { label: 'Airtime', value: `${woo.airtime} s` },
     { label: 'Kite Angle', value: `${woo.kiteAngleDeg}°` },
+    { label: 'Loop Type', value: woo.loopType },
     { label: 'Yank Power', value: `${woo.yankForce}g` },
     { label: 'Free Fall', value: `${woo.freeFallTime}s` },
     { label: 'Rotations', value: detail('Rotations') },
@@ -447,6 +461,7 @@ const VideoPlayer = forwardRef<VideoPlayerHandle, {
   const [vState, setVState] = useState<VState>('idle');
   const [isPaused, setIsPaused] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  useBodyScrollLock(open);
 
   const openModal = () => {
     if (!jump.videoSrc) return;
@@ -625,6 +640,7 @@ function JumpCard({
 }) {
   const [showRecap, setShowRecap] = useState(false);
   const videoPlayerRef = useRef<VideoPlayerHandle>(null);
+  useBodyScrollLock(showRecap);
 
   const { objectiveAreas, objectiveSubtotal, objectiveMax } = splitObjectiveAndExecution(jump.areas);
   const sensorStats = buildSensorStats(jump.woo, objectiveAreas);
