@@ -1191,19 +1191,10 @@ export default function ChangeTheTide() {
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent pointer-events-none" />
 
         <div className="container mx-auto px-4 pt-10 max-w-5xl relative">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-4">
-              <img src={wooLogo} alt="Woo" className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
-              <div className="w-px h-5 bg-border" />
-              <img src={capitalLogo} alt="Capital.com" className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
-            </div>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 hover:opacity-90 transition-opacity"
-            >
-              Open the scoring system
-              <ArrowUpRight className="w-4 h-4" />
-            </Link>
+          <div className="flex items-center gap-4">
+            <img src={wooLogo} alt="Woo" className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
+            <div className="w-px h-5 bg-border" />
+            <img src={capitalLogo} alt="Capital.com" className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
           </div>
         </div>
 
