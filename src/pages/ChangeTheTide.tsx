@@ -430,6 +430,102 @@ const AREA_SUB_PARAMS: Record<string, { label: string; pts: number; max: number 
   ],
 };
 
+// Real Woo sensor readouts for all 3 of Leonardo Casati's Mykonos jumps —
+// same numbers used everywhere else on the page, just the full sensor grid.
+const WOO_SENSOR_JUMPS = [
+  {
+    label: 'Jump 1', category: 'KLBRFL', trick: 'Late Backroll Kiteloop Double Flip Added Rotation',
+    stats: [
+      { label: 'Max Height', value: '15.9 m' }, { label: 'Distance', value: '76 m' },
+      { label: 'Airtime', value: '7.6 s' }, { label: 'Kite Angle', value: '76°' },
+      { label: 'Loop Type', value: 'Kiteloop' }, { label: 'Yank Power', value: '3.3g' },
+      { label: 'Free Fall', value: '0.9s' }, { label: 'Rotations', value: '×1' },
+      { label: 'Rotation Axis', value: 'Horizontal' }, { label: 'Board Off', value: 'Yes' },
+      { label: 'Board Flip', value: '×2' }, { label: 'Board Spin', value: '0' },
+      { label: 'Max Speed', value: '46 km/h' }, { label: 'Approach', value: '32 km/h' },
+      { label: 'Landing Speed', value: '2.1g' },
+    ],
+  },
+  {
+    label: 'Jump 2', category: 'KLFRBO', trick: 'Doobie Loop Boardoff by the Fin',
+    stats: [
+      { label: 'Max Height', value: '19.8 m' }, { label: 'Distance', value: '83 m' },
+      { label: 'Airtime', value: '7.5 s' }, { label: 'Kite Angle', value: '73°' },
+      { label: 'Loop Type', value: 'Kiteloop' }, { label: 'Yank Power', value: '4.1g' },
+      { label: 'Free Fall', value: '1.6s' }, { label: 'Rotations', value: '×2' },
+      { label: 'Rotation Axis', value: 'Horizontal' }, { label: 'Board Off', value: 'Yes' },
+      { label: 'Board Flip', value: '0' }, { label: 'Board Spin', value: '0' },
+      { label: 'Max Speed', value: '52 km/h' }, { label: 'Approach', value: '30 km/h' },
+      { label: 'Landing Speed', value: '1.9g' },
+    ],
+  },
+  {
+    label: 'Jump 3', category: 'KLBRBO', trick: 'Backroll Kiteloop Tornado',
+    stats: [
+      { label: 'Max Height', value: '17.5 m' }, { label: 'Distance', value: '121 m' },
+      { label: 'Airtime', value: '7.0 s' }, { label: 'Kite Angle', value: '78°' },
+      { label: 'Loop Type', value: 'Kiteloop' }, { label: 'Yank Power', value: '3.5g' },
+      { label: 'Free Fall', value: '1.0s' }, { label: 'Rotations', value: '×3' },
+      { label: 'Rotation Axis', value: 'Horizontal' }, { label: 'Board Off', value: 'Yes' },
+      { label: 'Board Flip', value: '0' }, { label: 'Board Spin', value: '0' },
+      { label: 'Max Speed', value: '65 km/h' }, { label: 'Approach', value: '28 km/h' },
+      { label: 'Landing Speed', value: '2.3g' },
+    ],
+  },
+];
+
+function WooSensorPanel() {
+  const [index, setIndex] = useState(0);
+  const userInteractedRef = useRef(false);
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ).current;
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const id = setInterval(() => {
+      if (userInteractedRef.current) return;
+      setIndex(prev => (prev + 1) % WOO_SENSOR_JUMPS.length);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [reducedMotion]);
+
+  const jump = WOO_SENSOR_JUMPS[index];
+
+  return (
+    <Card className="p-6 shadow-[var(--shadow-card)] mt-8">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <img src={wooLogo} alt="Woo" className="h-4" style={{ filter: 'brightness(0) invert(1)' }} />
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sensor Data — Leonardo Casati</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {WOO_SENSOR_JUMPS.map((j, i) => (
+            <button
+              key={j.label}
+              onClick={() => { userInteractedRef.current = true; setIndex(i); }}
+              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                i === index ? 'bg-primary/15 border-primary/40 text-primary' : 'border-border text-muted-foreground hover:bg-muted/50'
+              }`}
+            >
+              {j.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="text-xs font-semibold text-amber-400 mb-4">{jump.category} · {jump.trick}</p>
+      <div key={jump.label} className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4" style={{ animation: 'whatIfPop 0.4s ease' }}>
+        {jump.stats.map(s => (
+          <div key={s.label}>
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider leading-tight mb-0.5">{s.label}</div>
+            <div className="text-sm font-bold text-foreground tabular-nums">{s.value}</div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function useRoundRobinIndex(length: number, periodMs: number) {
   const [index, setIndex] = useState(0);
   const reducedMotion = useRef(
@@ -633,13 +729,14 @@ export default function ChangeTheTide() {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl">
             Woo's sensors are already strapped to riders in competition today, recording height, speed,
-            rotations, and load on every jump. This demo isn't running on live sensor feeds yet — but
-            every parameter it scores is something already being measured on the water, jump after jump.
+            rotations, and load on every jump.
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mt-4">
             Turning that into a scoring model isn't a hardware problem. It's a matter of structuring
             data that's already being collected.
           </p>
+
+          <WooSensorPanel />
         </div>
       </section>
 
