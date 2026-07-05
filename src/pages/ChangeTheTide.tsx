@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -264,11 +264,11 @@ function JumpBreakdownCard() {
   const activeAreaName = jump.areas[activeAreaIndex].name;
 
   return (
-    <Card ref={cardRef} className="p-8 shadow-[var(--shadow-card)]">
-      <div className="text-center mb-8">
+    <Card ref={cardRef} className="p-6 shadow-[var(--shadow-card)]">
+      <div className="text-center mb-6">
         <div className="text-xs text-muted-foreground mb-1 font-mono uppercase tracking-wide">Total Score</div>
-        <div className="text-6xl font-bold text-primary">23.82<span className="text-2xl text-muted-foreground"> / 30</span></div>
-        <div className="flex items-center justify-center gap-2 mt-4">
+        <div className="text-4xl font-bold text-primary">23.82<span className="text-lg text-muted-foreground"> / 30</span></div>
+        <div className="flex items-center justify-center gap-2 mt-3">
           {JUMP_BREAKDOWNS.map((j, i) => (
             <button
               key={j.label}
@@ -762,6 +762,38 @@ function useInViewOnce<T extends HTMLElement>() {
   return { ref, seen };
 }
 
+// Fade-and-rise reveal for a section's heading block, so every section
+// on the page animates in on scroll, not just the interactive widgets.
+type RevealDirection = 'up' | 'down' | 'left' | 'right';
+
+const REVEAL_TRANSFORMS: Record<RevealDirection, string> = {
+  up: 'translateY(40px)',
+  down: 'translateY(-40px)',
+  left: 'translateX(48px)',
+  right: 'translateX(-48px)',
+};
+
+// Fade-and-slide reveal for a section's content, entering from a chosen
+// direction, so sections don't all animate in the same way down the page.
+function RevealOnScroll({
+  children, className, direction = 'up', delay = 0,
+}: { children: ReactNode; className?: string; direction?: RevealDirection; delay?: number }) {
+  const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: seen ? 1 : 0,
+        transform: seen ? 'translate(0, 0) scale(1)' : `${REVEAL_TRANSFORMS[direction]} scale(0.97)`,
+        transition: `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 const IDEA_SPLIT_AREAS = [
   { name: 'HEIGHT & AMPLITUDE', short: 'Height & Amplitude', dot: 'bg-cyan-500' },
   { name: 'EXTREMITY', short: 'Extremity', dot: 'bg-pink-500' },
@@ -870,6 +902,92 @@ function IdeaSplitVisual() {
   );
 }
 
+const SENSOR_CARDS = [
+  {
+    label: 'Kite', title: 'Where the kite is',
+    desc: "Tracks the kite's position and angle relative to the rider. The core reading behind Kite Angle, one of the most contested calls in holistic judging today.",
+  },
+  {
+    label: 'Harness', title: 'How hard it was loaded',
+    desc: "Captures the load through the rider's body on entry to the move and the hang time during it: Yank Power and Free Fall, the parameters behind how extreme a jump feels.",
+  },
+  {
+    label: 'Board', title: 'What the trick was',
+    desc: 'Height, distance, rotations, axis, and board variations: the mechanics of the jump itself, plus how in control the landing was.',
+  },
+];
+
+function SensorCardsGrid() {
+  const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  return (
+    <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {SENSOR_CARDS.map((card, i) => (
+        <Card
+          key={card.label}
+          className="p-6 shadow-[var(--shadow-card)]"
+          style={{
+            opacity: seen ? 1 : 0,
+            transform: seen ? 'translateY(0)' : 'translateY(16px)',
+            transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms`,
+          }}
+        >
+          <h3 className="font-bold mb-2"><span className="text-primary">{card.label}:</span> {card.title}</h3>
+          <p className="text-sm text-muted-foreground">{card.desc}</p>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+const UNLOCK_CARDS = [
+  {
+    title: 'Community & amateurs',
+    desc: 'A rider can score their own jump against the exact standard the pros are held to, using the same sensor data.',
+  },
+  {
+    title: 'Fairer selection',
+    desc: 'Organizers can shortlist and seed athletes from auditable numbers instead of reputation.',
+  },
+  {
+    title: 'Real training data',
+    desc: 'Every session, not just contest day, produces the same area-by-area breakdown a rider can actually train against.',
+  },
+  {
+    title: 'Broadcast & spectators',
+    desc: 'Live, on-screen area breakdowns turn a ten-second trick into something a new viewer can actually follow.',
+  },
+  {
+    title: 'A real data asset',
+    desc: 'Every jump becomes a comparable, storable data point, the raw material for rankings, content, and sponsor storytelling.',
+  },
+  {
+    title: 'Portable beyond Big Air',
+    desc: 'The same four-area model applies to any sensor-equipped board sport: wakeboarding, wing foiling, freestyle skiing and snowboarding.',
+  },
+];
+
+function UnlockCardsGrid() {
+  const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  return (
+    <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {UNLOCK_CARDS.map((card, i) => (
+        <Card
+          key={card.title}
+          className="p-6 shadow-[var(--shadow-card)]"
+          style={{
+            opacity: seen ? 1 : 0,
+            transform: seen ? 'translateY(0)' : 'translateY(16px)',
+            transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms`,
+          }}
+        >
+          <h3 className="font-bold mb-2">{card.title}</h3>
+          <p className="text-sm text-muted-foreground">{card.desc}</p>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 function useRoundRobinIndex(length: number, periodMs: number) {
   const [index, setIndex] = useState(0);
   const reducedMotion = useRef(
@@ -922,13 +1040,15 @@ function SolutionSection() {
   return (
     <section className="border-b border-border">
       <div className="container mx-auto px-4 py-24 max-w-5xl">
-        <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The solution</div>
-        <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-          Every problem, answered.
-        </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-          The same reductionist model, restated as answers to every problem holistic judging has.
-        </p>
+        <RevealOnScroll direction="up">
+          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The solution</div>
+          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+            Every problem, answered.
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+            The same reductionist model, restated as answers to every problem holistic judging has.
+          </p>
+        </RevealOnScroll>
 
         <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {SOLUTION_ITEMS.map((text, i) => {
@@ -994,14 +1114,16 @@ function HistorySection() {
   return (
     <section className="border-b border-border">
       <div className="container mx-auto px-4 py-24 max-w-5xl">
-        <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Not the first sport to do this</div>
-        <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-          Every sport eventually drops the eye test.
-        </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-          Most judged sports have already made this exact trade, usually after the same holistic
-          problems became too visible to ignore.
-        </p>
+        <RevealOnScroll direction="right">
+          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Not the first sport to do this</div>
+          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+            Every sport eventually drops the eye test.
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+            Most judged sports have already made this exact trade, usually after the same holistic
+            problems became too visible to ignore.
+          </p>
+        </RevealOnScroll>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {HISTORY_ITEMS.map((item, i) => {
@@ -1049,8 +1171,7 @@ export default function ChangeTheTide() {
             <span className="text-primary">objective judging.</span>
           </h1>
           <p className="text-xl text-muted-foreground mt-8 max-w-2xl">
-            Every jump in Big Air can now be measured: height, rotation, load, hang time, landing.
-            The scoring model just hasn't caught up. This one has.
+            Big Air has objective data. It deserves objective judging.
           </p>
         </div>
       </section>
@@ -1058,19 +1179,20 @@ export default function ChangeTheTide() {
       {/* ───────── The problem ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The problem</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
-            One impression can outweigh everything else.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Holistic judging asks one person to weigh height, rotation, execution, and risk all at once,
-            from a single vantage point, in the seconds after a jump ends. One dominant impression, how
-            high it looked, how clean the landing looked, tends to eclipse every other parameter that
-            went into the trick.
-          </p>
-          <p className="text-lg text-muted-foreground max-w-2xl mt-4">
-            The result: a scoreboard that's hard to predict, and even harder to explain.
-          </p>
+          <RevealOnScroll direction="up">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The problem</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
+              One impression can outweigh everything else.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Holistic judging asks one person to weigh height, rotation, execution, and risk all at once,
+              in the seconds after a jump ends. One dominant impression, how high or how clean it looked,
+              tends to eclipse everything else.
+            </p>
+            <p className="text-lg text-muted-foreground max-w-2xl mt-4">
+              The result: a scoreboard that's hard to predict, and even harder to explain.
+            </p>
+          </RevealOnScroll>
 
           <ProblemList />
         </div>
@@ -1079,16 +1201,17 @@ export default function ChangeTheTide() {
       {/* ───────── The idea: reductionist method intro ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The idea</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
-            A trick is a sum of parts, not a single impression.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Break a jump down and it's really four separate, measurable areas: Height &amp; Amplitude,
-            Extremity, Technicality, Execution, that can each be scored on their own, then added together.
-            The reductionist approach doesn't rely on one overall impression of the whole trick; it breaks
-            the question into four separate, simpler ones and sums the answers.
-          </p>
+          <RevealOnScroll direction="left">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The idea</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
+              A trick is a sum of parts, not a single impression.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Break a jump down and it's four separate, measurable areas: Height &amp; Amplitude,
+              Extremity, Technicality, Execution, each scored on its own, then added together. No
+              overall impression, four simpler questions summed into one answer.
+            </p>
+          </RevealOnScroll>
 
           <IdeaSplitVisual />
         </div>
@@ -1103,226 +1226,179 @@ export default function ChangeTheTide() {
       {/* ───────── The shift: 4 areas ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The shift</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-            Break the jump into what can be measured.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-            Every jump is decomposed into four areas, each scored against fixed, published parameters.
-            Three of the four are grounded in objective sensor data. Only Execution stays a judged call,
-            and it's the one area labeled as such.
-          </p>
+          <RevealOnScroll direction="left">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The shift</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+              Break the jump into what can be measured.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              Every jump is decomposed into four areas, each scored against fixed, published parameters.
+              Three are grounded in sensor data; only Execution stays a judged call, labeled as such.
+            </p>
+          </RevealOnScroll>
 
-          <ParametersAccordion />
+          <RevealOnScroll direction="up" delay={100}>
+            <ParametersAccordion />
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* ───────── Tunable, not rigid ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Tunable, not rigid</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-            Objective doesn't mean fixed.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-            Conditions change event to event, and so does what an organizer wants a heat to reward.
-            Both are configuration, not code changes.
-          </p>
+          <RevealOnScroll direction="right">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Tunable, not rigid</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+              Objective doesn't mean fixed.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              Conditions change event to event, and so does what an organizer wants a heat to reward.
+              Both are configuration, not code changes.
+            </p>
+          </RevealOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <RevealOnScroll direction="up" delay={100} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ThresholdCard />
             <PresetWeightsCard />
-          </div>
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* ───────── Why now ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Why now</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
-            The data doesn't need to be invented.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Woo's sensors are already strapped to riders in competition today, recording height, speed,
-            rotations, and load on every jump.
-          </p>
-          <p className="text-lg text-muted-foreground max-w-2xl mt-4">
-            Turning that into a scoring model is mostly a matter of structuring data that's already
-            being collected, with a few additional readings layered on top.
-          </p>
+          <RevealOnScroll direction="up">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Why now</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
+              The data doesn't need to be invented.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Woo's sensors are already strapped to riders in competition, recording height, speed,
+              rotations, and load on every jump. Turning that into a scoring model is mostly structuring
+              data that's already being collected, plus a few additional readings.
+            </p>
+          </RevealOnScroll>
 
-          <WooSensorPanel />
+          <RevealOnScroll direction="left" delay={100}>
+            <WooSensorPanel />
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* ───────── The sensors ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The sensors</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-            One sensor sees the jump. Three see the whole trick.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-3">
-            A single board-mounted sensor already captures height, speed, and rotations. It can't see
-            what the kite is doing in the air, or how hard the rider loaded into the move, and those
-            are exactly the parameters Extremity is built on.
-          </p>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-            A three-point sensor system (kite, harness, board) closes that gap, with each sensor
-            feeding a different part of the model.
-          </p>
+          <RevealOnScroll direction="left">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The sensors</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+              One sensor sees the jump. Three see the whole trick.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              A single board-mounted sensor captures height, speed, and rotations, but not what the kite
+              is doing or how hard the rider loaded into the move: exactly what Extremity is built on. A
+              three-point system (kite, harness, board) closes that gap, each sensor feeding a different
+              part of the model.
+            </p>
+          </RevealOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <div className="text-xs font-mono uppercase tracking-wide text-primary mb-2">Kite</div>
-              <h3 className="font-bold mb-2">Where the kite is</h3>
-              <p className="text-sm text-muted-foreground">
-                Tracks the kite's position and angle relative to the rider. The core reading behind
-                Kite Angle, one of the most contested calls in holistic judging today.
-              </p>
-            </Card>
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <div className="text-xs font-mono uppercase tracking-wide text-primary mb-2">Harness</div>
-              <h3 className="font-bold mb-2">How hard it was loaded</h3>
-              <p className="text-sm text-muted-foreground">
-                Captures the load through the rider's body on entry to the move and the hang time
-                during it: Yank Power and Free Fall, the parameters behind how extreme a jump feels.
-              </p>
-            </Card>
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <div className="text-xs font-mono uppercase tracking-wide text-primary mb-2">Board</div>
-              <h3 className="font-bold mb-2">What the trick was</h3>
-              <p className="text-sm text-muted-foreground">
-                Height, distance, rotations, axis, and board variations: the mechanics of the jump
-                itself, plus how in control the landing was.
-              </p>
-            </Card>
-          </div>
+          <SensorCardsGrid />
         </div>
       </section>
 
       {/* ───────── Their results, broken down ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">A login of their own</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-            Athletes don't just receive a score. They get an account.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-            A separate rider login surfaces their own results in full: every area, every point,
-            for every jump, not just a final number.
-          </p>
+          <RevealOnScroll direction="right">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">A login of their own</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+              Athletes don't just receive a score. They get an account.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              A separate rider login surfaces every area, every point, for every jump, not just a
+              final number.
+            </p>
+          </RevealOnScroll>
 
-          <JumpBreakdownCard />
+          <RevealOnScroll direction="up" delay={100}>
+            <JumpBreakdownCard />
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* ───────── Coaching & education ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The real unlock</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-            "What do I need to improve?" gets a real answer.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-            Today, an athlete who loses a heat gets an opinion. Under this model, every rider gets a
-            jump-by-jump breakdown of exactly where points were left on the table. Below, watch what
-            happens to one of Leonardo Casati's real Mykonos jumps as just the Height reading changes.
-            The total score recalculates live, on the real scoring model.
-          </p>
+          <RevealOnScroll direction="left">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The real unlock</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+              "What do I need to improve?" gets a real answer.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              Today, an athlete who loses a heat gets an opinion. This model gives every rider a
+              jump-by-jump breakdown of exactly where points were left on the table. Below, watch the
+              total recalculate live as just the Height reading changes on one of Leonardo Casati's
+              real Mykonos jumps.
+            </p>
+          </RevealOnScroll>
 
-          <AutoWhatIfDemo />
+          <RevealOnScroll direction="up" delay={100}>
+            <AutoWhatIfDemo />
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* ───────── Where they stand, against anyone ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Where they stand</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-            Compare against anyone in the field, not just the leaderboard.
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-            From the season ranking, a rider can pick any other athlete and see an area-by-area
-            comparison: not just who's ahead, but where.
-          </p>
+          <RevealOnScroll direction="right">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Where they stand</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+              Compare against anyone in the field, not just the leaderboard.
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              From the season ranking, a rider can pick any other athlete and see an area-by-area
+              comparison: not just who's ahead, but where.
+            </p>
+          </RevealOnScroll>
 
-          <LiveRankingComparison />
+          <RevealOnScroll direction="up" delay={100}>
+            <LiveRankingComparison />
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* ───────── What it unlocks ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">What else it unlocks</div>
-          <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-12">
-            More than a scoring change.
-          </h2>
+          <RevealOnScroll direction="left">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">What else it unlocks</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-12">
+              More than a scoring change.
+            </h2>
+          </RevealOnScroll>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <h3 className="font-bold mb-2">Community &amp; amateurs</h3>
-              <p className="text-sm text-muted-foreground">
-                A rider can score their own jump against the exact standard the pros are held to,
-                using the same sensor data.
-              </p>
-            </Card>
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <h3 className="font-bold mb-2">Fairer selection</h3>
-              <p className="text-sm text-muted-foreground">
-                Organizers can shortlist and seed athletes from auditable numbers instead of
-                reputation.
-              </p>
-            </Card>
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <h3 className="font-bold mb-2">Real training data</h3>
-              <p className="text-sm text-muted-foreground">
-                Every session, not just contest day, produces the same area-by-area breakdown a
-                rider can actually train against.
-              </p>
-            </Card>
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <h3 className="font-bold mb-2">Broadcast &amp; spectators</h3>
-              <p className="text-sm text-muted-foreground">
-                Live, on-screen area breakdowns turn a ten-second trick into something a new
-                viewer can actually follow.
-              </p>
-            </Card>
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <h3 className="font-bold mb-2">A real data asset</h3>
-              <p className="text-sm text-muted-foreground">
-                Every jump becomes a comparable, storable data point, the raw material for
-                rankings, content, and sponsor storytelling.
-              </p>
-            </Card>
-            <Card className="p-6 shadow-[var(--shadow-card)]">
-              <h3 className="font-bold mb-2">Portable beyond Big Air</h3>
-              <p className="text-sm text-muted-foreground">
-                The same four-area model applies to any sensor-equipped board sport: wakeboarding,
-                wing foiling, freestyle skiing and snowboarding.
-              </p>
-            </Card>
-          </div>
+          <UnlockCardsGrid />
         </div>
       </section>
 
       {/* ───────── CTA ───────── */}
       <section>
         <div className="container mx-auto px-4 py-28 max-w-3xl text-center">
-          <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">See it work</div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">A working demo is live.</h2>
-          <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-            Every screen referenced here, the four-area breakdown, the coaching receipt, exists
-            today, running, not as a slide.
-          </p>
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-8 py-4 text-lg hover:opacity-90 transition-opacity"
-          >
-            Open the live demo
-            <ArrowUpRight className="w-5 h-5" />
-          </Link>
+          <RevealOnScroll direction="up">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">See it work</div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">A working demo is live.</h2>
+            <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
+              Every screen referenced here, the four-area breakdown, the coaching receipt, exists
+              today, running, not as a slide.
+            </p>
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-8 py-4 text-lg hover:opacity-90 transition-opacity"
+            >
+              Open the live demo
+              <ArrowUpRight className="w-5 h-5" />
+            </Link>
+          </RevealOnScroll>
         </div>
       </section>
     </div>
