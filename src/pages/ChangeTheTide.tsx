@@ -814,12 +814,8 @@ const SOLUTION_ITEMS = [
   'Area-by-area comparison against any rider',
 ];
 
-const PROBLEM_ITEM_COLORS = [
-  'text-red-400', 'text-orange-400', 'text-rose-400', 'text-pink-400',
-];
-const SOLUTION_ITEM_COLORS = [
-  'text-green-400', 'text-emerald-400', 'text-teal-400', 'text-cyan-400',
-];
+const PROBLEM_ITEM_COLORS = ['text-red-400'];
+const SOLUTION_ITEM_COLORS = ['text-green-400'];
 
 function useInViewOnce<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -853,7 +849,7 @@ function useRoundRobinIndex(length: number, periodMs: number) {
 
 function ProblemList() {
   const { ref, seen } = useInViewOnce<HTMLDivElement>();
-  const activeIndex = useRoundRobinIndex(PROBLEM_ITEMS.length, 500);
+  const activeIndex = useRoundRobinIndex(PROBLEM_ITEMS.length, 2000);
 
   return (
     <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-10">
@@ -863,8 +859,8 @@ function ProblemList() {
         return (
           <div
             key={text}
-            className={`flex items-center gap-3 text-sm rounded-lg border px-4 py-3 transition-colors duration-300 ${
-              isActive ? 'border-red-500/60 bg-red-500/15' : 'border-red-500/20 bg-red-500/5'
+            className={`flex items-center gap-3 text-sm rounded-lg border px-4 py-3 transition-all duration-300 ${
+              isActive ? 'border-red-500 bg-red-500/25 shadow-[0_0_16px_-4px_rgba(239,68,68,0.5)]' : 'border-border bg-card/40'
             }`}
             style={{
               opacity: seen ? 1 : 0,
@@ -872,8 +868,8 @@ function ProblemList() {
               transition: `opacity 0.5s ease ${i * 80}ms, transform 0.5s ease ${i * 80}ms`,
             }}
           >
-            <X className={`w-4 h-4 shrink-0 ${color}`} />
-            <span className={isActive ? 'text-foreground' : 'text-foreground/90'}>{text}</span>
+            <X className={`w-4 h-4 shrink-0 transition-colors duration-300 ${isActive ? color : 'text-muted-foreground/50'}`} />
+            <span className={isActive ? 'text-foreground' : 'text-muted-foreground'}>{text}</span>
           </div>
         );
       })}
@@ -883,7 +879,7 @@ function ProblemList() {
 
 function SolutionSection() {
   const { ref, seen } = useInViewOnce<HTMLDivElement>();
-  const activeIndex = useRoundRobinIndex(SOLUTION_ITEMS.length, 500);
+  const activeIndex = useRoundRobinIndex(SOLUTION_ITEMS.length, 2000);
 
   return (
     <section className="border-b border-border">
@@ -903,8 +899,8 @@ function SolutionSection() {
             return (
               <div
                 key={text}
-                className={`flex items-center gap-3 text-sm rounded-lg border px-4 py-3 transition-colors duration-300 ${
-                  isActive ? 'border-green-500/60 bg-green-500/15' : 'border-green-500/20 bg-green-500/5'
+                className={`flex items-center gap-3 text-sm rounded-lg border px-4 py-3 transition-all duration-300 ${
+                  isActive ? 'border-green-500 bg-green-500/25 shadow-[0_0_16px_-4px_rgba(34,197,94,0.5)]' : 'border-border bg-card/40'
                 }`}
                 style={{
                   opacity: seen ? 1 : 0,
@@ -912,8 +908,8 @@ function SolutionSection() {
                   transition: `opacity 0.5s ease ${i * 80}ms, transform 0.5s ease ${i * 80}ms`,
                 }}
               >
-                <CheckCircle2 className={`w-4 h-4 shrink-0 ${color}`} />
-                <span className={isActive ? 'text-foreground' : 'text-foreground/90'}>{text}</span>
+                <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-300 ${isActive ? color : 'text-muted-foreground/50'}`} />
+                <span className={isActive ? 'text-foreground' : 'text-muted-foreground'}>{text}</span>
               </div>
             );
           })}
