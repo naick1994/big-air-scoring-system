@@ -904,88 +904,101 @@ function IdeaSplitVisual() {
 
 const SENSOR_CARDS = [
   {
-    label: 'Kite', title: 'Where the kite is',
+    label: 'Kite', title: 'Where the kite is', color: 'cyan',
     desc: "Tracks the kite's position and angle relative to the rider. The core reading behind Kite Angle, one of the most contested calls in holistic judging today.",
   },
   {
-    label: 'Harness', title: 'How hard it was loaded',
-    desc: "Captures the load through the rider's body on entry to the move and the hang time during it: Yank Power and Free Fall, the parameters behind how extreme a jump feels.",
+    label: 'Harness', title: 'How hard it was loaded', color: 'purple',
+    desc: 'Captures the load on entry and the hang time after it: Yank Power and Free Fall, the parameters behind how extreme a jump feels.',
   },
   {
-    label: 'Board', title: 'What the trick was',
+    label: 'Board', title: 'What the trick was', color: 'orange',
     desc: 'Height, distance, rotations, axis, and board variations: the mechanics of the jump itself, plus how in control the landing was.',
   },
 ];
 
 function SensorCardsGrid() {
   const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  const activeIndex = useRoundRobinIndex(SENSOR_CARDS.length, 3000);
   return (
     <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {SENSOR_CARDS.map((card, i) => (
-        <div key={card.label} className="transition-transform duration-300 hover:-translate-y-1.5">
+      {SENSOR_CARDS.map((card, i) => {
+        const isActive = i === activeIndex;
+        const colors = CARD_ACCENT_COLORS[card.color];
+        return (
           <Card
-            className="p-6 h-full shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40"
+            key={card.label}
+            className={`p-6 shadow-[var(--shadow-card)] transition-transform duration-500 ${isActive ? 'scale-[1.03]' : 'scale-100'}`}
             style={{
               opacity: seen ? 1 : 0,
-              transform: seen ? 'translateY(0)' : 'translateY(16px)',
-              transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms, box-shadow 0.3s ease, border-color 0.3s ease`,
+              transform: `${seen ? 'translateY(0)' : 'translateY(16px)'} ${isActive ? 'scale(1.03)' : 'scale(1)'}`,
+              borderColor: isActive ? colors.border : undefined,
+              transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms, border-color 0.5s ease`,
             }}
           >
-            <h3 className="font-bold mb-2"><span className="text-primary">{card.label}:</span> {card.title}</h3>
+            <div className={`text-3xl font-bold mb-1 transition-colors duration-500 ${isActive ? colors.text : 'text-foreground'}`}>
+              {card.label}
+            </div>
+            <h3 className="font-bold text-sm mb-3">{card.title}</h3>
             <p className="text-sm text-muted-foreground">{card.desc}</p>
           </Card>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
 const UNLOCK_CARDS = [
   {
-    title: 'Community & amateurs',
+    label: 'Community', title: 'Community & amateurs', color: 'cyan',
     desc: 'A rider can score their own jump against the exact standard the pros are held to, using the same sensor data.',
   },
   {
-    title: 'Fairer selection',
+    label: 'Selection', title: 'Fairer selection', color: 'purple',
     desc: 'Organizers can shortlist and seed athletes from auditable numbers instead of reputation.',
   },
   {
-    title: 'Real training data',
+    label: 'Training', title: 'Real training data', color: 'orange',
     desc: 'Every session, not just contest day, produces the same area-by-area breakdown a rider can actually train against.',
   },
   {
-    title: 'Broadcast & spectators',
+    label: 'Broadcast', title: 'Broadcast & spectators', color: 'pink',
     desc: 'Live, on-screen area breakdowns turn a ten-second trick into something a new viewer can actually follow.',
   },
   {
-    title: 'A real data asset',
+    label: 'Data', title: 'A real data asset', color: 'blue',
     desc: 'Every jump becomes a comparable, storable data point, the raw material for rankings, content, and sponsor storytelling.',
   },
   {
-    title: 'Portable beyond Big Air',
+    label: 'Scale', title: 'Portable beyond Big Air', color: 'green',
     desc: 'The same four-area model applies to any sensor-equipped board sport: wakeboarding, wing foiling, freestyle skiing and snowboarding.',
   },
 ];
 
 function UnlockCardsGrid() {
   const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  const activeIndex = useRoundRobinIndex(UNLOCK_CARDS.length, 2600);
   return (
     <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {UNLOCK_CARDS.map((card, i) => (
-        <div key={card.title} className="transition-transform duration-300 hover:-translate-y-1.5">
+      {UNLOCK_CARDS.map((card, i) => {
+        const isActive = i === activeIndex;
+        const colors = CARD_ACCENT_COLORS[card.color];
+        return (
           <Card
-            className="p-6 h-full shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40"
+            key={card.title}
+            className={`p-6 shadow-[var(--shadow-card)] transition-transform duration-500 ${isActive ? 'scale-[1.03]' : 'scale-100'}`}
             style={{
               opacity: seen ? 1 : 0,
-              transform: seen ? 'translateY(0)' : 'translateY(16px)',
-              transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms, box-shadow 0.3s ease, border-color 0.3s ease`,
+              transform: `${seen ? 'translateY(0)' : 'translateY(16px)'} ${isActive ? 'scale(1.03)' : 'scale(1)'}`,
+              borderColor: isActive ? colors.border : undefined,
+              transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms, border-color 0.5s ease`,
             }}
           >
-            <h3 className="font-bold mb-2">{card.title}</h3>
+            <h3 className={`font-bold mb-3 transition-colors duration-500 ${isActive ? colors.text : 'text-foreground'}`}>{card.title}</h3>
             <p className="text-sm text-muted-foreground">{card.desc}</p>
           </Card>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -1102,12 +1115,13 @@ const HISTORY_ITEMS = [
   },
 ];
 
-const HISTORY_COLOR_CLASSES: Record<string, { border: string; text: string }> = {
+const CARD_ACCENT_COLORS: Record<string, { border: string; text: string }> = {
   blue:   { border: 'hsl(217 91% 60% / 0.5)', text: 'text-blue-400' },
   purple: { border: 'hsl(270 91% 65% / 0.5)', text: 'text-purple-400' },
   orange: { border: 'hsl(25 95% 53% / 0.5)',  text: 'text-orange-400' },
   cyan:   { border: 'hsl(190 91% 55% / 0.5)', text: 'text-cyan-400' },
   pink:   { border: 'hsl(330 81% 60% / 0.5)', text: 'text-pink-400' },
+  green:  { border: 'hsl(142 71% 45% / 0.5)', text: 'text-green-400' },
 };
 
 function HistorySection() {
@@ -1131,7 +1145,7 @@ function HistorySection() {
         <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {HISTORY_ITEMS.map((item, i) => {
             const isActive = i === activeIndex;
-            const colors = HISTORY_COLOR_CLASSES[item.color];
+            const colors = CARD_ACCENT_COLORS[item.color];
             return (
               <div
                 key={item.sport}
@@ -1143,21 +1157,19 @@ function HistorySection() {
                   transitionDelay: `${i * 90}ms`,
                 }}
               >
-                <div className="transition-transform duration-300 hover:-translate-y-1.5">
-                  <Card
-                    className={`p-6 h-full shadow-[var(--shadow-card)] transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 ${
-                      isActive ? 'scale-[1.03]' : 'scale-100'
-                    }`}
-                    style={isActive ? { borderColor: colors.border } : undefined}
-                  >
-                    <div className={`text-3xl font-bold mb-1 tabular-nums transition-colors duration-500 ${isActive ? colors.text : 'text-foreground'}`}>
-                      {item.year}
-                    </div>
-                    <div className="font-bold text-sm mb-3">{item.sport}</div>
-                    <p className="text-sm text-muted-foreground mb-3">{item.change}</p>
-                    <p className="text-xs text-muted-foreground/80 border-t border-border pt-3">{item.why}</p>
-                  </Card>
-                </div>
+                <Card
+                  className={`p-6 h-full shadow-[var(--shadow-card)] transition-all duration-500 ${
+                    isActive ? 'scale-[1.03]' : 'scale-100'
+                  }`}
+                  style={isActive ? { borderColor: colors.border } : undefined}
+                >
+                  <div className={`text-3xl font-bold mb-1 tabular-nums transition-colors duration-500 ${isActive ? colors.text : 'text-foreground'}`}>
+                    {item.year}
+                  </div>
+                  <div className="font-bold text-sm mb-3">{item.sport}</div>
+                  <p className="text-sm text-muted-foreground mb-3">{item.change}</p>
+                  <p className="text-xs text-muted-foreground/80 border-t border-border pt-3">{item.why}</p>
+                </Card>
               </div>
             );
           })}
