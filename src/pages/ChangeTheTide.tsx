@@ -873,6 +873,8 @@ const LIVE_DEMO_SCORE_START_SEC = 12;
 // 00:00:22:18 -> 22 + 18/30 = 22.6s.
 const LIVE_DEMO_SCORE_DISAPPEAR_SEC = 20.8;
 const LIVE_DEMO_COMPARE_SEC = 22.6;
+// 00:00:20:27 at 30fps -> 20 + 27/30 = 20.9s.
+const LIVE_DEMO_REPLAY_LABEL_HIDE_SEC = 20.9;
 
 // Broadcast-style overlay demo: real trick ID graphic, then a live-built
 // score breakdown, layered directly on the jump footage — showing what a
@@ -919,6 +921,7 @@ function LiveSpectatorDemo() {
 
   const [phase, setPhase] = useState<'idle' | 'trick' | 'score' | 'compare'>('idle');
   const [revealedAreas, setRevealedAreas] = useState(0);
+  const [showReplayLabel, setShowReplayLabel] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -940,6 +943,7 @@ function LiveSpectatorDemo() {
   // points, not just the first one.
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const t = e.currentTarget.currentTime;
+    setShowReplayLabel(t < LIVE_DEMO_REPLAY_LABEL_HIDE_SEC);
     if (t < LIVE_DEMO_TRICK_START_SEC) {
       setPhase('idle');
       setRevealedAreas(0);
@@ -982,10 +986,12 @@ function LiveSpectatorDemo() {
         />
       )}
 
-      <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-black/70 backdrop-blur px-2.5 py-1 rounded-full border border-white/10">
-        <RotateCcw className="w-2.5 h-2.5 text-white/70" />
-        <span className="text-[10px] font-bold tracking-widest text-white">REPLAY</span>
-      </div>
+      {showReplayLabel && (
+        <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-black/70 backdrop-blur px-2.5 py-1 rounded-full border border-white/10">
+          <RotateCcw className="w-2.5 h-2.5 text-white/70" />
+          <span className="text-[10px] font-bold tracking-widest text-white">REPLAY</span>
+        </div>
+      )}
 
       <div
         className="absolute bottom-6 left-6 right-6 md:right-auto md:max-w-md transition-all duration-500 ease-out"
