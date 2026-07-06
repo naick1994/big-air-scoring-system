@@ -1311,12 +1311,9 @@ export default function ChangeTheTide() {
               One impression can outweigh <span className="text-primary">everything else.</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl">
-              Holistic judging asks one person to weigh height, rotation, execution, and risk all at once,
-              in the seconds after a jump ends. One dominant impression, how high or how clean it looked,
-              tends to eclipse everything else.
-            </p>
-            <p className="text-lg text-muted-foreground max-w-2xl mt-4">
-              The result: a scoreboard that's hard to predict, and even harder to explain.
+              Holistic judging asks one person to weigh height, rotation, execution, and risk all at
+              once. One dominant impression tends to eclipse everything else, leaving a scoreboard
+              that's hard to predict, or explain.
             </p>
           </RevealOnScroll>
 
