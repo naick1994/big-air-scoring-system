@@ -150,14 +150,14 @@ function PresetWeightsCard() {
         Want extremity and load to matter more than technical variety at one event? Change the
         weights, not the philosophy.
       </p>
-      <div className="text-xs font-mono">
-        <div className="grid grid-cols-5 gap-2 text-muted-foreground pb-2 border-b border-border">
+      <div className="text-xs font-mono overflow-x-auto">
+        <div className="grid grid-cols-5 gap-2 text-muted-foreground pb-2 border-b border-border min-w-[280px]">
           <span>Preset</span><span className="text-right">H&amp;A</span><span className="text-right">Extr.</span><span className="text-right">Tech.</span><span className="text-right">Exec.</span>
         </div>
         {PRESET_ROWS.map((row, i) => (
           <div
             key={row.name}
-            className="grid grid-cols-5 gap-2 py-1.5 px-1.5 -mx-1.5 rounded-md transition-colors duration-500"
+            className="grid grid-cols-5 gap-2 py-1.5 px-1.5 -mx-1.5 rounded-md transition-colors duration-500 min-w-[280px]"
             style={i === activeIndex ? { background: 'rgba(74, 222, 128, 0.14)' } : undefined}
           >
             <span className={`font-sans font-semibold flex items-center gap-1 ${i === activeIndex ? 'text-green-400' : 'text-foreground'}`}>
@@ -418,6 +418,7 @@ function LiveRankingComparison() {
   return (
     <>
       <Card className="overflow-hidden shadow-[var(--shadow-card)]">
+        <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b-2 border-border bg-muted/40">
@@ -453,6 +454,7 @@ function LiveRankingComparison() {
             })}
           </tbody>
         </table>
+        </div>
       </Card>
       <p className="text-xs text-muted-foreground mt-3 font-mono">↑ Real ranking data. Click any rider to compare. Try it.</p>
 
@@ -1183,7 +1185,7 @@ function HistorySection() {
 
 export default function ChangeTheTide() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Shared entrance transition for auto-cycling values — never drops to
           opacity 0, so a fast tick never reads as content vanishing. */}
       <style>{`@keyframes whatIfPop { from { opacity: 0.5; transform: translateY(1px); } to { opacity: 1; transform: translateY(0); } }`}</style>
