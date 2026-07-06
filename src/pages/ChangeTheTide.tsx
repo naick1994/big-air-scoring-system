@@ -1827,8 +1827,8 @@ export default function ChangeTheTide() {
               Every trick, explained <span className="text-primary">as it happens.</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-              The same data that scores the jump can caption it live: what trick, what category, and
-              exactly how the points added up, on screen while it's still fresh.
+              No more guessing what just happened. Fans see the trick name, how hard it was, and why
+              it scored what it did, live on screen, the moment it lands.
             </p>
           </RevealOnScroll>
 
