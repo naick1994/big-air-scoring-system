@@ -1356,7 +1356,7 @@ export default function ChangeTheTide() {
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-12">
               Every jump is decomposed into four areas, each scored against fixed, published parameters.
-              Three are grounded in sensor data. Only Execution stays a judged call, labeled as such.
+              Three are grounded in sensor data. Only Execution stays a judged call.
             </p>
           </RevealOnScroll>
 
