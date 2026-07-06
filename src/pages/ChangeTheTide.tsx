@@ -1356,7 +1356,7 @@ export default function ChangeTheTide() {
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-12">
               Every jump is decomposed into four areas, each scored against fixed, published parameters.
-              Three are grounded in sensor data; only Execution stays a judged call, labeled as such.
+              Three are grounded in sensor data. Only Execution stays a judged call, labeled as such.
             </p>
           </RevealOnScroll>
 
@@ -1416,8 +1416,9 @@ export default function ChangeTheTide() {
               One sensor sees the jump. Three see <span className="text-primary">the whole trick.</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-              A single board sensor can't see kite angle or loading force — exactly what Extremity is
-              built on. A three-point system (kite, harness, board) closes that gap.
+              A sensor on the board alone can't see what the kite is doing, or how hard the rider loaded
+              into the move. That's exactly what Extremity measures. Three sensors, one each on the kite,
+              harness, and board, close that gap.
             </p>
           </RevealOnScroll>
 
@@ -1490,9 +1491,13 @@ export default function ChangeTheTide() {
         <div className="container mx-auto px-4 py-24 max-w-5xl">
           <RevealOnScroll direction="left">
             <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">What else it unlocks</div>
-            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
               More than a <span className="text-primary">scoring change.</span>
             </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              The same data that decides a heat also opens doors for riders, organizers, and the
+              sport itself.
+            </p>
           </RevealOnScroll>
 
           <UnlockCardsGrid />
