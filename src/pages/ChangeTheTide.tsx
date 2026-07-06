@@ -723,34 +723,45 @@ function WooSensorPanel() {
 
   const revealOrder = useMemo(() => shuffledIndices(jump.stats.length), [jump]);
 
-  // Once the trick is mostly done, stats stream in one at a time on a
-  // steady clock (not tied to video timeupdate ticks, which cluster near
-  // the end and would otherwise dump several stats in the same frame).
-  // Allowed to keep ticking into the post-video pause screen, so a short
-  // clip doesn't force multiple reveals into one tick.
+  // Once the trick is mostly done, stats stream in with irregular,
+  // unpredictable gaps (sometimes two nearly together, sometimes a longer
+  // wait) rather than a metronomic tick, to read like live telemetry
+  // arriving on its own schedule rather than a scripted reveal. Allowed to
+  // keep ticking into the post-video pause screen, so a short clip doesn't
+  // force multiple reveals into the same instant.
   const revealStartedRef = useRef(false);
-  const revealIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const startReveal = () => {
     if (revealStartedRef.current) return;
     revealStartedRef.current = true;
-    revealIntervalRef.current = setInterval(() => {
-      setRevealedCount(prev => {
-        if (prev + 1 >= jump.stats.length && revealIntervalRef.current) {
-          clearInterval(revealIntervalRef.current);
-        }
-        return Math.min(jump.stats.length, prev + 1);
-      });
-    }, 500);
+    const scheduleNext = () => {
+      // Mostly quick, irregular gaps (100-650ms), occasionally a longer
+      // pause (up to ~1.4s) so it never settles into a predictable rhythm.
+      const delay = Math.random() < 0.2
+        ? 700 + Math.random() * 700
+        : 100 + Math.random() * 550;
+      revealTimeoutRef.current = setTimeout(() => {
+        setRevealedCount(prev => {
+          // Every so often two land in the same beat, like independent
+          // sensor packets that just happened to arrive together.
+          const batch = Math.random() < 0.2 ? 2 : 1;
+          const next = Math.min(jump.stats.length, prev + batch);
+          if (next < jump.stats.length) scheduleNext();
+          return next;
+        });
+      }, delay);
+    };
+    scheduleNext();
   };
 
   // Reset when the jump changes.
   useEffect(() => {
     revealStartedRef.current = false;
-    if (revealIntervalRef.current) clearInterval(revealIntervalRef.current);
+    if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
     setRevealedCount(reducedMotion ? jump.stats.length : 0);
     return () => {
-      if (revealIntervalRef.current) clearInterval(revealIntervalRef.current);
+      if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
     };
   }, [jump, reducedMotion]);
 
