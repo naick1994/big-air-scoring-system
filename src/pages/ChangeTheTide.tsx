@@ -869,8 +869,10 @@ const LIVE_TRICK_STAT_LABELS = ['Max Height', 'Airtime', 'Kite Angle', 'Distance
 const LIVE_DEMO_VIDEO_SRC = `${import.meta.env.BASE_URL}videos/mykonos-highlight.mp4`;
 const LIVE_DEMO_TRICK_START_SEC = 2;
 const LIVE_DEMO_SCORE_START_SEC = 12;
-const LIVE_DEMO_SCORE_FULL_SEC = 20.24;
-const LIVE_DEMO_COMPARE_SEC = 22.18;
+// Timecodes given as HH:MM:SS:FF at 30fps: 00:00:20:24 -> 20 + 24/30 = 20.8s,
+// 00:00:22:18 -> 22 + 18/30 = 22.6s.
+const LIVE_DEMO_SCORE_DISAPPEAR_SEC = 20.8;
+const LIVE_DEMO_COMPARE_SEC = 22.6;
 
 // Broadcast-style overlay demo: real trick ID graphic, then a live-built
 // score breakdown, layered directly on the jump footage — showing what a
@@ -919,13 +921,6 @@ function LiveSpectatorDemo() {
   const [revealedAreas, setRevealedAreas] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
-  // True from the moment the score finishes revealing until the compare
-  // hold ends and the video is explicitly resumed. The video is paused for
-  // this whole window (still visible, frozen — not blacked out) so it can't
-  // drift out of sync with the wall-clock hold timers; every cycle starts
-  // from the same known video position instead of wherever looping playback
-  // happened to land.
-  const holdingRef = useRef(false);
 
   useEffect(() => {
     if (!cardRef.current) return;
@@ -937,42 +932,38 @@ function LiveSpectatorDemo() {
     return () => observer.disconnect();
   }, []);
 
+  // Every phase change is driven directly by the video's own currentTime, and
+  // the video is never paused or looped early — it plays straight through to
+  // its real end (still visibly moving during the comparison screen), then
+  // onEnded resets and replays it. Since there's no separate wall-clock timer
+  // racing the video's own clock, every loop lands on the exact same cut
+  // points, not just the first one.
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const video = e.currentTarget;
-    if (holdingRef.current) return;
-    const t = video.currentTime;
+    const t = e.currentTarget.currentTime;
     if (t < LIVE_DEMO_TRICK_START_SEC) {
       setPhase('idle');
       setRevealedAreas(0);
-      return;
-    }
-    if (t < LIVE_DEMO_SCORE_START_SEC) {
+    } else if (t < LIVE_DEMO_SCORE_START_SEC) {
       setPhase('trick');
-      return;
-    }
-    setPhase('score');
-    if (t < LIVE_DEMO_SCORE_FULL_SEC) {
-      const revealT = (t - LIVE_DEMO_SCORE_START_SEC) / (LIVE_DEMO_SCORE_FULL_SEC - LIVE_DEMO_SCORE_START_SEC);
+    } else if (t < LIVE_DEMO_SCORE_DISAPPEAR_SEC) {
+      setPhase('score');
+      const revealT = (t - LIVE_DEMO_SCORE_START_SEC) / (LIVE_DEMO_SCORE_DISAPPEAR_SEC - LIVE_DEMO_SCORE_START_SEC);
       setRevealedAreas(Math.min(4, Math.floor(revealT * 5)));
+    } else if (t < LIVE_DEMO_COMPARE_SEC) {
+      // Score has disappeared, comparison hasn't taken over yet — plain
+      // footage, no overlay, matching the gap between the two cut points.
+      setPhase('idle');
     } else {
-      setRevealedAreas(4);
-    }
-    if (t >= LIVE_DEMO_COMPARE_SEC) {
-      // The footage itself cuts to a different shot right around here, so
-      // this is where the comparison screen takes over — pause, hold, then
-      // reset and resume from the start.
-      holdingRef.current = true;
-      video.pause();
-      setRevealedAreas(4);
       setPhase('compare');
-      setTimeout(() => {
-        holdingRef.current = false;
-        setPhase('idle');
-        setRevealedAreas(0);
-        video.currentTime = 0;
-        video.play();
-      }, 9000);
     }
+  };
+
+  const handleVideoEnded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    setPhase('idle');
+    setRevealedAreas(0);
+    video.currentTime = 0;
+    video.play();
   };
 
   return (
@@ -984,10 +975,10 @@ function LiveSpectatorDemo() {
           className="w-full h-full object-cover"
           muted
           autoPlay
-          loop
           playsInline
           preload="none"
           onTimeUpdate={handleTimeUpdate}
+          onEnded={handleVideoEnded}
         />
       )}
 
