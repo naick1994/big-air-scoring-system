@@ -874,15 +874,23 @@ const LIVE_TRICK_STAT_LABELS = ['Max Height', 'Airtime', 'Kite Angle', 'Distance
 const LIVE_RIVAL_NAME = 'Jamie Overbeek';
 const LIVE_RIVAL_RANK = 2;
 
-// Deterministic, illustrative-only Max Height / Kite Angle for the rival —
-// same spirit as getFakeAthleteScore (we only have real Woo data for
-// Leonardo). Scaled off his real numbers by the rival's relative area
-// performance, so a lower Extremity score reads as a less extreme (higher)
-// kite angle, matching the real scoring logic explained elsewhere on the page.
-function getFakeRivalWooStats(realMaxHeight: number, realKiteAngle: number, heightRatio: number, extremityRatio: number) {
-  const maxHeight = realMaxHeight * (0.82 + heightRatio * 0.18);
-  const kiteAngle = Math.min(88, realKiteAngle + (1 - extremityRatio) * 22);
-  return { maxHeight: maxHeight.toFixed(1), kiteAngle: Math.round(kiteAngle) };
+// Deterministic, illustrative-only Woo readings for the rival — same
+// spirit as getFakeAthleteScore (we only have real Woo data for Leonardo).
+// Scaled off his real numbers by the rival's relative area performance:
+// Height & Amplitude ratio drives Max Height/Distance/Airtime, Extremity
+// ratio drives Kite Angle/Yank Power/Free Fall (lower Extremity reads as a
+// less extreme, higher kite angle — matching the real scoring logic
+// explained elsewhere on the page).
+function getFakeRivalWooStats(jumpMeta: typeof WOO_SENSOR_JUMPS[number], heightRatio: number, extremityRatio: number) {
+  const get = (label: string) => parseFloat(jumpMeta.stats.find(s => s.label === label)!.value);
+  return {
+    'Max Height': `${(get('Max Height') * (0.82 + heightRatio * 0.18)).toFixed(1)} m`,
+    'Distance': `${Math.round(get('Distance') * (0.85 + heightRatio * 0.15))} m`,
+    'Airtime': `${(get('Airtime') * (0.88 + heightRatio * 0.12)).toFixed(1)} s`,
+    'Kite Angle': `${Math.round(Math.min(88, get('Kite Angle') + (1 - extremityRatio) * 22))}°`,
+    'Yank Power': `${(get('Yank Power') * (0.7 + extremityRatio * 0.3)).toFixed(1)}g`,
+    'Free Fall': `${(get('Free Fall') * (0.7 + extremityRatio * 0.3)).toFixed(1)}s`,
+  };
 }
 
 function LiveSpectatorDemo() {
@@ -893,18 +901,22 @@ function LiveSpectatorDemo() {
     [breakdown]
   );
   const rivalWoo = useMemo(() => {
-    const realMaxHeight = parseFloat(jumpMeta.stats.find(s => s.label === 'Max Height')!.value);
-    const realKiteAngle = parseFloat(jumpMeta.stats.find(s => s.label === 'Kite Angle')!.value);
     const heightRatio = rival.areas[0].score / rival.areas[0].max;
     const extremityRatio = rival.areas[1].score / rival.areas[1].max;
-    return getFakeRivalWooStats(realMaxHeight, realKiteAngle, heightRatio, extremityRatio);
+    return getFakeRivalWooStats(jumpMeta, heightRatio, extremityRatio);
   }, [rival, jumpMeta]);
 
   const [phase, setPhase] = useState<'idle' | 'trick' | 'score' | 'compare'>('idle');
   const [revealedAreas, setRevealedAreas] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [inView, setInView] = useState(false);
+  // True from the moment the score finishes revealing until the compare
+  // hold ends and the video is explicitly resumed. The video is paused for
+  // this whole window (still visible, frozen — not blacked out) so it can't
+  // drift out of sync with the wall-clock hold timers; every cycle starts
+  // from the same known video position instead of wherever looping playback
+  // happened to land.
+  const holdingRef = useRef(false);
 
   useEffect(() => {
     if (!cardRef.current) return;
@@ -918,55 +930,52 @@ function LiveSpectatorDemo() {
 
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
-    if (!video.duration) return;
+    if (!video.duration || holdingRef.current) return;
     const pct = video.currentTime / video.duration;
     if (pct < 0.1) {
       setPhase('idle');
       setRevealedAreas(0);
-    } else if (pct < 0.65) {
+      return;
+    }
+    if (pct < 0.65) {
       setPhase('trick');
-    } else {
-      setPhase('score');
-      const t = (pct - 0.65) / (1 - 0.65);
-      setRevealedAreas(Math.min(4, Math.floor(t * 5)));
+      return;
+    }
+    setPhase('score');
+    const t = (pct - 0.65) / (1 - 0.65);
+    const next = Math.min(4, Math.floor(t * 5));
+    setRevealedAreas(next);
+    if (next >= 4) {
+      // Fully revealed: pause here, hold on the score a beat longer, then
+      // switch to the comparison screen, then reset and resume from 0.
+      holdingRef.current = true;
+      video.pause();
+      setTimeout(() => {
+        setPhase('compare');
+        setTimeout(() => {
+          holdingRef.current = false;
+          setPhase('idle');
+          setRevealedAreas(0);
+          video.currentTime = 0;
+          video.play();
+        }, 9000);
+      }, 2000);
     }
   };
-
-  // Once the jump ends: hold a beat longer on the fully-revealed score
-  // breakdown (frozen last frame), then switch to a rider-vs-rider
-  // comparison screen, held even longer, before replaying.
-  const handleVideoEnded = () => {
-    setTimeout(() => setPhase('compare'), 3000);
-  };
-
-  useEffect(() => {
-    if (phase !== 'compare') return;
-    const id = setTimeout(() => {
-      setPhase('idle');
-      setRevealedAreas(0);
-      const video = videoRef.current;
-      if (video) {
-        video.currentTime = 0;
-        video.play();
-      }
-    }, 9000);
-    return () => clearTimeout(id);
-  }, [phase]);
 
   return (
     <div ref={cardRef} className="relative rounded-xl overflow-hidden border border-border bg-black shadow-[var(--shadow-card)] aspect-video">
       {inView && (
         <video
-          ref={videoRef}
           key={jumpMeta.videoSrc}
           src={jumpMeta.videoSrc}
           className="w-full h-full object-cover"
           muted
           autoPlay
+          loop
           playsInline
           preload="none"
           onTimeUpdate={handleTimeUpdate}
-          onEnded={handleVideoEnded}
         />
       )}
 
@@ -1041,10 +1050,10 @@ function LiveSpectatorDemo() {
       </div>
 
       <div
-        className="absolute inset-0 bg-black flex flex-col justify-center px-6 md:px-10 py-6 transition-opacity duration-500 ease-out"
+        className="absolute inset-0 bg-black/30 flex flex-col justify-center px-6 md:px-10 py-6 transition-opacity duration-500 ease-out"
         style={{ opacity: phase === 'compare' ? 1 : 0, pointerEvents: phase === 'compare' ? 'auto' : 'none' }}
       >
-        <div className="flex items-center justify-center gap-3 mb-5">
+        <div className="flex items-center justify-center gap-3 mb-5 bg-black/70 backdrop-blur px-3 py-1.5 rounded-full border border-white/10 mx-auto">
           <img src={wooLogo} alt="Woo" className="h-4" style={{ filter: 'brightness(0) invert(1)' }} />
           <div className="w-px h-4 bg-white/20" />
           <img src={capitalLogo} alt="Capital.com" className="h-3.5" style={{ filter: 'brightness(0) invert(1)' }} />
@@ -1053,19 +1062,18 @@ function LiveSpectatorDemo() {
           {[
             {
               name: 'Leonardo Casati', total: breakdown.total, areas: breakdown.areas.map(a => a.score),
-              maxHeight: jumpMeta.stats.find(s => s.label === 'Max Height')!.value,
-              kiteAngle: jumpMeta.stats.find(s => s.label === 'Kite Angle')!.value,
+              woo: Object.fromEntries(LIVE_TRICK_STAT_LABELS.map(l => [l, jumpMeta.stats.find(s => s.label === l)!.value])),
               photoUrl: GKA_BIG_AIR_MEN_RANKINGS_2026.find(r => r.athlete === 'Leonardo Casati')?.photoUrl,
             },
             {
               name: LIVE_RIVAL_NAME, total: rival.averageScore, areas: rival.areas.map(a => a.score),
-              maxHeight: `${rivalWoo.maxHeight} m`, kiteAngle: `${rivalWoo.kiteAngle}°`,
+              woo: rivalWoo,
               photoUrl: GKA_BIG_AIR_MEN_RANKINGS_2026.find(r => r.athlete === LIVE_RIVAL_NAME)?.photoUrl,
             },
           ].map((rider, riderIdx) => {
             const isWinner = riderIdx === 0;
             return (
-              <div key={rider.name} className={`rounded-lg border p-4 ${isWinner ? 'border-primary/50 bg-primary/5' : 'border-white/10 bg-white/[0.03]'}`}>
+              <div key={rider.name} className={`rounded-lg border p-4 bg-black/90 backdrop-blur-sm ${isWinner ? 'border-primary/50' : 'border-white/10'}`}>
                 <div className="flex items-center gap-2 mb-2">
                   {rider.photoUrl && (
                     <img src={rider.photoUrl} alt="" className="w-8 h-8 rounded-full object-cover border border-white/10" />
@@ -1086,15 +1094,13 @@ function LiveSpectatorDemo() {
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
-                  <div>
-                    <div className="text-[9px] font-medium text-white/40 uppercase tracking-wider">Max Height</div>
-                    <div className="text-xs font-bold text-white tabular-nums">{rider.maxHeight}</div>
-                  </div>
-                  <div>
-                    <div className="text-[9px] font-medium text-white/40 uppercase tracking-wider">Kite Angle</div>
-                    <div className="text-xs font-bold text-white tabular-nums">{rider.kiteAngle}</div>
-                  </div>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 border-t border-white/10 pt-2">
+                  {LIVE_TRICK_STAT_LABELS.map(label => (
+                    <div key={label}>
+                      <div className="text-[9px] font-medium text-white/40 uppercase tracking-wider leading-tight">{label}</div>
+                      <div className="text-xs font-bold text-white tabular-nums">{rider.woo[label]}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             );
