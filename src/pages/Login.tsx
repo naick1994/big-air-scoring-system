@@ -4,6 +4,7 @@ import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DeployTag } from '@/components/DeployTag';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 
@@ -100,6 +101,7 @@ const Login = () => {
             </Button>
           </form>
         </div>
+        <DeployTag />
       </div>
     </div>
   );

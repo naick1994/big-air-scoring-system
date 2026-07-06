@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Mail, Phone, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { DeployTag } from '@/components/DeployTag';
 import nickAvatar from '@/assets/nick-avatar.jpg';
 import logoFlightMode from '@/assets/logo-flight-mode.jpg';
 import logoCasatiBrothers from '@/assets/logo-casati-brothers.svg';
@@ -285,6 +286,7 @@ export default function AboutNick() {
           </Reveal>
         </div>
       </div>
+      <DeployTag />
     </div>
   );
 }

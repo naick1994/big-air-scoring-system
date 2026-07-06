@@ -7,6 +7,7 @@ import { ScoringProvider } from "./contexts/ScoringContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Header } from "./components/Header";
+import { DeployTag } from "./components/DeployTag";
 import NewJump from "./pages/NewJump";
 import PresetEvents from "./pages/PresetEvents";
 import Result from "./pages/Result";
@@ -24,9 +25,6 @@ import AboutNick from "./pages/AboutNick";
 
 const queryClient = new QueryClient();
 
-const BUILD_TIME = new Date(__BUILD_TIME__);
-const BUILD_LABEL = `${BUILD_TIME.toLocaleDateString('it-IT')} ${BUILD_TIME.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -34,9 +32,6 @@ const App = () => (
         <ScoringProvider>
           <Toaster />
           <Sonner />
-          <div className="fixed bottom-2 right-3 z-[300] text-[10px] text-muted-foreground/50 select-none pointer-events-none tabular-nums">
-            deploy {BUILD_LABEL}
-          </div>
           <BrowserRouter basename={import.meta.env.BASE_URL}>
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -62,6 +57,7 @@ const App = () => (
                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>
+                    <DeployTag />
                   </ProtectedRoute>
                 }
               />

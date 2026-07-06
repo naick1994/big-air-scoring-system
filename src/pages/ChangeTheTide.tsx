@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ParametersAccordion } from '@/components/ParametersAccordion';
+import { DeployTag } from '@/components/DeployTag';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, CheckCircle2, X, Sparkles, ChevronDown } from 'lucide-react';
 import wooLogo from '@/assets/woo-logo.svg';
@@ -1451,6 +1452,7 @@ export default function ChangeTheTide() {
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
+        <DeployTag />
       </footer>
     </div>
   );
