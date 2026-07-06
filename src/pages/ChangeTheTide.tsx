@@ -1400,9 +1400,7 @@ export default function ChangeTheTide() {
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl">
               Sensor technology like Woo's can already capture height, speed, and rotations on every jump.
-              Turning that into a complete scoring system means adding a few new measurements, like kite
-              angle, yank, and free fall. It's not about building from scratch, but evolving what already
-              exists.
+              A few new measurements, like kite angle, yank, and free fall, complete the picture.
             </p>
           </RevealOnScroll>
 
@@ -1421,10 +1419,8 @@ export default function ChangeTheTide() {
               One sensor sees the jump. Three see <span className="text-primary">the whole trick.</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-              A single board-mounted sensor captures height, speed, and rotations, but not what the kite
-              is doing or how hard the rider loaded into the move: exactly what Extremity is built on. A
-              three-point system (kite, harness, board) closes that gap, each sensor feeding a different
-              part of the model.
+              A single board sensor can't see kite angle or loading force — exactly what Extremity is
+              built on. A three-point system (kite, harness, board) closes that gap.
             </p>
           </RevealOnScroll>
 
@@ -1462,9 +1458,7 @@ export default function ChangeTheTide() {
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-12">
               Today, an athlete who loses a heat gets an opinion. This model gives every rider a
-              jump-by-jump breakdown of exactly where points were left on the table. Below, watch the
-              total recalculate live as just the Height reading changes on one of Leonardo Casati's
-              real Mykonos jumps.
+              jump-by-jump breakdown of exactly where points were left on the table.
             </p>
           </RevealOnScroll>
 

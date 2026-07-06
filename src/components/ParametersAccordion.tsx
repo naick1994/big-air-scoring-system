@@ -2,6 +2,24 @@ import { useScoring } from '@/contexts/ScoringContext';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PARAMETER_CONFIG, PRESET_CONFIG, OVERALL_IMPRESSION_CONFIG, heightBracketLabel, amplitudeBracketLabel, YANK_POWER_RANGES, FREE_FALL_RANGES, KITE_ANGLE_RANGES } from '@/lib/scoring';
+import { Gavel } from 'lucide-react';
+import wooLogo from '@/assets/woo-logo.svg';
+
+// Small inline badge marking whether an area's score comes from sensor
+// data or a human judge's call — shown on every accordion trigger so
+// the objective/subjective split is visible at a glance, not just in
+// prose.
+function SourceBadge({ subjective }: { subjective: boolean }) {
+  return subjective ? (
+    <Badge variant="outline" className="gap-1.5 text-muted-foreground border-border font-normal shrink-0">
+      <Gavel className="w-3 h-3" /> Judged
+    </Badge>
+  ) : (
+    <Badge variant="outline" className="gap-1.5 text-muted-foreground border-border font-normal shrink-0">
+      <img src={wooLogo} alt="" className="h-3" style={{ filter: 'brightness(0) invert(1)' }} /> Sensor-based
+    </Badge>
+  );
+}
 
 // The single source of truth for "what does each judging area actually
 // score" — used by both the real Parameters Guide page and the
@@ -17,12 +35,15 @@ export function ParametersAccordion() {
       {/* HEIGHT & AMPLITUDE */}
       <AccordionItem value="j1" className="border rounded-lg bg-card">
         <AccordionTrigger className="px-6 hover:no-underline">
-          <div className="flex items-center gap-3 text-left">
-            <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 shrink-0" />
-            <div>
-              <div className="text-lg font-semibold">HEIGHT & AMPLITUDE</div>
-              <div className="text-sm text-muted-foreground">Weight: {weights.HEIGHT}%</div>
+          <div className="flex items-center justify-between gap-3 w-full mr-2">
+            <div className="flex items-center gap-3 text-left">
+              <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 shrink-0" />
+              <div>
+                <div className="text-lg font-semibold">HEIGHT & AMPLITUDE</div>
+                <div className="text-sm text-muted-foreground">Weight: {weights.HEIGHT}%</div>
+              </div>
             </div>
+            <SourceBadge subjective={false} />
           </div>
         </AccordionTrigger>
         <AccordionContent className="px-6 pb-6">
@@ -64,12 +85,15 @@ export function ParametersAccordion() {
       {/* EXTREMITY */}
       <AccordionItem value="extremity" className="border rounded-lg bg-card">
         <AccordionTrigger className="px-6 hover:no-underline">
-          <div className="flex items-center gap-3 text-left">
-            <div className="w-2.5 h-2.5 rounded-full bg-pink-500 shrink-0" />
-            <div>
-              <div className="text-lg font-semibold">EXTREMITY</div>
-              <div className="text-sm text-muted-foreground">Weight: {weights.EXTREMITY}%</div>
+          <div className="flex items-center justify-between gap-3 w-full mr-2">
+            <div className="flex items-center gap-3 text-left">
+              <div className="w-2.5 h-2.5 rounded-full bg-pink-500 shrink-0" />
+              <div>
+                <div className="text-lg font-semibold">EXTREMITY</div>
+                <div className="text-sm text-muted-foreground">Weight: {weights.EXTREMITY}%</div>
+              </div>
             </div>
+            <SourceBadge subjective={false} />
           </div>
         </AccordionTrigger>
         <AccordionContent className="px-6 pb-6">
@@ -121,12 +145,15 @@ export function ParametersAccordion() {
       {/* TECHNICALITY */}
       <AccordionItem value="technicality" className="border rounded-lg bg-card">
         <AccordionTrigger className="px-6 hover:no-underline">
-          <div className="flex items-center gap-3 text-left">
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 shrink-0" />
-            <div>
-              <div className="text-lg font-semibold">TECHNICALITY</div>
-              <div className="text-sm text-muted-foreground">Weight: {weights.TECHNICALITY}%</div>
+          <div className="flex items-center justify-between gap-3 w-full mr-2">
+            <div className="flex items-center gap-3 text-left">
+              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 shrink-0" />
+              <div>
+                <div className="text-lg font-semibold">TECHNICALITY</div>
+                <div className="text-sm text-muted-foreground">Weight: {weights.TECHNICALITY}%</div>
+              </div>
             </div>
+            <SourceBadge subjective={false} />
           </div>
         </AccordionTrigger>
         <AccordionContent className="px-6 pb-6">
@@ -201,12 +228,15 @@ export function ParametersAccordion() {
       {/* EXECUTION */}
       <AccordionItem value="j4" className="border rounded-lg bg-card">
         <AccordionTrigger className="px-6 hover:no-underline">
-          <div className="flex items-center gap-3 text-left">
-            <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shrink-0" />
-            <div>
-              <div className="text-lg font-semibold">EXECUTION</div>
-              <div className="text-sm text-muted-foreground">Weight: {weights.EXECUTION}%</div>
+          <div className="flex items-center justify-between gap-3 w-full mr-2">
+            <div className="flex items-center gap-3 text-left">
+              <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shrink-0" />
+              <div>
+                <div className="text-lg font-semibold">EXECUTION</div>
+                <div className="text-sm text-muted-foreground">Weight: {weights.EXECUTION}%</div>
+              </div>
             </div>
+            <SourceBadge subjective={true} />
           </div>
         </AccordionTrigger>
         <AccordionContent className="px-6 pb-6">
