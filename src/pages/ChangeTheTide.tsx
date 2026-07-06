@@ -866,13 +866,44 @@ const LIVE_TRICK_STAT_LABELS = ['Max Height', 'Airtime', 'Kite Angle', 'Distance
 // Broadcast-style overlay demo: real trick ID graphic, then a live-built
 // score breakdown, layered directly on the jump footage — showing what a
 // spectator (not just a judge) could see while the trick is still live.
+// Illustrative rival for the post-jump comparison screen — same convention
+// used by the ranking comparison tool elsewhere on this page: a seeded,
+// deterministic breakdown clamped below Leonardo's real score, since we
+// only have real Woo data for him. Rank/name picked to match the heat
+// already shown in the broadcast graphic baked into this footage.
+const LIVE_RIVAL_NAME = 'Jamie Overbeek';
+const LIVE_RIVAL_RANK = 2;
+
+// Deterministic, illustrative-only Max Height / Kite Angle for the rival —
+// same spirit as getFakeAthleteScore (we only have real Woo data for
+// Leonardo). Scaled off his real numbers by the rival's relative area
+// performance, so a lower Extremity score reads as a less extreme (higher)
+// kite angle, matching the real scoring logic explained elsewhere on the page.
+function getFakeRivalWooStats(realMaxHeight: number, realKiteAngle: number, heightRatio: number, extremityRatio: number) {
+  const maxHeight = realMaxHeight * (0.82 + heightRatio * 0.18);
+  const kiteAngle = Math.min(88, realKiteAngle + (1 - extremityRatio) * 22);
+  return { maxHeight: maxHeight.toFixed(1), kiteAngle: Math.round(kiteAngle) };
+}
+
 function LiveSpectatorDemo() {
   const jumpMeta = WOO_SENSOR_JUMPS[0];
   const breakdown = JUMP_BREAKDOWNS[0];
+  const rival = useMemo(
+    () => getFakeAthleteScore(LIVE_RIVAL_NAME, LIVE_RIVAL_RANK, breakdown.total),
+    [breakdown]
+  );
+  const rivalWoo = useMemo(() => {
+    const realMaxHeight = parseFloat(jumpMeta.stats.find(s => s.label === 'Max Height')!.value);
+    const realKiteAngle = parseFloat(jumpMeta.stats.find(s => s.label === 'Kite Angle')!.value);
+    const heightRatio = rival.areas[0].score / rival.areas[0].max;
+    const extremityRatio = rival.areas[1].score / rival.areas[1].max;
+    return getFakeRivalWooStats(realMaxHeight, realKiteAngle, heightRatio, extremityRatio);
+  }, [rival, jumpMeta]);
 
-  const [phase, setPhase] = useState<'idle' | 'trick' | 'score'>('idle');
+  const [phase, setPhase] = useState<'idle' | 'trick' | 'score' | 'compare'>('idle');
   const [revealedAreas, setRevealedAreas] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
@@ -901,19 +932,41 @@ function LiveSpectatorDemo() {
     }
   };
 
+  // Once the jump ends: hold a beat longer on the fully-revealed score
+  // breakdown (frozen last frame), then switch to a rider-vs-rider
+  // comparison screen, held even longer, before replaying.
+  const handleVideoEnded = () => {
+    setTimeout(() => setPhase('compare'), 3000);
+  };
+
+  useEffect(() => {
+    if (phase !== 'compare') return;
+    const id = setTimeout(() => {
+      setPhase('idle');
+      setRevealedAreas(0);
+      const video = videoRef.current;
+      if (video) {
+        video.currentTime = 0;
+        video.play();
+      }
+    }, 9000);
+    return () => clearTimeout(id);
+  }, [phase]);
+
   return (
-    <div ref={cardRef} className="relative rounded-xl overflow-hidden border border-border bg-black shadow-[var(--shadow-card)]">
+    <div ref={cardRef} className="relative rounded-xl overflow-hidden border border-border bg-black shadow-[var(--shadow-card)] aspect-video">
       {inView && (
         <video
+          ref={videoRef}
           key={jumpMeta.videoSrc}
           src={jumpMeta.videoSrc}
-          className="w-full aspect-video object-cover"
+          className="w-full h-full object-cover"
           muted
           autoPlay
-          loop
           playsInline
           preload="none"
           onTimeUpdate={handleTimeUpdate}
+          onEnded={handleVideoEnded}
         />
       )}
 
@@ -984,6 +1037,68 @@ function LiveSpectatorDemo() {
             <span className="text-xs font-semibold text-white/80 uppercase tracking-wide">Total</span>
             <span className="text-2xl font-bold text-primary tabular-nums">{breakdown.total.toFixed(2)}</span>
           </div>
+        </div>
+      </div>
+
+      <div
+        className="absolute inset-0 bg-black flex flex-col justify-center px-6 md:px-10 py-6 transition-opacity duration-500 ease-out"
+        style={{ opacity: phase === 'compare' ? 1 : 0, pointerEvents: phase === 'compare' ? 'auto' : 'none' }}
+      >
+        <div className="flex items-center justify-center gap-3 mb-5">
+          <img src={wooLogo} alt="Woo" className="h-4" style={{ filter: 'brightness(0) invert(1)' }} />
+          <div className="w-px h-4 bg-white/20" />
+          <img src={capitalLogo} alt="Capital.com" className="h-3.5" style={{ filter: 'brightness(0) invert(1)' }} />
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-2xl mx-auto w-full">
+          {[
+            {
+              name: 'Leonardo Casati', total: breakdown.total, areas: breakdown.areas.map(a => a.score),
+              maxHeight: jumpMeta.stats.find(s => s.label === 'Max Height')!.value,
+              kiteAngle: jumpMeta.stats.find(s => s.label === 'Kite Angle')!.value,
+              photoUrl: GKA_BIG_AIR_MEN_RANKINGS_2026.find(r => r.athlete === 'Leonardo Casati')?.photoUrl,
+            },
+            {
+              name: LIVE_RIVAL_NAME, total: rival.averageScore, areas: rival.areas.map(a => a.score),
+              maxHeight: `${rivalWoo.maxHeight} m`, kiteAngle: `${rivalWoo.kiteAngle}°`,
+              photoUrl: GKA_BIG_AIR_MEN_RANKINGS_2026.find(r => r.athlete === LIVE_RIVAL_NAME)?.photoUrl,
+            },
+          ].map((rider, riderIdx) => {
+            const isWinner = riderIdx === 0;
+            return (
+              <div key={rider.name} className={`rounded-lg border p-4 ${isWinner ? 'border-primary/50 bg-primary/5' : 'border-white/10 bg-white/[0.03]'}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {rider.photoUrl && (
+                    <img src={rider.photoUrl} alt="" className="w-8 h-8 rounded-full object-cover border border-white/10" />
+                  )}
+                  <div className="text-xs font-semibold text-white truncate">{rider.name}</div>
+                </div>
+                <div className={`text-3xl font-bold tabular-nums mb-3 ${isWinner ? 'text-primary' : 'text-white/70'}`}>
+                  {rider.total.toFixed(2)}
+                </div>
+                <div className="space-y-1.5 mb-3">
+                  {breakdown.areas.map((area, i) => (
+                    <div key={area.name} className="flex items-center justify-between text-[11px]">
+                      <span className="flex items-center gap-1.5 text-white/60">
+                        <span className={`w-1.5 h-1.5 rounded-full ${LIVE_AREA_STYLES[i].dot}`} />
+                        {area.name.split(' ')[0]}
+                      </span>
+                      <span className={`font-bold tabular-nums ${LIVE_AREA_STYLES[i].text}`}>{rider.areas[i].toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
+                  <div>
+                    <div className="text-[9px] font-medium text-white/40 uppercase tracking-wider">Max Height</div>
+                    <div className="text-xs font-bold text-white tabular-nums">{rider.maxHeight}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-medium text-white/40 uppercase tracking-wider">Kite Angle</div>
+                    <div className="text-xs font-bold text-white tabular-nums">{rider.kiteAngle}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -1650,6 +1765,24 @@ export default function ChangeTheTide() {
         </div>
       </section>
 
+      {/* ───────── The sensors ───────── */}
+      <section className="border-b border-border">
+        <div className="container mx-auto px-4 py-24 max-w-5xl">
+          <RevealOnScroll direction="left">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The sensors</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+              One sensor sees the jump. Three see <span className="text-primary">the whole trick.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              A sensor on the board alone can't see what the kite is doing, or how hard the rider loaded
+              into the move. Three sensors, one each on the kite, harness, and board, close that gap.
+            </p>
+          </RevealOnScroll>
+
+          <SensorCardsGrid />
+        </div>
+      </section>
+
       {/* ───────── Why now ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
@@ -1667,24 +1800,6 @@ export default function ChangeTheTide() {
           <RevealOnScroll direction="left" delay={100}>
             <WooSensorPanel />
           </RevealOnScroll>
-        </div>
-      </section>
-
-      {/* ───────── The sensors ───────── */}
-      <section className="border-b border-border">
-        <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <RevealOnScroll direction="left">
-            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The sensors</div>
-            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-              One sensor sees the jump. Three see <span className="text-primary">the whole trick.</span>
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-              A sensor on the board alone can't see what the kite is doing, or how hard the rider loaded
-              into the move. Three sensors, one each on the kite, harness, and board, close that gap.
-            </p>
-          </RevealOnScroll>
-
-          <SensorCardsGrid />
         </div>
       </section>
 
