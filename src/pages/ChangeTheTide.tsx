@@ -1417,8 +1417,7 @@ export default function ChangeTheTide() {
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-12">
               A sensor on the board alone can't see what the kite is doing, or how hard the rider loaded
-              into the move. That's exactly what Extremity measures. Three sensors, one each on the kite,
-              harness, and board, close that gap.
+              into the move. Three sensors, one each on the kite, harness, and board, close that gap.
             </p>
           </RevealOnScroll>
 
