@@ -861,7 +861,7 @@ const LIVE_AREA_STYLES = [
 
 // The 3 Woo readings most legible to a live viewer at a glance — how big,
 // how long, how extreme — out of the full 15-field sensor readout.
-const LIVE_TRICK_STAT_LABELS = ['Max Height', 'Airtime', 'Kite Angle'];
+const LIVE_TRICK_STAT_LABELS = ['Max Height', 'Airtime', 'Kite Angle', 'Distance', 'Yank Power', 'Free Fall'];
 
 // Broadcast-style overlay demo: real trick ID graphic, then a live-built
 // score breakdown, layered directly on the jump footage — showing what a
@@ -932,7 +932,7 @@ function LiveSpectatorDemo() {
         <div className="bg-black/75 backdrop-blur-sm border-l-2 border-primary rounded-r-lg px-4 py-3">
           <div className="text-[10px] font-mono tracking-widest text-primary uppercase mb-1">{jumpMeta.category}</div>
           <div className="text-white font-bold text-lg leading-tight mb-2.5">{jumpMeta.trick}</div>
-          <div className="flex items-center gap-4 border-t border-white/10 pt-2">
+          <div className="grid grid-cols-3 gap-x-4 gap-y-2 border-t border-white/10 pt-2">
             {LIVE_TRICK_STAT_LABELS.map(label => {
               const stat = jumpMeta.stats.find(s => s.label === label);
               if (!stat) return null;
