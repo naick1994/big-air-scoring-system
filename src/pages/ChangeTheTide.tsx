@@ -667,6 +667,7 @@ function WooSensorPanel() {
   const userInteractedRef = useRef(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
+  const [revealedCount, setRevealedCount] = useState(0);
   const reducedMotion = useRef(
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   ).current;
@@ -690,6 +691,17 @@ function WooSensorPanel() {
   };
 
   const jump = WOO_SENSOR_JUMPS[index];
+
+  // Stats "arrive" one by one as the jump video plays, like live sensor
+  // telemetry streaming in, instead of appearing all at once.
+  useEffect(() => {
+    setRevealedCount(reducedMotion ? jump.stats.length : 0);
+    if (reducedMotion || !inView) return;
+    const id = setInterval(() => {
+      setRevealedCount(prev => (prev >= jump.stats.length ? prev : prev + 1));
+    }, 480);
+    return () => clearInterval(id);
+  }, [jump, inView, reducedMotion]);
 
   return (
     <Card ref={panelRef} className="p-6 shadow-[var(--shadow-card)] mt-8">
@@ -732,12 +744,20 @@ function WooSensorPanel() {
           className="flex-1 rounded-lg border border-border bg-muted/20 p-4 grid grid-cols-3 content-center gap-x-4 gap-y-5"
           style={{ animation: 'whatIfPop 0.4s ease' }}
         >
-        {jump.stats.map(s => (
-          <div key={s.label}>
-            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider leading-tight mb-0.5">{s.label}</div>
-            <div className="text-sm font-bold text-foreground tabular-nums">{s.value}</div>
-          </div>
-        ))}
+        {jump.stats.map((s, i) => {
+          const arrived = i < revealedCount;
+          return (
+            <div key={s.label}>
+              <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider leading-tight mb-0.5">{s.label}</div>
+              <div
+                className="text-sm font-bold text-foreground tabular-nums transition-all duration-300"
+                style={arrived ? undefined : { filter: 'blur(4px)', opacity: 0.4 }}
+              >
+                {arrived ? s.value : '••••'}
+              </div>
+            </div>
+          );
+        })}
         </div>
       </div>
     </Card>
