@@ -1414,7 +1414,7 @@ export default function ChangeTheTide() {
         <div className="container mx-auto px-4 max-w-5xl relative flex-1 flex flex-col justify-center">
           <h1 className="text-6xl md:text-8xl font-bold leading-[1.05] tracking-tight max-w-5xl">
             <span className="block" style={heroStep(150)}>It's time for</span>
-            <span className="block text-primary" style={heroStep(320)}>objective judging.</span>
+            <span className="block text-primary" style={heroStep(320)}>next level judging.</span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mt-8 max-w-2xl" style={heroStep(520)}>
             Big Air has objective data. It deserves objective judging.
