@@ -1532,7 +1532,7 @@ function HistorySection() {
         <RevealOnScroll direction="right">
           <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Not the first sport to do this</div>
           <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-            Every sport eventually drops <span className="text-primary">the eye test.</span>
+            Sooner or later, <span className="text-primary">every sport changes.</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mb-12">
             Most judged sports have already made this exact trade, usually after the same holistic
