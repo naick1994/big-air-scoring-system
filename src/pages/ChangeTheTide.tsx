@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ParametersAccordion } from '@/components/ParametersAccordion';
 import { DeployTag } from '@/components/DeployTag';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpRight, CheckCircle2, X, Sparkles, ChevronDown, RotateCcw } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, X, Sparkles, ChevronDown, RotateCcw, TrendingUp, Mic, Users, Share2, Radio } from 'lucide-react';
 import wooLogo from '@/assets/woo-logo.svg';
 import capitalLogo from '@/assets/capital-com-logo.png';
 import nickAvatar from '@/assets/nick-avatar.jpg';
@@ -1120,6 +1120,88 @@ function LiveSpectatorDemo() {
   );
 }
 
+const SPECTATOR_BENEFIT_CARDS = [
+  {
+    icon: TrendingUp, title: 'Live score, not a verdict', color: 'cyan',
+    desc: "The total builds area by area while the trick is still fresh, not as a single number dropped minutes later.",
+  },
+  {
+    icon: Mic, title: 'Commentary with receipts', color: 'pink',
+    desc: 'Broadcasters explain a call with real numbers, live, instead of an opinion no one can check.',
+  },
+  {
+    icon: Users, title: 'Easy for new fans', color: 'orange',
+    desc: 'Four simple areas anyone can follow, not a scoring system only insiders understand.',
+  },
+  {
+    icon: Share2, title: 'Built for content', color: 'green',
+    desc: 'Every jump becomes a stat-backed clip, ready for replays, comparisons, and social.',
+  },
+];
+
+const SPECTATOR_TICKER_ITEMS = [
+  'No dead air waiting for a score',
+  "Follow who's winning in real time",
+  'Rider-vs-rider graphics, ready to air',
+  'Every controversy settled with data, live',
+  'Four areas anyone can learn in one heat',
+  'Real stats for every highlight clip',
+  'Commentary backed by real numbers',
+  'A scoreboard fans can actually read',
+];
+
+function SpectatorBenefitsSection() {
+  const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  const activeIndex = useRoundRobinIndex(SPECTATOR_BENEFIT_CARDS.length, 2400);
+  return (
+    <div ref={ref}>
+      <style>{`
+        @keyframes spectatorTicker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .spectator-ticker-track { animation: spectatorTicker 28s linear infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .spectator-ticker-track { animation: none; }
+        }
+      `}</style>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {SPECTATOR_BENEFIT_CARDS.map((card, i) => {
+          const isActive = i === activeIndex;
+          const colors = CARD_ACCENT_COLORS[card.color];
+          const Icon = card.icon;
+          return (
+            <Card
+              key={card.title}
+              className="p-5 shadow-[var(--shadow-card)] transition-all duration-500"
+              style={{
+                opacity: seen ? 1 : 0,
+                transform: `${seen ? 'translateY(0)' : 'translateY(16px)'} ${isActive ? 'scale(1.03)' : 'scale(1)'}`,
+                borderColor: isActive ? colors.border : undefined,
+                transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms, border-color 0.5s ease`,
+              }}
+            >
+              <Icon className={`w-5 h-5 mb-3 ${colors.text}`} />
+              <h3 className="font-bold mb-1.5">{card.title}</h3>
+              <p className="text-sm text-muted-foreground">{card.desc}</p>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="relative overflow-hidden rounded-lg border border-border bg-card/60 py-3">
+        <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-card to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-card to-transparent z-10 pointer-events-none" />
+        <div className="spectator-ticker-track flex items-center gap-8 whitespace-nowrap w-max">
+          {[...SPECTATOR_TICKER_ITEMS, ...SPECTATOR_TICKER_ITEMS].map((item, i) => (
+            <span key={i} className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Radio className="w-3.5 h-3.5 text-primary shrink-0" />
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const PROBLEM_ITEMS = [
   'No insight for the viewer into why a score was given',
   'One overall impression, formed in seconds',
@@ -1835,6 +1917,24 @@ export default function ChangeTheTide() {
           <RevealOnScroll direction="up" delay={100}>
             <LiveSpectatorDemo />
           </RevealOnScroll>
+        </div>
+      </section>
+
+      {/* ───────── Why fans win too ───────── */}
+      <section className="border-b border-border">
+        <div className="container mx-auto px-4 py-24 max-w-5xl">
+          <RevealOnScroll direction="up">
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">For the fans</div>
+            <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
+              Watching gets <span className="text-primary">better too.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mb-12">
+              Objective scoring isn't just fairer for riders and judges. It changes what it feels
+              like to watch a heat.
+            </p>
+          </RevealOnScroll>
+
+          <SpectatorBenefitsSection />
         </div>
       </section>
 
