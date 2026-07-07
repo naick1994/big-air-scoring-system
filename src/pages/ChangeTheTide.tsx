@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ParametersAccordion } from '@/components/ParametersAccordion';
 import { motion } from 'framer-motion';
+import { FadeIn } from '@/components/FadeIn';
 import { DeployTag } from '@/components/DeployTag';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, CheckCircle2, X, Sparkles, ChevronDown, RotateCcw, TrendingUp, Mic, Users, Share2, Radio } from 'lucide-react';
@@ -1476,30 +1477,25 @@ const SENSOR_CARDS = [
 ];
 
 function SensorCardsGrid() {
-  const { ref, seen } = useInViewOnce<HTMLDivElement>();
   const activeIndex = useRoundRobinIndex(SENSOR_CARDS.length, 3000);
   return (
-    <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {SENSOR_CARDS.map((card, i) => {
         const isActive = i === activeIndex;
         const colors = CARD_ACCENT_COLORS[card.color];
         return (
-          <Card
-            key={card.label}
-            className={`p-6 shadow-[var(--shadow-card)] transition-transform duration-500 ${isActive ? 'scale-[1.03]' : 'scale-100'}`}
-            style={{
-              opacity: seen ? 1 : 0,
-              transform: `${seen ? 'translateY(0)' : 'translateY(16px)'} ${isActive ? 'scale(1.03)' : 'scale(1)'}`,
-              borderColor: isActive ? colors.border : undefined,
-              transition: `opacity 0.5s ease ${i * 100}ms, transform 0.5s ease ${i * 100}ms, border-color 0.5s ease`,
-            }}
-          >
-            <div className={`text-3xl font-bold mb-1 transition-colors duration-500 ${isActive ? colors.text : 'text-foreground'}`}>
-              {card.label}
-            </div>
-            <h3 className="font-bold text-sm mb-3">{card.title}</h3>
-            <p className="text-sm text-muted-foreground">{card.desc}</p>
-          </Card>
+          <FadeIn key={card.label} y={40} delay={i * 0.12}>
+            <Card
+              className={`p-6 shadow-[var(--shadow-card)] transition-transform duration-500 ${isActive ? 'scale-[1.03]' : 'scale-100'}`}
+              style={{ borderColor: isActive ? colors.border : undefined }}
+            >
+              <div className={`text-3xl font-bold mb-1 transition-colors duration-500 ${isActive ? colors.text : 'text-foreground'}`}>
+                {card.label}
+              </div>
+              <h3 className="font-bold text-sm mb-3">{card.title}</h3>
+              <p className="text-sm text-muted-foreground">{card.desc}</p>
+            </Card>
+          </FadeIn>
         );
       })}
     </div>
@@ -1577,29 +1573,24 @@ function useRoundRobinIndex(length: number, periodMs: number) {
 }
 
 function ProblemList() {
-  const { ref, seen } = useInViewOnce<HTMLDivElement>();
   const activeIndex = useRoundRobinIndex(PROBLEM_ITEMS.length, 2000);
 
   return (
-    <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-10">
       {PROBLEM_ITEMS.map((text, i) => {
         const color = PROBLEM_ITEM_COLORS[i % PROBLEM_ITEM_COLORS.length];
         const isActive = i === activeIndex;
         return (
-          <div
-            key={text}
-            className={`flex items-center gap-3 text-sm rounded-lg border px-4 py-3 transition-all duration-300 ${
-              isActive ? 'border-red-500 bg-red-500/25 shadow-[0_0_16px_-4px_rgba(239,68,68,0.5)]' : 'border-border bg-card/40'
-            }`}
-            style={{
-              opacity: seen ? 1 : 0,
-              transform: seen ? 'translateY(0)' : 'translateY(10px)',
-              transition: `opacity 0.5s ease ${i * 80}ms, transform 0.5s ease ${i * 80}ms`,
-            }}
-          >
-            <X className={`w-4 h-4 shrink-0 transition-colors duration-300 ${isActive ? color : 'text-muted-foreground/50'}`} />
-            <span className={isActive ? 'text-foreground' : 'text-muted-foreground'}>{text}</span>
-          </div>
+          <FadeIn key={text} y={30} delay={i * 0.08}>
+            <div
+              className={`flex items-center gap-3 text-sm rounded-lg border px-4 py-3 transition-all duration-300 ${
+                isActive ? 'border-red-500 bg-red-500/25 shadow-[0_0_16px_-4px_rgba(239,68,68,0.5)]' : 'border-border bg-card/40'
+              }`}
+            >
+              <X className={`w-4 h-4 shrink-0 transition-colors duration-300 ${isActive ? color : 'text-muted-foreground/50'}`} />
+              <span className={isActive ? 'text-foreground' : 'text-muted-foreground'}>{text}</span>
+            </div>
+          </FadeIn>
         );
       })}
     </div>
@@ -1607,13 +1598,12 @@ function ProblemList() {
 }
 
 function SolutionSection() {
-  const { ref, seen } = useInViewOnce<HTMLDivElement>();
   const activeIndex = useRoundRobinIndex(SOLUTION_ITEMS.length, 2000);
 
   return (
     <section className="border-b border-border">
       <div className="container mx-auto px-4 py-24 max-w-5xl">
-        <RevealOnScroll direction="up">
+        <FadeIn y={50} duration={0.7}>
           <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The solution</div>
           <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
             Every problem, <span className="text-primary">answered.</span>
@@ -1621,30 +1611,26 @@ function SolutionSection() {
           <p className="text-lg text-muted-foreground max-w-2xl mb-12">
             The same reductionist model, restated as answers to every problem holistic judging has.
           </p>
-        </RevealOnScroll>
 
-        <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {SOLUTION_ITEMS.map((text, i) => {
-            const color = SOLUTION_ITEM_COLORS[i % SOLUTION_ITEM_COLORS.length];
-            const isActive = i === activeIndex;
-            return (
-              <div
-                key={text}
-                className={`flex items-center gap-3 text-sm rounded-lg border px-4 py-3 transition-all duration-300 ${
-                  isActive ? 'border-green-500 bg-green-500/25 shadow-[0_0_16px_-4px_rgba(34,197,94,0.5)]' : 'border-border bg-card/40'
-                }`}
-                style={{
-                  opacity: seen ? 1 : 0,
-                  transform: seen ? 'translateY(0)' : 'translateY(10px)',
-                  transition: `opacity 0.5s ease ${i * 80}ms, transform 0.5s ease ${i * 80}ms`,
-                }}
-              >
-                <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-300 ${isActive ? color : 'text-muted-foreground/50'}`} />
-                <span className={isActive ? 'text-foreground' : 'text-muted-foreground'}>{text}</span>
-              </div>
-            );
-          })}
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {SOLUTION_ITEMS.map((text, i) => {
+              const color = SOLUTION_ITEM_COLORS[i % SOLUTION_ITEM_COLORS.length];
+              const isActive = i === activeIndex;
+              return (
+                <FadeIn key={text} y={30} delay={i * 0.08}>
+                  <div
+                    className={`flex items-center gap-3 text-sm rounded-lg border px-4 py-3 transition-all duration-300 ${
+                      isActive ? 'border-green-500 bg-green-500/25 shadow-[0_0_16px_-4px_rgba(34,197,94,0.5)]' : 'border-border bg-card/40'
+                    }`}
+                  >
+                    <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-300 ${isActive ? color : 'text-muted-foreground/50'}`} />
+                    <span className={isActive ? 'text-foreground' : 'text-muted-foreground'}>{text}</span>
+                  </div>
+                </FadeIn>
+              );
+            })}
+          </div>
+        </FadeIn>
       </div>
     </section>
   );
@@ -1684,12 +1670,11 @@ const CARD_ACCENT_COLORS: Record<string, { border: string; text: string }> = {
 
 function HistorySection() {
   const activeIndex = useRoundRobinIndex(HISTORY_ITEMS.length, 3000);
-  const { ref: gridRef, seen: gridSeen } = useInViewOnce<HTMLDivElement>();
 
   return (
     <section className="border-b border-border">
       <div className="container mx-auto px-4 py-24 max-w-5xl">
-        <RevealOnScroll direction="right">
+        <FadeIn y={50} duration={0.7}>
           <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Not the first sport to do this</div>
           <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
             Sooner or later, <span className="text-primary">every sport changes.</span>
@@ -1698,23 +1683,13 @@ function HistorySection() {
             Most judged sports have already made this exact trade, usually after the same holistic
             problems became too visible to ignore.
           </p>
-        </RevealOnScroll>
 
-        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {HISTORY_ITEMS.map((item, i) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {HISTORY_ITEMS.map((item, i) => {
             const isActive = i === activeIndex;
             const colors = CARD_ACCENT_COLORS[item.color];
             return (
-              <div
-                key={item.sport}
-                style={{
-                  opacity: gridSeen ? 1 : 0,
-                  transform: gridSeen ? 'translateY(0)' : 'translateY(16px)',
-                  transitionProperty: 'opacity, transform',
-                  transitionDuration: '0.5s',
-                  transitionDelay: `${i * 90}ms`,
-                }}
-              >
+              <FadeIn key={item.sport} y={40} delay={i * 0.12}>
                 <Card
                   className={`p-6 h-full shadow-[var(--shadow-card)] transition-all duration-500 ${
                     isActive ? 'scale-[1.03]' : 'scale-100'
@@ -1728,10 +1703,11 @@ function HistorySection() {
                   <p className="text-sm text-muted-foreground mb-3">{item.change}</p>
                   <p className="text-xs text-muted-foreground/80 border-t border-border pt-3">{item.why}</p>
                 </Card>
-              </div>
+              </FadeIn>
             );
           })}
-        </div>
+          </div>
+        </FadeIn>
       </div>
     </section>
   );
@@ -1861,7 +1837,7 @@ export default function ChangeTheTide() {
       {/* ───────── The problem ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <RevealOnScroll direction="up">
+          <FadeIn y={50} duration={0.7}>
             <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The problem</div>
             <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
               One impression can outweigh <span className="text-primary">everything else.</span>
@@ -1871,16 +1847,15 @@ export default function ChangeTheTide() {
               once. One dominant impression tends to eclipse everything else, leaving a scoreboard
               that's hard to predict, explain, or enjoy watching.
             </p>
-          </RevealOnScroll>
-
-          <ProblemList />
+            <ProblemList />
+          </FadeIn>
         </div>
       </section>
 
       {/* ───────── The idea: reductionist method intro ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <RevealOnScroll direction="left">
+          <FadeIn y={50} duration={0.7}>
             <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The idea</div>
             <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
               A trick is a <span className="text-primary">sum of parts,</span> not a single impression.
@@ -1889,9 +1864,8 @@ export default function ChangeTheTide() {
               Every jump breaks down into four areas: Height &amp; Amplitude, Extremity, Technicality,
               Execution. Each is scored on its own, then added together.
             </p>
-          </RevealOnScroll>
-
-          <IdeaSplitVisual />
+            <IdeaSplitVisual />
+          </FadeIn>
         </div>
       </section>
 
@@ -1906,7 +1880,7 @@ export default function ChangeTheTide() {
       {/* ───────── The shift: 4 areas ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <RevealOnScroll direction="left">
+          <FadeIn y={50} duration={0.7}>
             <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The shift</div>
             <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
               Break the jump into what can be <span className="text-primary">measured.</span>
@@ -1915,18 +1889,18 @@ export default function ChangeTheTide() {
               Every jump is decomposed into four areas, each scored against fixed, published parameters.
               Three are grounded in sensor data. Only Execution stays a judged call.
             </p>
-          </RevealOnScroll>
 
-          <RevealOnScroll direction="up" delay={100}>
-            <ParametersAccordion />
-          </RevealOnScroll>
+            <FadeIn y={40} delay={0.1}>
+              <ParametersAccordion />
+            </FadeIn>
+          </FadeIn>
         </div>
       </section>
 
       {/* ───────── Tunable, not rigid ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <RevealOnScroll direction="right">
+          <FadeIn y={50} duration={0.7}>
             <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Tunable, not rigid</div>
             <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
               Objective doesn't mean <span className="text-primary">fixed.</span>
@@ -1935,19 +1909,23 @@ export default function ChangeTheTide() {
               Conditions change event to event, and so does what an organizer wants a heat to reward.
               Both are configuration, not code changes.
             </p>
-          </RevealOnScroll>
 
-          <RevealOnScroll direction="up" delay={100} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ThresholdCard />
-            <PresetWeightsCard />
-          </RevealOnScroll>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FadeIn y={40} delay={0}>
+                <ThresholdCard />
+              </FadeIn>
+              <FadeIn y={40} delay={0.15}>
+                <PresetWeightsCard />
+              </FadeIn>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* ───────── The sensors ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <RevealOnScroll direction="left">
+          <FadeIn y={50} duration={0.7}>
             <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">The sensors</div>
             <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
               One sensor sees the jump. Three see <span className="text-primary">the whole trick.</span>
@@ -1956,16 +1934,16 @@ export default function ChangeTheTide() {
               A sensor on the board alone can't see what the kite is doing, or how hard the rider loaded
               into the move. Three sensors, one each on the kite, harness, and board, close that gap.
             </p>
-          </RevealOnScroll>
 
-          <SensorCardsGrid />
+            <SensorCardsGrid />
+          </FadeIn>
         </div>
       </section>
 
       {/* ───────── Why now ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
-          <RevealOnScroll direction="up">
+          <FadeIn y={50} duration={0.7}>
             <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Why now</div>
             <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6">
               The data doesn't need to be <span className="text-primary">invented.</span>
@@ -1974,11 +1952,11 @@ export default function ChangeTheTide() {
               Sensor technology like Woo's can already capture height, speed, and rotations on every jump.
               A few new measurements, like kite angle, yank, and free fall, complete the picture.
             </p>
-          </RevealOnScroll>
 
-          <RevealOnScroll direction="left" delay={100}>
-            <WooSensorPanel />
-          </RevealOnScroll>
+            <FadeIn y={40} delay={0.1}>
+              <WooSensorPanel />
+            </FadeIn>
+          </FadeIn>
         </div>
       </section>
 
