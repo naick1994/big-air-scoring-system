@@ -1762,13 +1762,13 @@ export default function ChangeTheTide() {
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
           <RevealOnScroll direction="up">
-            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">For the broadcast</div>
+            <div className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">Watch it live</div>
             <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mb-4">
-              Every trick, explained <span className="text-primary">as it happens.</span>
+              This is what it <span className="text-primary">looks like.</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-12">
-              No more guessing what just happened. Fans see the trick name, how hard it was, and why
-              it scored what it did, live on screen, the moment it lands.
+              The trick, how hard it was, and why it scored what it did, on screen the moment it
+              lands. This is the difference next-level judging makes for the people watching.
             </p>
           </RevealOnScroll>
 
