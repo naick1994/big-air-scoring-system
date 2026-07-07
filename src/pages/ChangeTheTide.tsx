@@ -1242,6 +1242,31 @@ function useInViewOnce<T extends HTMLElement>() {
   return { ref, seen };
 }
 
+// A quiet pause between the page's 5 parts — a big number and a name, no
+// further explanation. Not a full-screen slide (that was tried and reverted
+// for regular sections earlier), just enough height to read as a breath
+// between parts rather than another content section.
+function PartDivider({ number, title }: { number: string; title: string }) {
+  const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  return (
+    <section className="relative overflow-hidden border-b border-border min-h-[50vh] flex items-center justify-center">
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+      <div
+        ref={ref}
+        className="relative text-center px-4"
+        style={{
+          opacity: seen ? 1 : 0,
+          transform: seen ? 'translateY(0)' : 'translateY(20px)',
+          transition: 'opacity 0.8s ease, transform 0.8s ease',
+        }}
+      >
+        <div className="text-7xl md:text-8xl font-bold text-primary/25 leading-none mb-3 tabular-nums">{number}</div>
+        <div className="text-2xl md:text-3xl font-bold tracking-tight">{title}</div>
+      </div>
+    </section>
+  );
+}
+
 // Fade-and-rise reveal for a section's heading block, so every section
 // on the page animates in on scroll, not just the interactive widgets.
 type RevealDirection = 'up' | 'down' | 'left' | 'right';
@@ -1778,6 +1803,8 @@ export default function ChangeTheTide() {
         </div>
       </section>
 
+      <PartDivider number="01" title="THE NEED FOR CHANGE" />
+
       {/* ───────── The problem ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
@@ -1820,6 +1847,8 @@ export default function ChangeTheTide() {
 
       {/* ───────── The solution ───────── */}
       <SolutionSection />
+
+      <PartDivider number="02" title="THE SYSTEM" />
 
       {/* ───────── The shift: 4 areas ───────── */}
       <section className="border-b border-border">
@@ -1900,6 +1929,8 @@ export default function ChangeTheTide() {
         </div>
       </section>
 
+      <PartDivider number="03" title="FOR THE FANS" />
+
       {/* ───────── Live for the viewer, not just the judge ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24 max-w-5xl">
@@ -1937,6 +1968,8 @@ export default function ChangeTheTide() {
           <SpectatorBenefitsSection />
         </div>
       </section>
+
+      <PartDivider number="04" title="FOR THE RIDERS" />
 
       {/* ───────── Their results, broken down ───────── */}
       <section className="border-b border-border">
@@ -1997,6 +2030,8 @@ export default function ChangeTheTide() {
           </RevealOnScroll>
         </div>
       </section>
+
+      <PartDivider number="05" title="FOR EVERYONE" />
 
       {/* ───────── What it unlocks ───────── */}
       <section className="border-b border-border">
