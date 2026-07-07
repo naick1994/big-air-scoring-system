@@ -874,6 +874,11 @@ const LIVE_DEMO_SCORE_START_SEC = 12;
 // 00:00:22:18 -> 22 + 18/30 = 22.6s.
 const LIVE_DEMO_SCORE_DISAPPEAR_SEC = 20.8;
 const LIVE_DEMO_COMPARE_SEC = 22.6;
+// Second beat within the comparison screen: swaps the raw Woo sensor grid
+// for the full per-parameter judged breakdown, a few seconds after the
+// comparison first appears so viewers see the simple totals before the
+// detail.
+const LIVE_DEMO_COMPARE_DETAIL_SEC = 26.2;
 // 00:00:20:27 at 30fps -> 20 + 27/30 = 20.9s.
 const LIVE_DEMO_REPLAY_LABEL_HIDE_SEC = 20.9;
 
@@ -907,6 +912,64 @@ function getFakeRivalWooStats(jumpMeta: typeof WOO_SENSOR_JUMPS[number], heightR
   };
 }
 
+// Each judged sub-parameter within an area, with its real max value from
+// PARAMETER_CONFIG — used to split a known area score into a plausible
+// per-parameter breakdown (with accurate score/max bars) for the
+// comparison screen's second reveal.
+const LIVE_AREA_SUB_PARAMS: Record<string, { label: string; max: number }[]> = {
+  'HEIGHT & AMPLITUDE': [
+    { label: 'Height', max: 1.5 },
+    { label: 'Amplitude', max: 1.0 },
+  ],
+  EXTREMITY: [
+    { label: 'Kite Angle', max: 0.75 },
+    { label: 'Yank Power', max: 0.75 },
+    { label: 'Free Fall', max: 0.5 },
+  ],
+  TECHNICALITY: [
+    { label: 'Rotations', max: 1.0 },
+    { label: 'Rotation Axis', max: 0.5 },
+    { label: 'Board Off', max: 1.0 },
+    { label: 'Board Flip', max: 0.3 },
+    { label: 'Board Spin', max: 0.2 },
+  ],
+  EXECUTION: [
+    { label: 'Style', max: 0.4 },
+    { label: 'Stability & Control', max: 0.4 },
+    { label: 'Landing Control', max: 0.4 },
+    { label: 'Board Control', max: 0.4 },
+    { label: 'Kite Control', max: 0.4 },
+  ],
+};
+
+function tinyHash(seed: string): number {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return (h % 1000) / 1000;
+}
+
+// Splits a known area score across its judged sub-parameters. Each
+// parameter's max is scaled so the group's maxes sum to the area's real
+// max, then a deterministic per-athlete performance ratio (in a plausible
+// 0.35-1.0 range) sets its raw score against that scaled max; the whole
+// set is renormalized so the parts always sum exactly to the area score.
+function getAreaParamBreakdown(areaName: string, areaScore: number, areaMax: number, athleteName: string) {
+  const params = LIVE_AREA_SUB_PARAMS[areaName];
+  const rawMaxSum = params.reduce((s, p) => s + p.max, 0);
+  const scale = areaMax / rawMaxSum;
+  const scaledMaxes = params.map(p => p.max * scale);
+  const raw = params.map((p, i) => {
+    const ratio = 0.35 + tinyHash(`${athleteName}-${areaName}-${p.label}`) * 0.65;
+    return scaledMaxes[i] * ratio;
+  });
+  const rawSum = raw.reduce((a, b) => a + b, 0);
+  return params.map((p, i) => ({
+    label: p.label,
+    score: Math.min(scaledMaxes[i], (raw[i] / rawSum) * areaScore),
+    max: scaledMaxes[i],
+  }));
+}
+
 function LiveSpectatorDemo() {
   const jumpMeta = WOO_SENSOR_JUMPS[0];
   const breakdown = JUMP_BREAKDOWNS[0];
@@ -923,6 +986,7 @@ function LiveSpectatorDemo() {
   const [phase, setPhase] = useState<'idle' | 'trick' | 'score' | 'compare'>('idle');
   const [revealedAreas, setRevealedAreas] = useState(0);
   const [showReplayLabel, setShowReplayLabel] = useState(true);
+  const [compareDetail, setCompareDetail] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -960,6 +1024,7 @@ function LiveSpectatorDemo() {
       setPhase('idle');
     } else {
       setPhase('compare');
+      setCompareDetail(t >= LIVE_DEMO_COMPARE_DETAIL_SEC);
     }
   };
 
@@ -967,6 +1032,7 @@ function LiveSpectatorDemo() {
     const video = e.currentTarget;
     setPhase('idle');
     setRevealedAreas(0);
+    setCompareDetail(false);
     video.currentTime = 0;
     video.play();
   };
@@ -1093,24 +1159,65 @@ function LiveSpectatorDemo() {
                 <div className={`text-3xl font-bold tabular-nums mb-3 ${isWinner ? 'text-primary' : 'text-white/70'}`}>
                   {rider.total.toFixed(2)}
                 </div>
-                <div className="space-y-1.5 mb-3">
-                  {breakdown.areas.map((area, i) => (
-                    <div key={area.name} className="flex items-center justify-between text-[11px]">
-                      <span className="flex items-center gap-1.5 text-white/60">
-                        <span className={`w-1.5 h-1.5 rounded-full ${LIVE_AREA_STYLES[i].dot}`} />
-                        {area.name.split(' ')[0]}
-                      </span>
-                      <span className={`font-bold tabular-nums ${LIVE_AREA_STYLES[i].text}`}>{rider.areas[i].toFixed(2)}</span>
+                <div className="relative">
+                  <div
+                    className="transition-opacity duration-500 ease-out"
+                    style={{ opacity: compareDetail ? 0 : 1, position: compareDetail ? 'absolute' : 'static', inset: 0, pointerEvents: compareDetail ? 'none' : 'auto' }}
+                  >
+                    <div className="space-y-1.5 mb-3">
+                      {breakdown.areas.map((area, i) => (
+                        <div key={area.name} className="flex items-center justify-between text-[11px]">
+                          <span className="flex items-center gap-1.5 text-white/60">
+                            <span className={`w-1.5 h-1.5 rounded-full ${LIVE_AREA_STYLES[i].dot}`} />
+                            {area.name.split(' ')[0]}
+                          </span>
+                          <span className={`font-bold tabular-nums ${LIVE_AREA_STYLES[i].text}`}>{rider.areas[i].toFixed(2)}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 border-t border-white/10 pt-2">
-                  {LIVE_TRICK_STAT_LABELS.map(label => (
-                    <div key={label}>
-                      <div className="text-[9px] font-medium text-white/40 uppercase tracking-wider leading-tight">{label}</div>
-                      <div className="text-xs font-bold text-white tabular-nums">{rider.woo[label]}</div>
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 border-t border-white/10 pt-2">
+                      {LIVE_TRICK_STAT_LABELS.map(label => (
+                        <div key={label}>
+                          <div className="text-[9px] font-medium text-white/40 uppercase tracking-wider leading-tight">{label}</div>
+                          <div className="text-xs font-bold text-white tabular-nums">{rider.woo[label]}</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                  <div
+                    className="transition-opacity duration-500 ease-out"
+                    style={{ opacity: compareDetail ? 1 : 0, position: compareDetail ? 'static' : 'absolute', inset: 0, pointerEvents: compareDetail ? 'auto' : 'none' }}
+                  >
+                    {breakdown.areas.map((area, areaIdx) => {
+                      const areaScore = rider.areas[areaIdx];
+                      const areaMax = area.max;
+                      const styles = LIVE_AREA_STYLES[areaIdx];
+                      return (
+                        <div key={area.name} className="mb-2 last:mb-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="flex items-center gap-1 text-[9px] font-bold text-white/80 uppercase tracking-wide">
+                              <span className={`w-1.5 h-1.5 rounded-full ${styles.dot}`} />
+                              {area.name.split(' ')[0]}
+                              <span className="text-[8px] font-medium text-white/30 normal-case">×{Math.round((areaMax / 10) * 100)}%</span>
+                            </span>
+                            <span className={`text-[10px] font-bold tabular-nums ${styles.text}`}>{areaScore.toFixed(2)}/{areaMax.toFixed(2)}</span>
+                          </div>
+                          <div className="h-1 rounded-full bg-white/10 overflow-hidden mb-1">
+                            <div className={`h-full rounded-full ${styles.bar}`} style={{ width: `${Math.min(100, (areaScore / areaMax) * 100)}%` }} />
+                          </div>
+                          {getAreaParamBreakdown(area.name, areaScore, areaMax, rider.name).map(param => (
+                            <div key={param.label} className="flex items-center gap-1.5 text-[8px] text-white/50 mb-0.5">
+                              <span className="w-14 shrink-0 truncate">{param.label}</span>
+                              <div className="flex-1 h-0.5 rounded-full bg-white/10 overflow-hidden">
+                                <div className={`h-full rounded-full ${styles.bar} opacity-70`} style={{ width: `${Math.min(100, (param.score / param.max) * 100)}%` }} />
+                              </div>
+                              <span className="shrink-0 tabular-nums text-white/70">{param.score.toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             );
