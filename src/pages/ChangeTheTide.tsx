@@ -701,6 +701,27 @@ function WooSensorPanel() {
   }, [reducedMotion]);
 
   const [paused, setPaused] = useState(false);
+  const [manuallyPaused, setManuallyPaused] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const toggleVideoPlayback = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    userInteractedRef.current = true;
+    if (video.paused) {
+      video.play();
+      setManuallyPaused(false);
+    } else {
+      video.pause();
+      setManuallyPaused(true);
+    }
+  };
+
+  // Reset the manual-pause indicator whenever the jump changes, since the
+  // video element itself remounts (key={jump.videoSrc}) and starts fresh.
+  useEffect(() => {
+    setManuallyPaused(false);
+  }, [index]);
 
   const handleVideoEnded = () => {
     if (userInteractedRef.current || reducedMotion) return;
@@ -804,7 +825,11 @@ function WooSensorPanel() {
       <p className="text-xs font-semibold text-amber-400 mb-4">{jump.category} · {jump.trick}</p>
       <div className="flex flex-col lg:flex-row gap-6 items-stretch">
         {inView && (
-          <div className="rounded-lg overflow-hidden border border-border bg-black w-full lg:w-3/5 shrink-0" style={{ animation: 'whatIfPop 0.4s ease' }}>
+          <div
+            className={`relative rounded-lg overflow-hidden border border-border bg-black w-full lg:w-3/5 shrink-0 ${paused ? '' : 'cursor-pointer group'}`}
+            style={{ animation: 'whatIfPop 0.4s ease' }}
+            onClick={paused ? undefined : toggleVideoPlayback}
+          >
             {paused ? (
               <div className="w-full h-full flex items-center justify-center gap-4 aspect-video">
                 <img src={wooLogo} alt="Woo" className="h-6" style={{ filter: 'brightness(0) invert(1)' }} />
@@ -812,17 +837,36 @@ function WooSensorPanel() {
                 <img src={capitalLogo} alt="Capital.com" className="h-5" style={{ filter: 'brightness(0) invert(1)' }} />
               </div>
             ) : (
-              <video
-                key={jump.videoSrc}
-                src={jump.videoSrc}
-                className="w-full h-full object-cover"
-                muted
-                autoPlay
-                playsInline
-                preload="none"
-                onEnded={handleVideoEnded}
-                onTimeUpdate={handleVideoTimeUpdate}
-              />
+              <>
+                <video
+                  ref={videoRef}
+                  key={jump.videoSrc}
+                  src={jump.videoSrc}
+                  className="w-full h-full object-cover"
+                  muted
+                  autoPlay
+                  playsInline
+                  preload="none"
+                  onEnded={handleVideoEnded}
+                  onTimeUpdate={handleVideoTimeUpdate}
+                />
+                <div
+                  className="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity duration-200 pointer-events-none"
+                  style={{ opacity: manuallyPaused ? 1 : 0 }}
+                >
+                  <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur flex items-center justify-center border border-white/20">
+                    <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+                  </div>
+                </div>
+                <div
+                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                  style={{ display: manuallyPaused ? 'none' : 'flex' }}
+                >
+                  <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur flex items-center justify-center border border-white/20">
+                    <Pause className="w-5 h-5 text-white" fill="white" />
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}
