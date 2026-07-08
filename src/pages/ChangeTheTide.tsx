@@ -906,10 +906,9 @@ const LIVE_RIVAL_FIXED_WOO: Record<string, string> = {
   'Distance': '111 m',
   'Free Fall': '1.6s',
 };
-// Trick ID for Lorenzo's jump, matching the bigger, more extreme numbers
-// above — a triple where Leonardo's was a double.
-const LIVE_RIVAL_CATEGORY = 'KLTRFL';
-const LIVE_RIVAL_TRICK = 'Late Backroll Kiteloop Triple Flip Added Rotation';
+// Trick ID for Lorenzo's jump.
+const LIVE_RIVAL_CATEGORY = 'KLBRFL';
+const LIVE_RIVAL_TRICK = 'Late Backroll Kiteloop Flip Added Rotation';
 
 // Each judged sub-parameter within an area, with its real max value from
 // PARAMETER_CONFIG — used to split a known area score into a plausible
