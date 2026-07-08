@@ -61,6 +61,7 @@ const TRACK_RECORD: TimelineItem[] = [
       'Scaled the team from 3 to 50+ people.',
       'Led Product, Ops, and Customer Care teams.',
       'Managed P&L and implemented agile project management tools and routines.',
+      'Led development of a GPS-based ski tracking app, scaled to 400k+ users.',
     ],
   },
   {
