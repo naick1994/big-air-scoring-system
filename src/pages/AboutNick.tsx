@@ -234,8 +234,8 @@ export default function AboutNick() {
             I'm a digital enthusiast and sport lover born and raised in the Italian Alps, with the dream of
             transforming the competitive sport arena into something bigger than performance. Today I'm CEO
             &amp; Co-founder of Flight Mode, official Harlem Kitesurfing distributor for Italy and Spain,
-            CEO &amp; Co-founder of Ridesk (Watersport SaaS) and manager of pro athletes Lorenzo and Leonardo
-            Casati, two of the most iconic talents in international kitesurfing. Previously C-level
+            and manager of pro athletes Lorenzo and Leonardo Casati, two of the most iconic talents in
+            international kitesurfing. Previously C-level
             executive in scale-ups, I bring a hybrid mindset blending business, brand building and athlete
             development. Selected in Forbes Under 30, I believe in clarity, bold execution and authentic
             stories. As an avid believer in optimisation, I follow the motto: "done is better than perfect."

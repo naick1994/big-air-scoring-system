@@ -1328,7 +1328,7 @@ function LiveSpectatorDemo() {
 
 const SPECTATOR_BENEFIT_CARDS = [
   {
-    icon: TrendingUp, title: 'Live score, not a verdict', color: 'cyan',
+    icon: TrendingUp, title: 'The score builds live', color: 'cyan',
     desc: "The total builds area by area while the trick is still fresh, not as a single number dropped minutes later.",
   },
   {
