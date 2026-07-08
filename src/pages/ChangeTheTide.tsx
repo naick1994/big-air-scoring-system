@@ -906,6 +906,10 @@ const LIVE_RIVAL_FIXED_WOO: Record<string, string> = {
   'Distance': '111 m',
   'Free Fall': '1.6s',
 };
+// Trick ID for Lorenzo's jump, matching the bigger, more extreme numbers
+// above — a triple where Leonardo's was a double.
+const LIVE_RIVAL_CATEGORY = 'KLTRFL';
+const LIVE_RIVAL_TRICK = 'Late Backroll Kiteloop Triple Flip Added Rotation';
 
 // Each judged sub-parameter within an area, with its real max value from
 // PARAMETER_CONFIG — used to split a known area score into a plausible
@@ -1187,11 +1191,13 @@ function LiveSpectatorDemo() {
               name: 'Leonardo Casati', total: breakdown.total, areas: breakdown.areas.map(a => a.score),
               woo: Object.fromEntries(LIVE_TRICK_STAT_LABELS.map(l => [l, jumpMeta.stats.find(s => s.label === l)!.value])),
               photoUrl: GKA_BIG_AIR_MEN_RANKINGS_2026.find(r => r.athlete === 'Leonardo Casati')?.photoUrl,
+              category: jumpMeta.category, trick: jumpMeta.trick,
             },
             {
               name: LIVE_RIVAL_NAME, total: rival.averageScore, areas: rival.areas.map(a => a.score),
               woo: rivalWoo,
               photoUrl: GKA_BIG_AIR_MEN_RANKINGS_2026.find(r => r.athlete === LIVE_RIVAL_NAME)?.photoUrl,
+              category: LIVE_RIVAL_CATEGORY, trick: LIVE_RIVAL_TRICK,
             },
           ].map((rider, riderIdx, riders) => {
             const isWinner = rider.total >= riders[1 - riderIdx].total;
@@ -1203,6 +1209,8 @@ function LiveSpectatorDemo() {
                   )}
                   <div className="text-xs font-semibold text-white truncate">{rider.name}</div>
                 </div>
+                <div className="text-[9px] font-mono tracking-widest text-primary/80 uppercase mb-0.5">{rider.category}</div>
+                <div className="text-[10px] text-white/50 leading-tight mb-2 line-clamp-2">{rider.trick}</div>
                 <div className={`text-3xl font-bold tabular-nums mb-3 ${isWinner ? 'text-primary' : 'text-white/70'}`}>
                   {rider.total.toFixed(2)}
                 </div>
