@@ -2095,8 +2095,9 @@ export default function ChangeTheTide() {
               The data doesn't need to be <span className="text-primary">invented.</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-4">
-              Sensor technology like Woo's can already capture height, speed, and rotations on every jump.
-              A few new measurements, like kite angle, yank, and free fall, complete the picture.
+              Woo's sensors already fuse a 9-axis IMU with a barometric altimeter to read height, speed,
+              and rotations on every jump at 100Hz. Kite angle, yank power, and free fall come from that
+              same accelerometer and gyroscope data, just not read yet.
             </p>
             <div className="flex flex-wrap gap-2 mb-2">
               {['9-axis IMU', 'Barometric altimeter', '100Hz sampling', 'Bluetooth 5.0'].map(spec => (
