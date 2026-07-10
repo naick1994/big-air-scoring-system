@@ -21,7 +21,7 @@ const STATS = [
   { value: '110/110', label: 'Bocconi MSc in Management' },
 ];
 
-type TimelineItem = { title: string; org: string; period: string; desc: string[]; logo?: string; logoScale?: number };
+type TimelineItem = { title: string; org: string; orgUrl?: string; period: string; desc: string[]; logo?: string; logoScale?: number };
 
 const CURRENT_ROLES: TimelineItem[] = [
   {
@@ -56,7 +56,7 @@ const CURRENT_ROLES: TimelineItem[] = [
 
 const TRACK_RECORD: TimelineItem[] = [
   {
-    title: 'Chief Operating Officer', org: 'Snowit (Founding Team)', period: 'May 2019 - Feb 2025 · 5 yrs 10 mos', logo: logoSnowit,
+    title: 'Chief Operating Officer', org: 'Snowit (Founding Team)', orgUrl: 'https://snowit.ski/en', period: 'May 2019 - Feb 2025 · 5 yrs 10 mos', logo: logoSnowit,
     desc: [
       'Scaled Snowit to 400k+ users and the team from 3 to 50+ people.',
       'Led Product, Ops, and Customer Care teams.',
@@ -65,7 +65,7 @@ const TRACK_RECORD: TimelineItem[] = [
     ],
   },
   {
-    title: 'Co-Founder & Chief Operating Officer', org: 'Tribala', period: 'May 2023 - Feb 2025 · 1 yr 10 mos', logo: logoTribala,
+    title: 'Co-Founder & Chief Operating Officer', org: 'Tribala', orgUrl: 'https://tribala.travel/en', period: 'May 2023 - Feb 2025 · 1 yr 10 mos', logo: logoTribala,
     desc: [
       'Co-founded Tribala, taking it from the initial idea to launch and market validation.',
       'Built the brand identity and product strategy for a sports group travel marketplace.',
@@ -73,11 +73,11 @@ const TRACK_RECORD: TimelineItem[] = [
     ],
   },
   {
-    title: 'Digital & Innovation Ambassador', org: 'FNM S.p.A.', period: 'Sep 2022 - Oct 2024 · 2 yrs 2 mos', logo: logoFnm,
+    title: 'Digital & Innovation Ambassador', org: 'FNM S.p.A.', orgUrl: 'https://www.fnmgroup.it/', period: 'Sep 2022 - Oct 2024 · 2 yrs 2 mos', logo: logoFnm,
     desc: ['Member of Digital & Innovation Ambassadors to promote innovation within the FNM group.'],
   },
   {
-    title: 'Consultant', org: 'DGM Consulting Srl', period: 'Apr 2018 - Aug 2018 · 5 mos', logo: logoDgm,
+    title: 'Consultant', org: 'DGM Consulting Srl', orgUrl: 'https://dgmco.it/it/', period: 'Apr 2018 - Aug 2018 · 5 mos', logo: logoDgm,
     desc: ['Data analytics and strategic consulting in hospitality and industrial sectors.'],
   },
 ];
@@ -144,18 +144,47 @@ function Timeline({ items }: { items: TimelineItem[] }) {
           }}
         >
           {item.logo && (
-            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
-              <img
-                src={item.logo}
-                alt={`${item.org} logo`}
-                className="w-full h-full object-contain"
-                style={item.logoScale ? { transform: `scale(${item.logoScale})` } : undefined}
-              />
-            </div>
+            item.orgUrl ? (
+              <a
+                href={item.orgUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
+              >
+                <img
+                  src={item.logo}
+                  alt={`${item.org} logo`}
+                  className="w-full h-full object-contain"
+                  style={item.logoScale ? { transform: `scale(${item.logoScale})` } : undefined}
+                />
+              </a>
+            ) : (
+              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                <img
+                  src={item.logo}
+                  alt={`${item.org} logo`}
+                  className="w-full h-full object-contain"
+                  style={item.logoScale ? { transform: `scale(${item.logoScale})` } : undefined}
+                />
+              </div>
+            )
           )}
           <div className="min-w-0 flex-1">
             <div className="font-bold text-sm">{item.title}</div>
-            <div className="text-sm text-muted-foreground">{item.org}</div>
+            <div className="text-sm text-muted-foreground">
+              {item.orgUrl ? (
+                <a
+                  href={item.orgUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground underline decoration-dotted underline-offset-2 transition-colors"
+                >
+                  {item.org}
+                </a>
+              ) : (
+                item.org
+              )}
+            </div>
             <div className="text-xs text-muted-foreground mt-0.5">{item.period}</div>
             {item.desc.length > 0 && (
               <ul className="text-sm text-muted-foreground mt-2 space-y-1 list-disc list-inside">
