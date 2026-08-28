@@ -17,7 +17,7 @@ const routes = [
   {
     path: 'woo-tarifa',
     title: 'Woo Tarifa Test Sessions',
-    description: '2–4 Settembre 2026 · Balneario Beach Club Tarifa, with Lorenzo & Leonardo Casati.',
+    description: '2–4 September 2026 · Balneario Beach Club Tarifa.',
     image: `${SITE_URL}/woo-tarifa-og.jpg`,
   },
 ];

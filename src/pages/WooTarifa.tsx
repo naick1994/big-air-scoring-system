@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState, ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { DeployTag } from '@/components/DeployTag';
 import {
   MapPin, Wind, Home, Flag, Sparkles, Download, ExternalLink,
-  Camera, Waves, PartyPopper, Sunrise, Instagram, Activity, Ruler,
+  Camera, Waves, PartyPopper, Sunrise, Instagram, Activity, Ruler, Menu, ArrowUpRight,
 } from 'lucide-react';
+import nickAvatar from '@/assets/nick-avatar.jpg';
 import wooLogo from '@/assets/woo-logo.svg';
 import balnearioLogo from '@/assets/woo-tarifa/balneario-logo.png';
 import balnearioLogoWhite from '@/assets/woo-tarifa/balneario-logo-white.png';
@@ -33,6 +36,17 @@ const MAP_EMBED_URL = 'https://www.google.com/maps/d/embed?mid=1A9sb-kfoNEzI4vGU
 const WINDGURU_URL = 'https://www.windguru.cz/48780';
 const COZY_HOUSE_URL = 'https://www.tarifacozyhouse.com/search-results/?arrive=02-09-2026&depart=04-09-2026&guest=3&adult_guest=3&child_guest=0';
 const BALNEARIO_INSTAGRAM_URL = 'https://www.instagram.com/balneariotarifa/';
+
+const NAV_LINKS: { label: string; href: string; external?: boolean }[] = [
+  { label: 'Schedule', href: '#schedule' },
+  { label: 'Location', href: '#location' },
+  { label: 'Forecast', href: WINDGURU_URL, external: true },
+  { label: 'The test', href: '#measuring' },
+  { label: 'Setup', href: '#setup' },
+  { label: 'Activation ideas', href: '#activation-ideas' },
+  { label: 'Where to stay', href: '#where-to-stay' },
+  { label: 'Marketing assets', href: '#downloads' },
+];
 
 const PHOTOS = [
   { src: photo1, file: 'photo-1.jpg' },
@@ -62,8 +76,8 @@ const STAYS: Stay[] = [
     name: 'Penthouse | Pool | Parking',
     cover: stayPenthouse,
     price: '€536',
-    priceNote: 'totale, 2–4 set (2 notti)',
-    facts: '2 camere · 2 bagni · 4 ospiti · piscina · parking',
+    priceNote: 'total, 2–4 Sep (2 nights)',
+    facts: '2 bedrooms · 2 bathrooms · 4 guests · pool · parking',
     source: 'Tarifa Cozy House',
     url: 'https://www.tarifacozyhouse.com/properties/penthouse-pool-parking/?arrive=02-09-2026&depart=04-09-2026',
   },
@@ -71,8 +85,8 @@ const STAYS: Stay[] = [
     name: 'La Marina | Pool | Parking',
     cover: stayLaMarina,
     price: '€491',
-    priceNote: 'totale, 2–4 set (2 notti)',
-    facts: '2 camere · 2 bagni · 4 ospiti · piscina · parking',
+    priceNote: 'total, 2–4 Sep (2 nights)',
+    facts: '2 bedrooms · 2 bathrooms · 4 guests · pool · parking',
     source: 'Tarifa Cozy House',
     url: 'https://www.tarifacozyhouse.com/properties/la-marina-pool-parking/?arrive=02-09-2026&depart=04-09-2026',
   },
@@ -80,17 +94,17 @@ const STAYS: Stay[] = [
     name: 'La Casa Azul',
     cover: stayLaCasaAzul,
     price: '€578',
-    priceNote: 'totale, 2–4 set (2 notti)',
-    facts: '2 camere · 2 bagni · 4 ospiti · vista Atlantico',
+    priceNote: 'total, 2–4 Sep (2 nights)',
+    facts: '2 bedrooms · 2 bathrooms · 4 guests · Atlantic view',
     source: 'Tarifa Cozy House',
     url: 'https://www.tarifacozyhouse.com/properties/la-casa-azul/?arrive=02-09-2026&depart=04-09-2026',
   },
   {
-    name: 'Fantastico attico con piscina e vista sul mare',
+    name: 'Fantastic penthouse with pool and sea view',
     cover: stayRafa,
     price: '€774',
-    priceNote: 'totale, 1–5 set (4 notti)',
-    facts: '2 camere · 2 bagni · 4 ospiti · 4.97★ (39 recensioni)',
+    priceNote: 'total, 1–5 Sep (4 nights)',
+    facts: '2 bedrooms · 2 bathrooms · 4 guests · 4.97★ (39 reviews)',
     source: 'Airbnb · Host Rafa',
     url: 'https://www.airbnb.it/rooms/560866523099672825?adults=3&check_in=2026-09-01&check_out=2026-09-05',
   },
@@ -98,8 +112,8 @@ const STAYS: Stay[] = [
     name: 'Event Tarifa by QHotels - Adults Recommended',
     cover: stayEventTarifa,
     price: '€903',
-    priceNote: 'totale, 2 camere, 1–4 set (3 notti)',
-    facts: '4★ hotel · colazione inclusa · piscina · 9.1 Eccellente (1.177 recensioni)',
+    priceNote: 'total, 2 rooms, 1–4 Sep (3 nights)',
+    facts: '4★ hotel · breakfast included · pool · 9.1 Excellent (1,177 reviews)',
     source: 'Booking.com',
     url: 'https://www.booking.com/hotel/es/event-tarifa-by-qhotels-adults-recommended.it.html?checkin=2026-09-02&checkout=2026-09-04&group_adults=3&no_rooms=2&group_children=0',
   },
@@ -239,6 +253,52 @@ export default function WooTarifa() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* ───────── Nav ───────── */}
+      <nav className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="hidden sm:flex items-center gap-6 py-3 text-sm text-muted-foreground">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+                className="hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          <div className="flex sm:hidden items-center justify-end py-3">
+            <Sheet>
+              <SheetTrigger asChild>
+                <button type="button" aria-label="Open menu" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Menu className="w-5 h-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64">
+                <SheetTitle className="text-left mb-2">Menu</SheetTitle>
+                <div className="flex flex-col gap-1 mt-4">
+                  {NAV_LINKS.map((link) => (
+                    <SheetClose asChild key={link.label}>
+                      <a
+                        href={link.href}
+                        target={link.external ? '_blank' : undefined}
+                        rel={link.external ? 'noopener noreferrer' : undefined}
+                        className="py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors border-b border-border last:border-0"
+                      >
+                        {link.label}
+                      </a>
+                    </SheetClose>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </nav>
+
       {/* ───────── Hero ───────── */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent pointer-events-none" />
@@ -274,26 +334,10 @@ export default function WooTarifa() {
               transition: 'opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s',
             }}
           >
-            2–4 Settembre 2026
+            2–4 September 2026
           </p>
         </div>
       </section>
-
-      {/* ───────── Nav ───────── */}
-      <nav className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="flex items-center gap-6 overflow-x-auto py-3 text-sm text-muted-foreground [&>*]:shrink-0">
-            <a href="#schedule" className="hover:text-foreground transition-colors">Schedule</a>
-            <a href="#location" className="hover:text-foreground transition-colors">Location</a>
-            <a href={WINDGURU_URL} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Forecast</a>
-            <a href="#measuring" className="hover:text-foreground transition-colors">The test</a>
-            <a href="#setup" className="hover:text-foreground transition-colors">Setup</a>
-            <a href="#activation-ideas" className="hover:text-foreground transition-colors">Activation ideas</a>
-            <a href="#where-to-stay" className="hover:text-foreground transition-colors">Where to stay</a>
-            <a href="#downloads" className="hover:text-foreground transition-colors">Downloads</a>
-          </div>
-        </div>
-      </nav>
 
       {/* ───────── Schedule ───────── */}
       <section id="schedule" className="border-b border-border">
@@ -345,7 +389,7 @@ export default function WooTarifa() {
                     icon: Waves,
                   },
                   right: {
-                    title: 'AR goggles demo — The Future Of Kiting',
+                    title: 'AR goggles demo: The Future Of Kiting',
                     desc: 'Public demo of the Woo AR goggles at the beach club, open to everyone and promoted on social media.',
                     badge: 'Public',
                     icon: Sparkles,
@@ -394,7 +438,7 @@ export default function WooTarifa() {
               <div className="p-6">
                 <Button asChild>
                   <a href={MAP_URL} target="_blank" rel="noopener noreferrer">
-                    Apri in Google Maps <ExternalLink className="w-4 h-4" />
+                    Open in Google Maps <ExternalLink className="w-4 h-4" />
                   </a>
                 </Button>
               </div>
@@ -415,9 +459,9 @@ export default function WooTarifa() {
         <div className="container mx-auto px-4 py-20 max-w-5xl">
           <Reveal>
             <SectionLabel icon={Activity}>The test</SectionLabel>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">What we're measuring.</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Sensor Test Protocol.</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-8">
-              A private field test, not a competition. The first step toward feeding real sensor data into the Reductionist Scoring System — a single holistic score built from Woo sensor readings and reviewed video, on real jumps with real riders.
+              A private field test, not a competition. The first step toward feeding real sensor data into the Reductionist Scoring System, a single holistic score built from Woo sensor readings and reviewed video, on real jumps with real riders.
             </p>
           </Reveal>
 
@@ -436,10 +480,10 @@ export default function WooTarifa() {
               </Card>
               <Card className="p-6">
                 <Badge variant="outline" className="mb-3 gap-1"><Camera className="w-3 h-3" /> Video-checked</Badge>
-                <p className="text-xs text-muted-foreground mb-4">Not sensor-based — reviewed from the two fixed camera feeds.</p>
+                <p className="text-xs text-muted-foreground mb-4">Not sensor-based, reviewed from the two fixed camera feeds.</p>
                 <ul className="text-sm space-y-1.5">
-                  <li><span className="font-medium">Technicality</span> — rotations, rotation axis, board off, board flip, board spin</li>
-                  <li><span className="font-medium">Execution</span> — style, stability &amp; control, landing control, board control, kite control</li>
+                  <li><span className="font-medium">Technicality:</span> rotations, rotation axis, board off, board flip, board spin</li>
+                  <li><span className="font-medium">Execution:</span> style, stability &amp; control, landing control, board control, kite control</li>
                 </ul>
               </Card>
             </div>
@@ -496,17 +540,17 @@ export default function WooTarifa() {
             <SectionLabel icon={Sparkles}>Activation ideas</SectionLabel>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">Proposals, not locked in.</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-8">
-              A few ideas floating around for the public demo — nothing here is a confirmed plan yet.
+              A few ideas floating around for the public demo. Nothing here is a confirmed plan yet.
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               <Card className="p-5 border-dashed">
                 <Badge variant="outline" className="text-[10px] mb-3">Idea</Badge>
-                <p className="text-sm">Try the AR goggles — "The Future Of Kiting" — get a free beer.</p>
+                <p className="text-sm">Try the AR goggles ("The Future Of Kiting"), get a free beer or a discount.</p>
               </Card>
               <Card className="p-5 border-dashed">
                 <Badge variant="outline" className="text-[10px] mb-3">Idea</Badge>
                 <p className="text-sm">
-                  A discount for anyone who posts a story tagging{' '}
+                  A free beer or a discount for anyone who posts a story tagging{' '}
                   <a href={BALNEARIO_INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline underline-offset-2 hover:no-underline inline-flex items-center gap-0.5">
                     <Instagram className="w-3 h-3" /> @balneariotarifa
                   </a>{' '}
@@ -519,7 +563,7 @@ export default function WooTarifa() {
               </Card>
               <Card className="p-5 border-dashed">
                 <Badge variant="outline" className="text-[10px] mb-3 gap-1"><Activity className="w-3 h-3" /> Idea</Badge>
-                <p className="text-sm">Live "biggest jump of the day" leaderboard on the TV, pulled straight from the Woo sensor data — top rider wins a prize.</p>
+                <p className="text-sm">Live "biggest jump of the day" leaderboard on the TV, pulled straight from the Woo sensor data. Top rider wins a prize.</p>
               </Card>
             </div>
           </Reveal>
@@ -531,9 +575,9 @@ export default function WooTarifa() {
         <div className="container mx-auto px-4 py-20 max-w-5xl">
           <Reveal>
             <SectionLabel icon={Home}>Where to stay</SectionLabel>
-            <h2 className="text-3xl md:text-4xl font-bold mb-2">Alloggi raccomandati.</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">Recommended stays.</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mb-8">
-              Scelte in base a posizione e facilità di parcheggio. Prezzi e disponibilità verificati per le date dell'evento — link diretto per prenotare.
+              Picked for location and easy parking. Prices and availability verified for the event dates. Direct link to book.
             </p>
           </Reveal>
 
@@ -555,7 +599,7 @@ export default function WooTarifa() {
                       </div>
                       <Button asChild size="sm">
                         <a href={stay.url} target="_blank" rel="noopener noreferrer">
-                          Prenota <ExternalLink className="w-3.5 h-3.5" />
+                          Book <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       </Button>
                     </div>
@@ -572,7 +616,7 @@ export default function WooTarifa() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Vedi tutte le opzioni Tarifa Cozy House <ExternalLink className="w-3.5 h-3.5" />
+              See all Tarifa Cozy House options <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </Reveal>
         </div>
@@ -582,7 +626,7 @@ export default function WooTarifa() {
       <section id="downloads">
         <div className="container mx-auto px-4 py-20 max-w-5xl">
           <Reveal>
-            <SectionLabel icon={Download}>Downloads</SectionLabel>
+            <SectionLabel icon={Download}>Marketing assets</SectionLabel>
             <h2 className="text-3xl md:text-4xl font-bold mb-8">Logos &amp; photos.</h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
@@ -601,7 +645,7 @@ export default function WooTarifa() {
                   download="balneario-logos.zip"
                   className="inline-flex items-center gap-1 text-xs text-primary hover:underline underline-offset-2"
                 >
-                  <Download className="w-3 h-3" /> Loghi (.zip)
+                  <Download className="w-3 h-3" /> Logos (.zip)
                 </a>
               </Card>
             </div>
@@ -625,7 +669,19 @@ export default function WooTarifa() {
         </div>
       </section>
 
-      <DeployTag />
+      <footer className="border-t border-border py-8">
+        <div className="container mx-auto px-4 max-w-5xl text-center">
+          <Link
+            to="/about-nick"
+            className="inline-flex items-center gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <img src={nickAvatar} alt="Nicholas Baruffaldi" className="w-7 h-7 rounded-full object-cover border border-border" />
+            Built and prototyped by Nicholas Baruffaldi
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <DeployTag />
+      </footer>
     </div>
   );
 }
