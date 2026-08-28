@@ -7,7 +7,7 @@ import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/com
 import { DeployTag } from '@/components/DeployTag';
 import {
   MapPin, Wind, Home, Flag, Sparkles, Download, ExternalLink,
-  Camera, Waves, PartyPopper, Sunrise, Instagram, Activity, Ruler, Menu, ArrowUpRight,
+  Camera, Waves, Sunrise, Instagram, Activity, Ruler, Menu, ArrowUpRight,
 } from 'lucide-react';
 import nickAvatar from '@/assets/nick-avatar.jpg';
 import wooLogo from '@/assets/woo-logo.svg';
@@ -544,11 +544,9 @@ export default function WooTarifa() {
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               <Card className="p-5 border-dashed">
-                <Badge variant="outline" className="text-[10px] mb-3">Idea</Badge>
                 <p className="text-sm">Try the AR goggles ("The Future Of Kiting"), get a free beer or a discount.</p>
               </Card>
               <Card className="p-5 border-dashed">
-                <Badge variant="outline" className="text-[10px] mb-3">Idea</Badge>
                 <p className="text-sm">
                   A free beer or a discount for anyone who posts a story tagging{' '}
                   <a href={BALNEARIO_INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline underline-offset-2 hover:no-underline inline-flex items-center gap-0.5">
@@ -558,11 +556,9 @@ export default function WooTarifa() {
                 </p>
               </Card>
               <Card className="p-5 border-dashed">
-                <Badge variant="outline" className="text-[10px] mb-3 gap-1"><PartyPopper className="w-3 h-3" /> Idea</Badge>
                 <p className="text-sm">Evening activation + party at the Balneario to wrap up Day 2.</p>
               </Card>
               <Card className="p-5 border-dashed">
-                <Badge variant="outline" className="text-[10px] mb-3 gap-1"><Activity className="w-3 h-3" /> Idea</Badge>
                 <p className="text-sm">Live "biggest jump of the day" leaderboard on the TV, pulled straight from the Woo sensor data. Top rider wins a prize.</p>
               </Card>
             </div>
