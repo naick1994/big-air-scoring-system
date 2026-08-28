@@ -428,11 +428,11 @@ export default function WooTarifa() {
           </Reveal>
 
           <Reveal>
-            <Card className="overflow-hidden shadow-[var(--shadow-card)]">
+            <Card className="overflow-hidden shadow-[var(--shadow-card)] -mx-4 sm:mx-0 rounded-none sm:rounded-lg">
               <iframe
                 src={MAP_EMBED_URL}
                 title="Map of the Balneario Beach Club Tarifa area with pins for the spot, fixed cameras, and parking"
-                className="w-full aspect-video border-0"
+                className="w-full aspect-[3/4] sm:aspect-video border-0"
                 loading="lazy"
               />
               <div className="p-6">
