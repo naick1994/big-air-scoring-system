@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { FadeIn } from '@/components/FadeIn';
 import { DeployTag } from '@/components/DeployTag';
 import {
-  Wind, Users, Wrench, MapPin,
+  Users, MapPin, ArrowUpRight,
   Target, MessagesSquare, Bug, PenTool, Megaphone, TrendingUp, Workflow,
+  Layers, RefreshCw, Gauge, Network, Clock, Heart,
 } from 'lucide-react';
+import nickAvatar from '@/assets/nick-avatar.jpg';
 import logoFlightMode from '@/assets/logo-flight-mode.jpg';
 import logoHarlem from '@/assets/logo-harlem.jpg';
 import logoSnowit from '@/assets/logo-snowit.jpg';
@@ -79,6 +80,8 @@ const HERO_STATS: HeroStat[] = [
   { value: 1, label: 'tracking app built end-to-end' },
   { value: 3, label: 'companies co-founded' },
   { value: 6, prefix: '€', suffix: 'M', label: 'Series A raised' },
+  { value: 30, prefix: 'Forbes ', label: 'Under 30 (2023)' },
+  { value: 150, suffix: 'x', label: 'GMV growth in 7 years' },
 ];
 
 type TimelineItem = { title: string; org: string; orgUrl?: string; period: string; desc: string[]; logo?: string; logoScale?: number };
@@ -88,13 +91,14 @@ const CURRENT_ROLES: TimelineItem[] = [
   {
     title: 'Co-Founder & CEO', org: 'Flight Mode', period: 'Mar 2025 - Present', logo: logoFlightMode,
     desc: [
-      'Objective: innovate and revolutionise the kitesurf industry.',
-      'Developing market growth initiatives for the global wind-powered sports ecosystem.',
+      'Exclusive distributor for Harlem Kitesurfing (NL) in Italy and Spain: built the B2B retailer network from zero and set pricing architecture and channel strategy for a premium positioning.',
+      'Full P&L across distribution, ecommerce and physical retail; led the launch of a flagship store in Tarifa.',
+      'Designed and implemented the end-to-end commerce and ERP ecosystem (Odoo), including B2B portal, D2C ecommerce, POS, inventory and accounting across two tax jurisdictions.',
     ],
   },
   {
     title: 'Manager', org: 'Casati Brothers', period: 'Mar 2025 - Present', logo: logoCasatiBrothers, logoScale: 2.1,
-    desc: ['Athlete representation for two World Champion kiteboarders.'],
+    desc: ['Commercial representation of two World Champion kiteboarders: sponsorship negotiation, brand partnerships and multi-year commercial agreements.'],
   },
   {
     title: 'Italy and Spain Distributor, moving to Agent', org: 'Harlem Kitesurfing', period: 'Mar 2025 - Present', logo: logoHarlem,
@@ -102,7 +106,6 @@ const CURRENT_ROLES: TimelineItem[] = [
       'Also taking on a Strategic Transformation Advisor seat at Harlem HQ: direction, prioritization, and business impact, not day-to-day execution.',
       'Scope spans AI & automation strategy, customer experience transformation, strategic partnerships, and athlete development & branding.',
       "Sets the quarterly OKR framework directly with Harlem's CEO and leadership.",
-      "That same seat gives WOO a direct line into Harlem's own strategic roadmap and partnership decisions.",
     ],
   },
 ];
@@ -112,18 +115,23 @@ const TRACK_RECORD: TimelineItem[] = [
   {
     title: 'Chief Operating Officer & Chief Product Officer', org: 'Snowit (Founding Team)', orgUrl: 'https://snowit.ski/en', period: 'May 2019 - Feb 2025', logo: logoSnowit,
     desc: [
+      'Leading travel-tech platform for winter sports, integrating ski passes, equipment rental, lessons, accommodation and other mountain services into a single digital customer journey. Snowit also provides white-label e-commerce solutions for ski resorts and tourism destinations.',
+      'Grew GMV from €200k in the first year to €30M, a 150x increase over seven years.',
       'Scaled Snowit to 400k+ users and the team from 3 to 50+ people.',
-      'Led Product, Ops, and Customer Care teams.',
-      'Managed P&L and implemented agile project management tools and routines.',
+      'Named to Forbes 30 Under 30 for this work.',
+      'Led Product, Operations and Customer Care with 4 direct reports and 20 people across the three teams; defined the new operating model, and the app holds a 4.8-star rating, credited in part to that work.',
+      'Owned the P&L and built the operating model across 3 markets and 300 partner resorts and suppliers, implementing agile project management tools and routines.',
       'Led development of a GPS-based ski tracking app.',
       'Owned product across the Snowit marketplace, the Snowit app, backoffice, 27 white-label sites (each with third-party API integrations), the Bikeit site, the Discovera site, and the tracking app (later merged into the Snowit app).',
       'Ran cross-team PM across the tech team and my own Ops team.',
     ],
   },
   {
-    title: 'Co-Founder, Chief Operating Officer & Chief Product Officer', org: 'Tribala', orgUrl: 'https://tribala.travel/en', period: 'May 2023 - Feb 2025', logo: logoTribala,
+    title: 'Chief Operating Officer & Chief Product Officer', org: 'Tribala (Founding Team)', orgUrl: 'https://tribala.travel/en', period: 'May 2023 - Feb 2025', logo: logoTribala,
     desc: [
       'Co-founded Tribala, taking it from the initial idea to launch and market validation.',
+      'Reached €500k in revenue with 480 travellers across 50+ departures, validating the model across four sports and an inventory of 50+ packages.',
+      'Built the acquisition engine: ~10,000 leads at €7 cost per lead, 16.5% landing page conversion, €108 customer acquisition cost, and a community grown from 0 to 14,400 followers.',
       'Built the brand identity and product strategy for a sports group travel marketplace.',
       'Led operations, partnerships, and growth.',
     ],
@@ -165,19 +173,39 @@ const SNOWIT_CPO = [
 
 const WHY_ME_NOW = [
   {
-    icon: Wind,
-    title: 'A kiter, not just someone who manages kiters',
-    desc: 'Can translate what a rider feels on the water into something a product team can build.',
+    icon: Layers,
+    title: 'Tech and kite are already my two worlds',
+    desc: "Technology and product are where I've built my career. Kite is the industry I know best and care most about. WOO sits exactly at that intersection: product, technology, data and the sport I love.",
+  },
+  {
+    icon: RefreshCw,
+    title: "I've already lived the product loop",
+    desc: "At Snowit, I owned a tracking product hands-on, from product direction and testing to user feedback, development and release. At Tribala, I built the product and brand from the ground up as co-founder. Different sport, different sensor, but a very similar product loop.",
+  },
+  {
+    icon: Gauge,
+    title: "I've been working on bringing data into kiteboarding",
+    desc: "I've been exploring how data and technology could become more integrated into kitesurfing, even before WOO was part of the picture. The Big Air Scoring System is one example, exploring how sensor data could make judging more objective and measurable.",
   },
   {
     icon: Users,
-    title: 'Real trust with the riders who matter here',
-    desc: 'Lorenzo, Leonardo, plus a wider circle across Italy, Spain, and internationally who talk straight, not through a filter.',
+    title: 'Close to the riders pushing the sport forward',
+    desc: 'I work directly with Lorenzo, Leonardo and Renato, giving me a front-row view of how top riders train, compete and use technology. I can bring that perspective directly into product decisions.',
   },
   {
-    icon: Wrench,
-    title: 'A second channel, from kite design',
-    desc: "Moving into a Strategic Transformation role at Harlem opens a second feedback channel. Ralph and Aaron, Harlem's kite designers (Ralph has 25 years in this), will use WOO sensor data to develop new kites, and will feed back on the WOO product itself. Same kind of input as Lorenzo and Leo, from a kite-design angle instead of riding.",
+    icon: Network,
+    title: 'A real-world environment to build and test',
+    desc: 'Through Flight Mode, the shop, school and wider network around Tarifa, I have a real-world environment where products can be tested, demonstrated and experienced by riders and the wider community.',
+  },
+  {
+    icon: Clock,
+    title: "I'm deliberately moving away from day-to-day execution",
+    desc: "I'm moving from distribution to an agency model with Harlem, while delegating the operational side of the distribution, shop and school. I'm keeping the relationships and market access, while creating more space for the kind of product and strategic work where I can have the most impact.",
+  },
+  {
+    icon: Heart,
+    title: 'I do my best work when passion and work overlap',
+    desc: "I've always chosen to build my work around things I'm genuinely passionate about. When I believe in what I'm building, I bring a different level of energy, curiosity and ownership. WOO sits right in that space.",
   },
 ];
 
@@ -189,42 +217,79 @@ const COLLABORATION_AREAS = [
     icon: Target,
     label: 'Product',
     bullets: [
-      'Turning rider and designer feedback into a real, prioritized product roadmap — not a feedback inbox.',
+      'Turning user, rider and market feedback into a clear, prioritized product roadmap.',
       "Testing product releases hands-on before they reach riders, the way I did with Snowit's tracking algorithm.",
-      'Keeping product decisions connected to marketing and business priorities, not built in a vacuum.',
-      'Bringing an outside view of where the product sits against the rest of the market — not theoretical, from being inside those conversations already.',
-      'Turning feedback into trackable outcomes — clear metrics for what "better" actually means, not just anecdotes.',
+      'Connecting product decisions to business, marketing and user priorities.',
+      'Bringing an outside view of the market and challenging assumptions from inside the product conversation.',
+      'Turning feedback into measurable outcomes, with clear signals for what "better" actually means.',
     ],
   },
   {
     icon: Workflow,
     label: 'Process & Delivery',
     bullets: [
-      'Bringing structure to how feedback becomes a decision becomes a shipped change — a repeatable process, not ad hoc.',
-      'Coordinating across product, dev, and marketing so nothing falls through the cracks.',
-      'A simple prioritization rhythm — a small number of clear priorities at a time, reviewed regularly, instead of everything happening at once.',
-      "Basic internal tooling so teams aren't working off disconnected spreadsheets and chats — the kind of connective process work I built at Snowit and proposed for Harlem.",
-      'Flagging risks and bottlenecks early, before they become blockers for the wider team.',
+      'Creating a clear path from feedback to decision to shipped change.',
+      'Connecting product, development and marketing around the same priorities.',
+      'Creating a simple rhythm for priorities, decisions and follow-through.',
+      'Building simple internal tools that create a shared source of truth and reduce friction across the team.',
+      "Making sure important signals don't get lost between teams, conversations and execution.",
     ],
   },
 ];
 
-type EcoNode = { id: string; name: string; desc: string; url?: string };
+// Same ambient "star field" as ChangeTheTide.tsx's DATA_DOTS, recolored to
+// WOO's purple instead of the main site's yellow, for the same sense of
+// constant, subtle movement behind the page.
+const DATA_DOTS = [
+  { x: 6, y: 14, size: 2.5, delay: 0.2, duration: 7, dx: 90, dy: -50 },
+  { x: 13, y: 32, size: 2, delay: 1.4, duration: 8.5, dx: -70, dy: 60 },
+  { x: 9, y: 55, size: 2, delay: 2.6, duration: 6.5, dx: 110, dy: 30 },
+  { x: 17, y: 74, size: 2.5, delay: 0.6, duration: 9, dx: -60, dy: -80 },
+  { x: 4, y: 88, size: 2, delay: 1.9, duration: 7.5, dx: 80, dy: -40 },
+  { x: 24, y: 18, size: 2, delay: 3.1, duration: 6, dx: -100, dy: 40 },
+  { x: 28, y: 46, size: 2.5, delay: 0.3, duration: 8, dx: 60, dy: 90 },
+  { x: 21, y: 62, size: 2, delay: 2.2, duration: 7.2, dx: -80, dy: -60 },
+  { x: 33, y: 85, size: 2, delay: 1.1, duration: 6.8, dx: 100, dy: -30 },
+  { x: 39, y: 10, size: 2, delay: 2.8, duration: 9.2, dx: -50, dy: 100 },
+  { x: 45, y: 28, size: 2, delay: 0.8, duration: 6.3, dx: 70, dy: -70 },
+  { x: 41, y: 92, size: 2.5, delay: 3.4, duration: 8.1, dx: -110, dy: -20 },
+  { x: 52, y: 15, size: 2, delay: 1.6, duration: 7.7, dx: 40, dy: 110 },
+  { x: 58, y: 40, size: 2, delay: 2.4, duration: 6.6, dx: -90, dy: 50 },
+  { x: 55, y: 68, size: 2.5, delay: 0.5, duration: 8.9, dx: 100, dy: 40 },
+  { x: 63, y: 85, size: 2, delay: 1.8, duration: 7.1, dx: -60, dy: -100 },
+  { x: 68, y: 22, size: 2.5, delay: 3.0, duration: 6.4, dx: 80, dy: 60 },
+  { x: 72, y: 50, size: 2, delay: 0.9, duration: 8.4, dx: -100, dy: -40 },
+  { x: 76, y: 12, size: 2, delay: 2.1, duration: 7.4, dx: 50, dy: 90 },
+  { x: 79, y: 64, size: 2.5, delay: 1.3, duration: 6.9, dx: -70, dy: 70 },
+  { x: 83, y: 34, size: 2, delay: 2.7, duration: 8.6, dx: 90, dy: -50 },
+  { x: 87, y: 78, size: 2, delay: 0.4, duration: 7.3, dx: -80, dy: -60 },
+  { x: 91, y: 20, size: 2.5, delay: 1.7, duration: 6.2, dx: 60, dy: 100 },
+  { x: 94, y: 48, size: 2, delay: 2.9, duration: 8.8, dx: -110, dy: 20 },
+  { x: 96, y: 90, size: 2, delay: 0.7, duration: 7.6, dx: 70, dy: -80 },
+  { x: 89, y: 58, size: 2, delay: 3.3, duration: 6.7, dx: -50, dy: 90 },
+  { x: 62, y: 6, size: 2, delay: 1.0, duration: 9.1, dx: 100, dy: 30 },
+  { x: 35, y: 65, size: 2, delay: 2.5, duration: 7.9, dx: -90, dy: -50 },
+  { x: 47, y: 80, size: 2, delay: 0.2, duration: 6.1, dx: 80, dy: 60 },
+  { x: 14, y: 44, size: 2, delay: 1.5, duration: 8.3, dx: -70, dy: -90 },
+];
+
+type EcoNode = { id: string; name: string; short: string; desc: string; url?: string };
 
 // Eleven nodes, evenly spaced around Nick — same distance, same angle
-// increment.
+// increment. `short` is what fits on the small on-map card at every
+// breakpoint; `name` (the full label) only shows in the reveal panel.
 const ECO_NODES: EcoNode[] = [
-  { id: 'casati-brothers', name: 'Casati Brothers', desc: 'Two World Champion kiteboarders I manage, already testing WOO.' },
-  { id: 'flight-mode', name: 'Flight Mode', desc: 'The operating company behind all of this.' },
-  { id: 'tarifa', name: 'Connections & Ecosystem in Tarifa', desc: "The wider network in one of the world's kite capitals — Balneario Beach Club, a newly-opened gym, and more." },
-  { id: 'harlem-agency', name: 'Harlem Agency Network', desc: 'The dealer and school network across Italy and Spain that trusts me completely.' },
-  { id: 'big-air', name: 'Big Air Scoring System', desc: "The scoring reform I'm building for the sport, independent but sensor-informed.", url: `${import.meta.env.BASE_URL}` },
-  { id: 'tribala', name: 'Tribala', desc: 'A licensed tour operator running kite clinics worldwide with my own riders and ambassadors coaching, Lorenzo included as a sponsored athlete.', url: 'https://tribala.travel/en' },
-  { id: 'lorenzo-shop', name: 'Lorenzo Casati Shop', desc: 'The flagship shop in Tarifa.' },
-  { id: 'casati-harlem-school', name: 'Casati Harlem Pro School', desc: "The kite school I'm buying and rebranding in Tarifa." },
-  { id: 'harlem-clubhouse', name: 'Harlem Clubhouse', desc: 'The community events hub in Tarifa.' },
-  { id: 'harlem-advisor', name: 'Harlem Advisor Role', desc: 'Strategic Transformation Advisor at Harlem HQ — direction and prioritization, not day-to-day execution.' },
-  { id: 'ralph-aaron', name: 'Ralph & Aaron', desc: "Harlem's kite designers (25 years of experience), feeding kite-design data back into product." },
+  { id: 'casati-brothers', name: 'Casati Brothers', short: 'Casati Brothers', desc: 'Two World Champion kiteboarders I manage, already testing WOO.' },
+  { id: 'flight-mode', name: 'Flight Mode', short: 'Flight Mode', desc: 'The operating company behind all of this.' },
+  { id: 'tarifa', name: 'Connections & Ecosystem in Tarifa', short: 'Tarifa ecosystem', desc: "The wider network in one of the world's kite capitals — Balneario Beach Club, a newly-opened gym, and more." },
+  { id: 'harlem-agency', name: 'Harlem Agency Network', short: 'Harlem network', desc: 'The dealer and school network across Italy and Spain that trusts me completely.' },
+  { id: 'big-air', name: 'Big Air Scoring System', short: 'Scoring System', desc: "The scoring reform I'm building for the sport, independent but sensor-informed.", url: `${import.meta.env.BASE_URL}` },
+  { id: 'tribala', name: 'Tribala', short: 'Tribala', desc: 'A licensed tour operator running kite clinics worldwide with my own riders and ambassadors coaching, Lorenzo included as a sponsored athlete.', url: 'https://tribala.travel/en' },
+  { id: 'lorenzo-shop', name: 'Lorenzo Casati Shop', short: 'Casati Shop', desc: 'The flagship shop in Tarifa.' },
+  { id: 'casati-harlem-school', name: 'Casati Harlem Pro School', short: 'Harlem School', desc: "The kite school I'm buying and rebranding in Tarifa." },
+  { id: 'harlem-clubhouse', name: 'Harlem Clubhouse', short: 'Clubhouse', desc: 'The community events hub in Tarifa.' },
+  { id: 'harlem-advisor', name: 'Harlem Advisor Role', short: 'Harlem Advisor', desc: 'Strategic Transformation Advisor at Harlem HQ — direction and prioritization, not day-to-day execution.' },
+  { id: 'ralph-aaron', name: 'Ralf & Aaron', short: 'Ralf & Aaron', desc: "Harlem's kite designers (25 years of experience), feeding kite-design data back into product." },
 ];
 
 // A handful of real, meaningful cross-branch links — not a full mesh.
@@ -322,10 +387,11 @@ function EcoConnection({ d, seen, delayMs, fast }: { d: string; seen: boolean; d
   );
 }
 
-// Full ecosystem: a fully meshed network on desktop — every node connects
-// to every other — grouped accordion on mobile. Clicking a node only opens
-// its description below; it never changes how any line or other node
-// looks, since the point is that the whole mesh is already equally alive.
+// Full ecosystem: a fully meshed network — every node connects to every
+// other — same interactive map at every breakpoint, just scaled down on
+// small screens. Clicking a node only opens its description below; it
+// never changes how any line or other node looks, since the point is that
+// the whole mesh is already equally alive.
 function EcosystemNetwork() {
   const { ref, seen } = useInViewOnce<HTMLDivElement>();
   const [selected, setSelected] = useState<string | null>(null);
@@ -345,8 +411,8 @@ function EcosystemNetwork() {
 
   return (
     <div ref={ref}>
-      {/* ── Desktop: radial network ── */}
-      <div className="relative aspect-square w-full max-w-3xl mx-auto hidden md:block">
+      {/* ── Radial network, same at every breakpoint ── */}
+      <div className="relative aspect-square w-full max-w-3xl mx-auto">
         <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full">
           <defs>
             <linearGradient id="ecosystemLine" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -364,48 +430,49 @@ function EcosystemNetwork() {
         </svg>
 
         <motion.div
-          className={`absolute ${GRADIENT_BG} text-white rounded-full w-20 h-20 flex items-center justify-center text-center text-base font-bold z-10`}
+          className={`absolute ${GRADIENT_BG} text-white rounded-full w-11 h-11 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center text-center text-[10px] sm:text-sm md:text-base font-bold z-10`}
           style={{
             left: '50%', top: '50%', x: '-50%', y: '-50%', fontFamily: GRADIENT_FONT,
             boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
           }}
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={seen ? { opacity: 1, scale: 1 } : {}}
-          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+          initial={{ opacity: 0, scale: 0.3, rotate: -25 }}
+          animate={seen ? { opacity: 1, scale: 1, rotate: 0 } : {}}
+          transition={{ type: 'spring', stiffness: 240, damping: 16 }}
         >
           Nick
         </motion.div>
 
         {nodeGeo.map((node, i) => {
           const active = selected === node.id;
+          const angleRad = ((i / n) * 360 - 90) * (Math.PI / 180);
+          const flyX = Math.cos(angleRad) * 90;
+          const flyY = Math.sin(angleRad) * 90;
           return (
-            <motion.button
-              key={node.id}
-              type="button"
-              onClick={() => setSelected((s) => (s === node.id ? null : node.id))}
-              className="absolute z-10 w-[112px] min-h-[50px] flex items-center justify-center text-center px-3 py-2 rounded-2xl border bg-card/95 backdrop-blur-sm text-[11px] font-semibold leading-snug"
-              style={{
-                left: `${node.x}%`,
-                top: `${node.y}%`,
-                x: '-50%',
-                y: '-50%',
-                borderColor: active ? '#05F998' : 'var(--border)',
-                boxShadow: active ? '0 0 22px rgba(5,249,152,0.5), 0 6px 18px rgba(0,0,0,0.35)' : '0 2px 10px rgba(0,0,0,0.25)',
-              }}
-              initial={{ opacity: 0, scale: 0.6 }}
-              animate={seen ? { opacity: 1, scale: 1 } : {}}
-              transition={{ type: 'spring', stiffness: 220, damping: 18, delay: seen ? 0 : 0.15 + i * 0.05 }}
-              whileHover={{ scale: 1.08, y: '-54%' }}
-              whileTap={{ scale: 0.97 }}
-            >
-              {node.name}
-            </motion.button>
+            <div key={node.id} className="absolute z-10" style={{ left: `${node.x}%`, top: `${node.y}%`, transform: 'translate(-50%, -50%)' }}>
+              <motion.button
+                type="button"
+                onClick={() => setSelected((s) => (s === node.id ? null : node.id))}
+                className="w-[62px] sm:w-[88px] md:w-[112px] min-h-[30px] sm:min-h-[42px] md:min-h-[50px] flex items-center justify-center text-center px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 rounded-lg sm:rounded-xl md:rounded-2xl border bg-card/95 backdrop-blur-sm text-[7px] sm:text-[9px] md:text-[11px] font-semibold leading-snug"
+                style={{
+                  borderColor: active ? '#05F998' : 'var(--border)',
+                  boxShadow: active ? '0 0 22px rgba(5,249,152,0.5), 0 6px 18px rgba(0,0,0,0.35)' : '0 2px 10px rgba(0,0,0,0.25)',
+                }}
+                initial={{ opacity: 0, scale: 0.4, x: flyX, y: flyY }}
+                animate={seen ? { opacity: 1, scale: 1, x: 0, y: 0 } : {}}
+                transition={{ type: 'spring', stiffness: 180, damping: 16, delay: seen ? 0 : 0.2 + i * 0.06 }}
+                whileHover={{ scale: 1.08, y: -3 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <span className="truncate w-full block sm:hidden">{node.short}</span>
+                <span className="hidden sm:block">{node.name}</span>
+              </motion.button>
+            </div>
           );
         })}
       </div>
 
-      {/* ── Desktop: click-to-reveal panel ── */}
-      <div className="hidden md:block max-w-xl mx-auto mt-10 min-h-[96px]">
+      {/* ── Click-to-reveal panel ── */}
+      <div className="max-w-xl mx-auto mt-6 sm:mt-10 min-h-[96px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={selected ?? 'default'}
@@ -430,64 +497,31 @@ function EcosystemNetwork() {
                 )}
               </Card>
             ) : (
-              <p className="text-center text-sm text-muted-foreground">Click a node to explore.</p>
+              <p className="text-center text-sm text-muted-foreground">Tap a node to explore.</p>
             )}
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {/* ── Mobile: vertical list as accordion ── */}
-      <div className="md:hidden">
-        <div
-          className={`inline-flex items-center rounded-full ${GRADIENT_BG} text-white px-4 py-2 text-sm font-bold mb-4`}
-          style={{ fontFamily: GRADIENT_FONT }}
-        >
-          Nick
-        </div>
-        <div className="space-y-2 border-l-2 border-border pl-4 ml-4">
-          {ECO_NODES.map((node) => {
-            const active = selected === node.id;
-            return (
-              <div key={node.id} className="rounded-lg border border-border overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setSelected((s) => (s === node.id ? null : node.id))}
-                  className="w-full flex items-center justify-between gap-2 bg-card px-3 py-2.5 text-left text-sm font-semibold"
-                >
-                  {node.name}
-                  <span className={`text-muted-foreground text-lg leading-none transition-transform duration-200 ${active ? 'rotate-45' : ''}`}>+</span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {active && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-3 py-2.5 text-sm text-muted-foreground leading-relaxed border-t border-border">
-                        {node.desc}
-                        {node.url && (
-                          <a
-                            href={node.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block mt-1.5 text-xs font-semibold text-[#05F998]"
-                          >
-                            Visit →
-                          </a>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
+  );
+}
+
+// Punchier alternative to FadeIn — spring-based scale+rise instead of a
+// plain fade, used throughout this page for a much more dynamic scroll
+// feel. FadeIn itself stays untouched since it's shared site-wide.
+function PopIn({
+  children, delay = 0, y = 30, scale = 0.9, duration, className,
+}: { children: React.ReactNode; delay?: number; y?: number; scale?: number; duration?: number; className?: string }) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y, scale }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '50px', amount: 0 }}
+      transition={{ type: 'spring', stiffness: 220, damping: 18, delay }}
+    >
+      {children}
+    </motion.div>
   );
 }
 
@@ -506,73 +540,102 @@ function GradientHeading({ children, className }: { children: string; className?
   );
 }
 
-// Same logo/title/org/period layout as AboutNick.tsx's Timeline component.
+// Same logo/title/org/period layout as AboutNick.tsx's Timeline component,
+// but collapsed to an accordion here: only title/org/period show by
+// default, bullets reveal on click. Same interaction pattern as the
+// mobile Ecosystem/collaboration accordions elsewhere on this page.
 function Timeline({ items }: { items: TimelineItem[] }) {
   const { ref, seen } = useInViewOnce<HTMLDivElement>();
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
     <div ref={ref} className="divide-y divide-border border-t border-border">
-      {items.map((item, i) => (
-        <div
-          key={item.title + item.org}
-          className="flex gap-4 py-5"
-          style={{
-            opacity: seen ? 1 : 0,
-            transform: seen ? 'translateX(0)' : 'translateX(-12px)',
-            transition: `opacity 0.5s ease ${i * 90}ms, transform 0.5s ease ${i * 90}ms`,
-          }}
-        >
-          {item.logo && (
-            item.orgUrl ? (
-              <a
-                href={item.orgUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
-              >
-                <img
-                  src={item.logo}
-                  alt={`${item.org} logo`}
-                  className="w-full h-full object-contain"
-                  style={item.logoScale ? { transform: `scale(${item.logoScale})` } : undefined}
-                />
-              </a>
-            ) : (
-              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
-                <img
-                  src={item.logo}
-                  alt={`${item.org} logo`}
-                  className="w-full h-full object-contain"
-                  style={item.logoScale ? { transform: `scale(${item.logoScale})` } : undefined}
-                />
-              </div>
-            )
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="font-bold text-sm">{item.title}</div>
-            <div className="text-sm text-muted-foreground">
-              {item.orgUrl ? (
+      {items.map((item, i) => {
+        const hasDesc = item.desc.length > 0;
+        const open = expanded === i;
+        return (
+          <motion.div
+            key={item.title + item.org}
+            className={`flex gap-4 py-5 ${hasDesc ? 'cursor-pointer' : ''}`}
+            initial={{ opacity: 0, x: -36, scale: 0.97 }}
+            animate={seen ? { opacity: 1, x: 0, scale: 1 } : {}}
+            transition={{ type: 'spring', stiffness: 240, damping: 20, delay: i * 0.07 }}
+            onClick={hasDesc ? () => setExpanded((e) => (e === i ? null : i)) : undefined}
+          >
+            {item.logo && (
+              item.orgUrl ? (
                 <a
                   href={item.orgUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-foreground underline decoration-dotted underline-offset-2 transition-colors"
+                  className="w-12 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
                 >
-                  {item.org}
+                  <img
+                    src={item.logo}
+                    alt={`${item.org} logo`}
+                    className="w-full h-full object-contain"
+                    style={item.logoScale ? { transform: `scale(${item.logoScale})` } : undefined}
+                  />
                 </a>
               ) : (
-                item.org
+                <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                  <img
+                    src={item.logo}
+                    alt={`${item.org} logo`}
+                    className="w-full h-full object-contain"
+                    style={item.logoScale ? { transform: `scale(${item.logoScale})` } : undefined}
+                  />
+                </div>
+              )
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-bold text-sm">{item.title}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {item.orgUrl ? (
+                      <a
+                        href={item.orgUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="hover:text-foreground underline decoration-dotted underline-offset-2 transition-colors"
+                      >
+                        {item.org}
+                      </a>
+                    ) : (
+                      item.org
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{item.period}</div>
+                </div>
+                {hasDesc && (
+                  <span className={`text-muted-foreground text-lg leading-none shrink-0 transition-transform duration-200 ${open ? 'rotate-45' : ''}`}>
+                    +
+                  </span>
+                )}
+              </div>
+              {hasDesc && (
+                <AnimatePresence initial={false}>
+                  {open && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      className="overflow-hidden"
+                    >
+                      <ul className="text-sm text-muted-foreground mt-2 space-y-1 list-disc list-inside">
+                        {item.desc.map((line) => <li key={line}>{line}</li>)}
+                      </ul>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               )}
             </div>
-            <div className="text-xs text-muted-foreground mt-0.5">{item.period}</div>
-            {item.desc.length > 0 && (
-              <ul className="text-sm text-muted-foreground mt-2 space-y-1 list-disc list-inside">
-                {item.desc.map((line) => <li key={line}>{line}</li>)}
-              </ul>
-            )}
-          </div>
-        </div>
-      ))}
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
@@ -590,45 +653,81 @@ export default function WooCpo() {
   const statValueText = `${stat.prefix ?? ''}${stat.decimals ? stat.value.toFixed(stat.decimals) : stat.value}${stat.suffix ?? ''}`;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <style>{`
         @keyframes statPop { from { opacity: 0.3; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes dataDrift {
+          0% { opacity: 0.1; transform: translate(0, 0); }
+          25% { opacity: 0.42; transform: translate(calc(var(--dx, 10px) * 0.6), calc(var(--dy, -10px) * -0.4)); }
+          50% { opacity: 0.15; transform: translate(var(--dx, 10px), var(--dy, -10px)); }
+          75% { opacity: 0.4; transform: translate(calc(var(--dx, 10px) * 0.3), calc(var(--dy, -10px) * 0.8)); }
+          100% { opacity: 0.1; transform: translate(0, 0); }
+        }
+        .woo-data-dot { animation-name: dataDrift; animation-timing-function: linear; animation-iteration-count: infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .woo-data-dot { animation: none; opacity: 0.25; }
+        }
       `}</style>
+
+      {/* Ambient star-like data field, fixed behind the whole page, WOO purple */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }} aria-hidden="true">
+        {DATA_DOTS.map((d, i) => (
+          <span
+            key={i}
+            className="woo-data-dot absolute rounded-full"
+            style={{
+              left: `${d.x}%`, top: `${d.y}%`,
+              width: d.size, height: d.size,
+              background: '#7A33C9',
+              boxShadow: '0 0 5px 1px rgba(122,51,201,0.5)',
+              animationDelay: `${d.delay}s`,
+              animationDuration: `${d.duration}s`,
+              ['--dx' as string]: `${d.dx}px`,
+              ['--dy' as string]: `${d.dy}px`,
+            } as React.CSSProperties}
+          />
+        ))}
+      </div>
 
       {/* ───────── Hero ───────── */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-gradient-to-br from-[#29C9F5]/10 via-[#05F998]/5 to-[#7A33C9]/10 pointer-events-none" />
         <div className="container mx-auto px-4 max-w-5xl relative py-20 md:py-28">
-          <div
+          <motion.div
             className="flex items-center gap-4 mb-8"
-            style={{
-              opacity: heroIn ? 1 : 0,
-              transform: heroIn ? 'translateY(0)' : 'translateY(10px)',
-              transition: 'opacity 0.6s ease, transform 0.6s ease',
-            }}
+            initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+            animate={heroIn ? { opacity: 1, scale: 1, rotate: 0 } : {}}
+            transition={{ type: 'spring', stiffness: 260, damping: 18 }}
           >
             <WooLogo className="h-9" />
-          </div>
+          </motion.div>
 
           <h1
             className="text-6xl md:text-8xl font-bold leading-[1.05] tracking-tight"
-            style={{
-              fontFamily: GRADIENT_FONT,
-              opacity: heroIn ? 1 : 0,
-              transform: heroIn ? 'translateY(0)' : 'translateY(16px)',
-              transition: 'opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s',
-            }}
+            style={{ fontFamily: GRADIENT_FONT }}
           >
-            <span className="block">Nick</span>
-            <span className={`inline-block ${GRADIENT_TEXT}`}>x WOO</span>
+            <motion.span
+              className="block"
+              initial={{ opacity: 0, y: 40, scale: 0.85 }}
+              animate={heroIn ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.08 }}
+            >
+              Nick
+            </motion.span>
+            <motion.span
+              className={`inline-block ${GRADIENT_TEXT}`}
+              initial={{ opacity: 0, y: 40, scale: 0.85 }}
+              animate={heroIn ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.18 }}
+            >
+              x WOO
+            </motion.span>
           </h1>
 
-          <div
-            style={{
-              opacity: heroIn ? 1 : 0,
-              transform: heroIn ? 'translateY(0)' : 'translateY(16px)',
-              transition: 'opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s',
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.9 }}
+            animate={heroIn ? { opacity: 1, y: 0, scale: 1 } : {}}
+            transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.32 }}
           >
             <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card/60 pl-5 pr-6 py-3 mt-8">
               <div key={statIndex} className="flex items-center gap-3" style={{ animation: 'statPop 0.4s ease' }}>
@@ -643,105 +742,37 @@ export default function WooCpo() {
                 </span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ───────── Why now ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={40} duration={0.7}>
+          <PopIn y={40} duration={0.7}>
             <SectionLabel>Why now</SectionLabel>
             <GradientHeading>Why now.</GradientHeading>
             <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed -mt-4">
-              Lorenzo and Leonardo aren't fully sold on the product yet, but they're genuinely excited about the direction. What both of them, and Renato, keep coming back to is the same idea: they want one person on the inside they actually trust to be the channel for feedback. Not a support ticket, a real person who gets it.
+              Lorenzo and Leonardo believe in where WOO is going. It's an ambitious new product, built by a new team, not the WOO everyone already knows. That kind of relaunch takes real iteration to get right, and they know that going in. Talking with them after the test, and separately with Renato, what became clear wasn't doubt about the product. It was how much a continuous, trusted connection between the people riding it and the people building it could be worth.
             </p>
             <p className="text-lg text-foreground font-semibold max-w-2xl leading-relaxed mt-4">
-              I think that person should be me. Fractional, not full-time.
+              I think I can be that connection.
             </p>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ───────── Why I have the bandwidth ───────── */}
-      <section className="border-b border-border">
-        <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={40} duration={0.7}>
-            <SectionLabel>Bandwidth</SectionLabel>
-            <GradientHeading>Why I have the bandwidth for this.</GradientHeading>
-            <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed -mt-4">
-              Distribution used to take up most of my operational time. I'm moving to an agent model with Harlem, taking on a Strategic Transformation role at their HQ instead. That means delegating the day-to-day distribution work, and the shop and the kite school stay fully delegated to the people who run them day to day, assets I own and oversee, not jobs I'm hands-on in.
-            </p>
-            <p className="text-lg text-foreground font-semibold max-w-2xl leading-relaxed mt-4">
-              That frees up real capacity, and I'm deliberate about where I reinvest it. This is one of the places.
-            </p>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ───────── Track record ───────── */}
-      <section className="border-b border-border">
-        <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={40} duration={0.7}>
-            <SectionLabel>Track record</SectionLabel>
-            <GradientHeading>Track record.</GradientHeading>
-          </FadeIn>
-
-          <FadeIn y={30} duration={0.6} delay={0.05}>
-            <h3 className="font-bold mb-4 -mt-6">Right now</h3>
-            <Timeline items={CURRENT_ROLES} />
-          </FadeIn>
-
-          <FadeIn y={30} duration={0.6} delay={0.1}>
-            <h3 className="font-bold mb-4 mt-12">Track record</h3>
-            <Timeline items={TRACK_RECORD} />
-          </FadeIn>
-
-          <FadeIn y={30} duration={0.6} delay={0.1}>
-            <h3 className="font-bold mb-4 mt-12">Education</h3>
-            <Timeline items={EDUCATION} />
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ───────── The Snowit tracking app ───────── */}
-      <section className="border-b border-border">
-        <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={40} duration={0.7}>
-            <SectionLabel>Product, hands-on</SectionLabel>
-            <GradientHeading>The Snowit tracking app.</GradientHeading>
-            <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed -mt-4 mb-10">
-              As COO and CPO at Snowit, product wasn't a side responsibility. On the GPS ski tracking app I owned it directly: ownership, testing, and the connective tissue between dev, design, marketing, and finance.
-            </p>
-          </FadeIn>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            {SNOWIT_CPO.map((item, i) => (
-              <FadeIn key={item.title} y={24} duration={0.5} delay={i * 0.05}>
-                <Card className="p-5 flex items-start gap-3 h-full">
-                  <item.icon className="w-5 h-5 text-[#7A33C9] shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-sm mb-1">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                  </div>
-                </Card>
-              </FadeIn>
-            ))}
-          </div>
+          </PopIn>
         </div>
       </section>
 
       {/* ───────── Why me, right now ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={40} duration={0.7}>
+          <PopIn y={40} duration={0.7}>
             <SectionLabel>Why me</SectionLabel>
             <GradientHeading>Why me, right now.</GradientHeading>
-          </FadeIn>
+          </PopIn>
 
           <div className="space-y-4">
             {WHY_ME_NOW.map((item, i) => (
-              <FadeIn key={item.title} y={30} duration={0.6} delay={i * 0.06}>
+              <PopIn key={item.title} y={30} duration={0.6} delay={i * 0.06}>
                 <Card className="p-6 flex gap-4 shadow-[var(--shadow-card)]">
                   <item.icon className="w-5 h-5 text-[#29C9F5] shrink-0 mt-0.5" />
                   <div>
@@ -749,26 +780,48 @@ export default function WooCpo() {
                     <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                   </div>
                 </Card>
-              </FadeIn>
+              </PopIn>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ───────── Ecosystem ───────── */}
+      <section className="border-b border-border">
+        <div className="container mx-auto px-4 py-20 max-w-5xl">
+          <PopIn y={20} duration={0.5}>
+            <SectionLabel>Ecosystem</SectionLabel>
+          </PopIn>
+          <motion.div
+            className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-14 leading-tight"
+            style={{ fontFamily: GRADIENT_FONT }}
+            initial={{ opacity: 0, scale: 0.7, rotate: -4 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            viewport={{ once: true, margin: '50px', amount: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 14 }}
+          >
+            <span className="text-foreground">1 + 1 + 1 + 1 </span>
+            <span className={`inline-block ${GRADIENT_TEXT}`}>= 8, Not 4</span>
+          </motion.div>
+
+          <EcosystemNetwork />
         </div>
       </section>
 
       {/* ───────── What this could look like ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={40} duration={0.7}>
+          <PopIn y={40} duration={0.7}>
             <SectionLabel>In practice</SectionLabel>
             <GradientHeading>What this could look like.</GradientHeading>
             <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed -mt-4 mb-10">
-              This is the kind of work I've already done — hands-on product ownership at Snowit, and a similar transformation mandate I've already put together for Harlem.
+              This is the kind of work I've already done: hands-on product ownership at Snowit, from product direction and testing to turning user behaviour into what gets built next.
             </p>
-          </FadeIn>
+          </PopIn>
 
           <div className="grid sm:grid-cols-2 gap-4">
             {COLLABORATION_AREAS.map((area, i) => (
-              <FadeIn key={area.label} y={30} duration={0.6} delay={i * 0.08}>
+              <PopIn key={area.label} y={30} duration={0.6} delay={i * 0.08}>
                 <Card className="p-6 h-full">
                   <div className="flex items-center gap-2 mb-4">
                     <area.icon className="w-4 h-4 text-[#29C9F5]" />
@@ -783,31 +836,74 @@ export default function WooCpo() {
                     ))}
                   </ul>
                 </Card>
-              </FadeIn>
+              </PopIn>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ───────── Ecosystem ───────── */}
+      {/* ───────── Track record ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={40} duration={0.7}>
-            <SectionLabel>Ecosystem</SectionLabel>
-            <div className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-14 leading-tight" style={{ fontFamily: GRADIENT_FONT }}>
-              <span className="text-foreground">1 + 1 + 1 + 1 </span>
-              <span className={`inline-block ${GRADIENT_TEXT}`}>= 8, Not 4</span>
-            </div>
-          </FadeIn>
+          <PopIn y={40} duration={0.7}>
+            <SectionLabel>Track record</SectionLabel>
+            <GradientHeading>Track record.</GradientHeading>
+          </PopIn>
 
-          <EcosystemNetwork />
+          <PopIn y={30} duration={0.6} delay={0.05}>
+            <h3 className="font-bold mb-4 -mt-6">Right now</h3>
+            <Timeline items={CURRENT_ROLES} />
+          </PopIn>
+
+          <PopIn y={30} duration={0.6} delay={0.1}>
+            <h3 className="font-bold mb-4 mt-12">Track record</h3>
+            <Timeline items={TRACK_RECORD} />
+          </PopIn>
+
+          <PopIn y={30} duration={0.6} delay={0.1}>
+            <h3 className="font-bold mb-4 mt-12">Education</h3>
+            <Timeline items={EDUCATION} />
+          </PopIn>
+        </div>
+      </section>
+
+      {/* ───────── The Snowit tracking app ───────── */}
+      <section className="border-b border-border">
+        <div className="container mx-auto px-4 py-20 max-w-5xl">
+          <PopIn y={40} duration={0.7}>
+            <SectionLabel>Product, hands-on</SectionLabel>
+            <GradientHeading>The Snowit tracking app.</GradientHeading>
+            <p className="text-lg text-foreground font-semibold max-w-2xl leading-relaxed -mt-4">
+              I've done this exact job before, on a different sensor: GPS ski tracking then, WOO's sensor tracking now, same loop of product ownership, testing, and turning user behavior into what gets built next.
+            </p>
+            <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed mt-4">
+              GPS-based mobile application for skiers and snowboarders, designed to track and analyse on-slope performance. The app records distance travelled, elevation, number of runs, average and maximum speed, and calories burned, while allowing users to identify ski runs and visualise their routes on 3D maps. It also includes social and gamification features, such as challenges, rewards, performance comparison and social sharing.
+            </p>
+            <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed mt-4 mb-10">
+              As COO and CPO at Snowit, product wasn't a side responsibility. On the GPS ski tracking app I owned it directly: ownership, testing, and the connective tissue between dev, design, marketing, and finance.
+            </p>
+          </PopIn>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {SNOWIT_CPO.map((item, i) => (
+              <PopIn key={item.title} y={24} duration={0.5} delay={i * 0.05}>
+                <Card className="p-5 flex items-start gap-3 h-full">
+                  <item.icon className="w-5 h-5 text-[#7A33C9] shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-sm mb-1">{item.title}</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </Card>
+              </PopIn>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ───────── The Tarifa hub ───────── */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={40} duration={0.7}>
+          <PopIn y={40} duration={0.7}>
             <SectionLabel>The hub</SectionLabel>
             <GradientHeading className="inline-flex items-center gap-3">
               <MapPin className="w-8 h-8 text-[#05F998] shrink-0" />
@@ -819,22 +915,52 @@ export default function WooCpo() {
             <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed mt-4">
               Full access to the Balneario Beach Club for events and demos. A contact at a newly-opened gym in Tarifa too, potential space for simulators, board displays, and AR/VR goggles demo stations. Real-world reach: sales, testing, and demo, all in one town.
             </p>
-          </FadeIn>
+          </PopIn>
         </div>
       </section>
 
       {/* ───────── Closing ───────── */}
       <section>
         <div className="container mx-auto px-4 py-20 max-w-5xl">
-          <FadeIn y={24} duration={0.6}>
-            <p className="text-xl md:text-2xl font-semibold text-foreground">
-              This is already in motion. Let's talk about where it goes.
+          <PopIn y={30} duration={0.7}>
+            <p
+              className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.15] tracking-tight"
+              style={{ fontFamily: GRADIENT_FONT }}
+            >
+              <span className="block text-foreground">The right product.</span>
+              <span className="block text-foreground">The right moment.</span>
+              <span className="block text-foreground">The right people.</span>
+              <span className="block text-foreground">The right place to build.</span>
             </p>
-          </FadeIn>
+          </PopIn>
+
+          <PopIn y={24} duration={0.6} delay={0.2}>
+            <p
+              className="mt-10 md:mt-14 text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-tight"
+              style={{ fontFamily: GRADIENT_FONT }}
+            >
+              <span className={`inline-block ${GRADIENT_TEXT}`}>Let's build the future of kiting, together</span>
+            </p>
+          </PopIn>
         </div>
       </section>
 
-      <DeployTag />
+      <footer className="border-t border-border py-10">
+        <div className="container mx-auto px-4 max-w-5xl flex flex-col items-center gap-4">
+          <WooLogo className="h-7 opacity-70" />
+          <a
+            href="https://naick1994.github.io/about-nick/about-nick"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <img src={nickAvatar} alt="Nicholas Baruffaldi" className="w-7 h-7 rounded-full object-cover border border-border" />
+            Built and prototyped by Nicholas Baruffaldi
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
+        <DeployTag />
+      </footer>
     </div>
   );
 }

@@ -41,7 +41,8 @@ const App = () => (
               <Route path="/change-the-tide" element={<Navigate to="/" replace />} />
               <Route path="/about-nick" element={<AboutNick />} />
               <Route path="/woo-tarifa" element={<WooTarifa />} />
-              <Route path="/woo-cpo" element={<WooCpo />} />
+              <Route path="/woo-nick" element={<WooCpo />} />
+              <Route path="/woo-cpo" element={<Navigate to="/woo-nick" replace />} />
               <Route
                 path="/*"
                 element={
