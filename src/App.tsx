@@ -23,6 +23,7 @@ import Admin from "./pages/Admin";
 import ChangeTheTide from "./pages/ChangeTheTide";
 import AboutNick from "./pages/AboutNick";
 import WooTarifa from "./pages/WooTarifa";
+import WooCpo from "./pages/WooCpo";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/change-the-tide" element={<Navigate to="/" replace />} />
               <Route path="/about-nick" element={<AboutNick />} />
               <Route path="/woo-tarifa" element={<WooTarifa />} />
+              <Route path="/woo-cpo" element={<WooCpo />} />
               <Route
                 path="/*"
                 element={
