@@ -20,6 +20,12 @@ const routes = [
     description: '2–4 September 2026 · Balneario Beach Club Tarifa.',
     image: `${SITE_URL}/woo-tarifa-og.jpg`,
   },
+  {
+    path: 'woo-nick',
+    title: 'Nick x WOO',
+    description: "Why now, why me, and what this could look like — Nicholas Baruffaldi's connection to WOO.",
+    image: `${SITE_URL}/woo-nick-og.jpg`,
+  },
 ];
 
 function replaceTag(html, pattern, replacement) {
