@@ -275,7 +275,7 @@ const DATA_DOTS = [
 
 type EcoNode = { id: string; name: string; short: string; desc: string; url?: string };
 
-// Eleven nodes, evenly spaced around Nick — same distance, same angle
+// Twelve nodes, evenly spaced around Nick — same distance, same angle
 // increment. `short` is what fits on the small on-map card at every
 // breakpoint; `name` (the full label) only shows in the reveal panel.
 const ECO_NODES: EcoNode[] = [
@@ -290,6 +290,7 @@ const ECO_NODES: EcoNode[] = [
   { id: 'harlem-clubhouse', name: 'Harlem Clubhouse', short: 'Clubhouse', desc: 'The community events hub in Tarifa.' },
   { id: 'harlem-advisor', name: 'Harlem Advisor Role', short: 'Harlem Advisor', desc: 'Strategic Transformation Advisor at Harlem HQ — direction and prioritization, not day-to-day execution.' },
   { id: 'ralph-aaron', name: 'Ralf & Aaron', short: 'Ralf & Aaron', desc: "Harlem's kite designers (25 years of experience), feeding kite-design data back into product." },
+  { id: 'kite-competition', name: 'Tarifa Kite Competition', short: 'Kite Competition', desc: "A new competition I'm organizing in Tarifa for 2027, aiming to be the first in the sport's history judged with sensor data and a reductionist, data-driven scoring approach." },
 ];
 
 // A handful of real, meaningful cross-branch links — not a full mesh.
@@ -306,6 +307,8 @@ const CROSS_EDGES: [string, string][] = [
   ['harlem-agency', 'harlem-advisor'],
   ['harlem-agency', 'ralph-aaron'],
   ['harlem-advisor', 'big-air'],
+  ['kite-competition', 'big-air'],
+  ['kite-competition', 'tarifa'],
 ];
 
 const ECO_RADIUS = 41;
