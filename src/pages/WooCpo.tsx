@@ -171,6 +171,29 @@ const SNOWIT_CPO = [
   { icon: TrendingUp, title: 'Finance alignment', desc: "Connected product decisions to the P&L, not built in a vacuum." },
 ];
 
+// The specific loop this pitch is really about: not "I have contacts," but
+// a direct, continuous, iterative feedback channel from the exact people
+// who'd actually use and be measured by the product. Lorenzo and Leonardo
+// share one card since, as riders, they want the same thing: to be heard
+// and to grow with the product, not two separate feedback profiles.
+const FEEDBACK_LOOP = [
+  {
+    icon: Users,
+    name: 'Lorenzo & Leonardo',
+    role: 'Riders, wanting to be heard',
+    desc: "They don't just want a finished product handed to them. They want to be part of building it: tested, listened to, and able to see their feedback show up in what ships next. That's what makes them feel like this is their project too, not just a sponsor's tool.",
+  },
+  {
+    icon: Network,
+    name: 'Renato',
+    role: 'Coach and sports scientist',
+    desc: "The analytical layer. He turns raw rider feedback into structured insight, and, as the expert and architect behind the entire scoring system, knows exactly what data needs to measure to be useful, not just accurate.",
+  },
+];
+
+// The mechanic itself: a short, visible loop, not a one-off testimonial.
+const LOOP_STEPS = ['New feature', 'They test it', 'Feedback', 'Fix', 'Retest', 'Live'];
+
 const WHY_ME_NOW = [
   {
     icon: Layers,
@@ -756,11 +779,55 @@ export default function WooCpo() {
             <SectionLabel>Why now</SectionLabel>
             <GradientHeading>Why now.</GradientHeading>
             <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed -mt-4">
-              Lorenzo and Leonardo believe in where WOO is going. It's an ambitious new product, built by a new team, not the WOO everyone already knows. That kind of relaunch takes real iteration to get right, and they know that going in. Talking with them after the test, and separately with Renato, what became clear wasn't doubt about the product. It was how much a continuous, trusted connection between the people riding it and the people building it could be worth.
+              Lorenzo, Leonardo and Renato believe in where WOO is going. It's an ambitious new product, built by a new team, not the WOO everyone already knows. That kind of relaunch takes real iteration to get right, and they know that going in. Talking with them after the test, what became clear wasn't doubt about the product. It was how much a continuous, trusted connection between the people riding it and the people building it could be worth.
             </p>
             <p className="text-lg text-foreground font-semibold max-w-2xl leading-relaxed mt-4">
               I think I can be that connection.
             </p>
+          </PopIn>
+        </div>
+      </section>
+
+      {/* ───────── The feedback loop ───────── */}
+      <section className="border-b border-border">
+        <div className="container mx-auto px-4 py-20 max-w-5xl">
+          <PopIn y={40} duration={0.7}>
+            <SectionLabel>The feedback loop</SectionLabel>
+            <GradientHeading>Direct, continuous, iterative.</GradientHeading>
+            <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed -mt-4 mb-10">
+              There's real excitement around where this product is going, and getting it right means staying close to the riders who'll actually use it: testing early, giving real feedback, and doing it again and again, not just once at launch. That loop, not any single piece of feedback, is how a product people truly believe in gets built.
+            </p>
+          </PopIn>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {FEEDBACK_LOOP.map((item, i) => (
+              <PopIn key={item.name} y={30} duration={0.6} delay={i * 0.08}>
+                <Card className="p-6 h-full">
+                  <item.icon className="w-5 h-5 text-[#29C9F5] mb-3" />
+                  <h3 className="font-bold mb-0.5">{item.name}</h3>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">{item.role}</div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </Card>
+              </PopIn>
+            ))}
+          </div>
+
+          <PopIn y={24} duration={0.6} delay={0.16}>
+            <div className="flex flex-wrap items-center gap-2 mt-8">
+              {LOOP_STEPS.map((step, i) => (
+                <div key={step} className="flex items-center gap-2">
+                  <span className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border bg-card/60 whitespace-nowrap">
+                    {step}
+                  </span>
+                  {i < LOOP_STEPS.length - 1 && <span className="text-muted-foreground text-sm">→</span>}
+                </div>
+              ))}
+              <span className="text-muted-foreground text-sm">→</span>
+              <span className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border bg-card/60 whitespace-nowrap">
+                New feature
+              </span>
+              <span className="text-xs text-muted-foreground ml-1">(again)</span>
+            </div>
           </PopIn>
         </div>
       </section>
